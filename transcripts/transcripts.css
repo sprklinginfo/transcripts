@@ -1,0 +1,14 @@
+/* sentence display in search results */
+.sentence-result {
+	clear: both;
+}
+.untimed {
+	color:grey;
+}
+.sentence-result .sentence-controls {
+	float: left;
+	width: 20px;
+}
+.sentence-result .tiers{
+	margin-left: 25px;
+}

@@ -1,0 +1,40 @@
+<?php
+
+function transcripts_shortcode_shortcode_info() {
+  $shortcodes['transcript'] = array(
+    'title' => t('Transcript'), 
+    'description' => t('Embed a transcript player into the flow of a field.'), 
+    'process callback' => 'transcripts_shortcode_transcript', 
+    'tips callback' => 'transcripts_shortcode_transcript_tip',
+    'default settings' => array(),
+  );
+  return $shortcodes;
+}
+
+function transcripts_shortcode_transcript($attrs, $text) {
+  extract(shortcode_attrs(array(
+      'id' => '',
+      'profile' => '',
+      'keyword' => '',
+      'jump' => '',
+      ), $attrs ));
+  
+  if ($id && $profile) {
+  	return transcript_player_title($id, $profile, array('term' => $keyword, 'jump' => $jump));
+  }
+	return '';
+}
+
+function transcripts_shortcode_transcript_tip($format, $long) {
+	if ($long) { 
+		return	"<strong>[transcript id='transcript id' profile='profile id' (keyword='search term' jump='sentence id') /]</strong>".
+						" where".
+						" <strong>id</strong> (required) embeds the transcript attached to this node,".
+						" <strong>profile</strong> (required) uses this display profile,".
+						" <strong>keyword</strong> (optional) highlights all occurrences of a specific term,".
+						" and <strong>jump</strong> (optional) jumps to and plays a specific sentence id.";
+	}
+	else {
+		return	"<strong>[transcript id='transcript id' profile='profile id' (keyword='search term') /]</strong>";
+	}
+}

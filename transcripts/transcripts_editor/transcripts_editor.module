@@ -1,0 +1,139 @@
+<?php
+// $Id$
+
+/**
+ * Define all facets provided by the module.
+ *
+ * @param array $searcher_info
+ *   The definition of the searcher that facets are being collected for.
+ *
+ * @return array
+ *   An associative array keyed by unique name of the facet. Each facet is an
+ *   associative array containing:
+ *   - name: Machine readable name of the facet.
+ *   - label: Human readable name of the facet displayed in settings forms.
+ *   - description: Description of the facet displayed in settings forms.
+ *   - field: The field name used by the backend to store and retrieve data from
+ *     the search index it is associated with. Defaults to the machine name of
+ *     the facet.
+ *   - field alias: The query string variable inside of the filter key used to
+ *     pass the filter information through the query string. Defaults to the
+ *     machine name of the facet.
+ *   - field api name: (optional) The machine readable name of the Field API
+ *     field data the facet is associated with, FALSE if it is not associated
+ *     with a field.
+ *   - field api bundles: (optional) An array of entity names that this field
+ *     contains bundle information for. Defaults to an empty array.
+ *   - query types: The query type plugins that that this facet supports. For
+ *     example, numeric fields support "term" and "range_filter" queries.
+ *   - alter callbacks: (optional) Callbacks that alter the initialized render
+ *     array returned by the query type plugin. Defaults to an empty array.
+ *   - dependency plugins: (optional) An array of dependency plugin IDs that are
+ *     supported by this facet.
+ *   - default widget: (optional) The widget plugin ID used if no plugin has
+ *     been selected or the one selected is not valid. Defaults to FALSE which
+ *     sets the default widget as the one defined by the realm.
+ *   - allowed operators: (optional) An array keyed by operator constant to
+ *     boolean values specifying whether the operator is supported. Defaults to
+ *     an array containing:
+ *     - FACETAPI_OPERATOR_AND: TRUE
+ *   - facet missing allowed: (optional) Whether or not missing facets are
+ *     allowed for this facet. Defaults to FALSE.
+ *   - facet mincount allowed: (optional)  Whether or not the facet supports the
+ *     "minimum facet count" setting. Defaults to FALSE.
+ *   - weight: (optional) The weight of the facet. Defaults to 0.
+ *   - map callback: (optional) The callback used to map the raw values returned
+ *     by the index to something human readable. Defaults to FALSE
+ *   - map options: (optional) An array of options passed to the map callback,
+ *     defaults to en empty array.
+ *   - hierarchy callback: (optional) A callback that maps the parent / child
+ *     relationships of the facet data, defaults to FALSE meaning the list is
+ *     flat.
+ *   - values callback: (optional) In instances where facet data is not returned
+ *     by the backend, provide a list of values that can be used. Defaults to
+ *     FALSE.
+ *   - min callback: (optional) For facets containing ranges, a callback
+ *     returning the minimum value in the index. Defaults to FALSE.
+ *   - max callback: (optional) For facets containing ranges, a callback
+ *     returning the maximum value in the index. Defaults to FALSE.
+ *   - default sorts: (optional) An array of available sorts. Each item is an
+ *     array containing two values, the first being the item being filtered on,
+ *     the second being the SORT_* constant. Defaults to an array containing:
+ *     - active: SORT_DESC
+ *     - count: SORT_DESC
+ *     - display: SORT_ASC
+ */
+function transcripts_editor_facetapi_facet_info(array $searcher_info) {
+  $facets = array();
+
+  // Facets are usually associated with the type of content stored in the index.
+  //if (isset($searcher_info['types']['my_type'])) {
+
+    $facets['fts_duration'] = array(
+      'name' => 'fts_duration',
+      'label' => t('Duration'),
+      'description' => t('The duration of the time-coded fragment'),
+      'field' => 'fts_duration',
+      'field alias' => 'fts_duration',
+      'field api name' => FALSE,
+      'field api bundles' => array(),
+      'query types' => array('term', 'numeric_range'),
+      'dependency plugins' => array('role'),
+      'default widget' => 'links',
+      'allowed operators' => array(FACETAPI_OPERATOR_AND => TRUE),
+      'facet missing allowed' => TRUE,
+      'facet mincount allowed' => FALSE,
+      'weight' => 0,
+      'map callback' => 'transcripts_editor_map_duration',
+      //error avoidance: apachesolr_index_key and widget_slider.inc assume map options has some content
+      'map options' => array(
+      		'index_type' => 'tfloat', 
+      		'name' => 'duration',
+      		'field' => array('type' => 'number_float'),
+      		),
+      'hierarchy callback' => FALSE,
+      'values callback' => FALSE,
+      'min callback' => FALSE,
+      'max callback' => FALSE,
+      'default sorts' => array(
+        array('active', SORT_DESC),
+        array('count', SORT_DESC),
+        array('display', SORT_ASC),
+      ),
+    );
+    
+  return $facets;
+}
+
+/**
+ * Maps date ranges to human readable dates.
+ *
+ * @param $ranges
+ *   An array containing the date ranges.
+ *
+ * @return
+ *   An array mapping the ranges to nice display dates.
+ */
+function transcripts_editor_map_duration(array $values) {
+	$map = array();
+  foreach ($values as $value) {
+    $range = explode(' TO ', trim($value, '{[]}'));
+    if (2 == count($range)) {
+    	$map[$value] = "Duration: ".$range[0]." to ".$range[1]." seconds";
+    }
+    else { //not a range
+    	$map[$value] = $range[0];
+    }
+  }
+	return $map;
+}
+
+function transcripts_editor_apachesolr_query_prepare(&$query) {
+  // Add a sort on the node ID.
+  $query->setAvailableSort('fts_duration', array(
+    'title' => t('Duration'),
+    'default' => 'asc',
+  ));
+}
+
+?>

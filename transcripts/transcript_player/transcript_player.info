@@ -1,0 +1,7 @@
+;$Id$
+name = Transcript Player
+description = Controller for display of transcripts in synchronization with media
+dependencies[] = transcripts
+package = Pinedrop Transcripts
+core = 7.x
+files[] = transcript_player.module

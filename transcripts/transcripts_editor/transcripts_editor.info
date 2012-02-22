@@ -1,0 +1,8 @@
+;$Id$
+name = Transcripts Editor
+description = Drupal module for editing a corpus of transcripts
+dependencies[] = transcripts
+dependencies[] = facetapi
+package = Pinedrop Transcripts
+core = 7.x
+files[] = transcripts_editor.module

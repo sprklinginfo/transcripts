@@ -1,0 +1,261 @@
+<?php
+// $Id$
+
+function transcript_player_transcripts_info() {
+	return array(
+		'name' => t('Interactive transcript'),
+		'to' => '',
+		'back' => '',
+	);
+}
+
+function transcript_player_init() {
+  drupal_add_library('system', 'ui.button');
+  drupal_add_library('system', 'jquery.bbq');
+  drupal_add_css(drupal_get_path('module', 'transcript_player') .'/transcript_player.css', 'file');
+  //player_controls must be added before transcript_player!!
+  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/player_controls.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/transcript_player.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/jquery.scrollTo.js', 'file');
+}
+
+function transcript_player_title($id, $pid, $options = array()) {
+	$profile = transcripts_profile_load($pid);
+	if (!$profile) return; //graceful degradation - or should there be an error message?
+	$tiers = $profile['tiers'];
+	$modes = array_intersect_key(transcripts_all_modes(), array_filter($profile['modes']));
+	
+	// how will options get through when function is not called as part of page request?
+	$defaults = array(
+		'term' => isset($_GET['term']) ? '"'.$_GET['term'].'"' : '',
+		'justhits' => isset($_GET['justhits']) ? true : false,
+	);
+	$options = array_merge($defaults, $options);
+	
+	//note: var $id is passed and made available to eval
+	eval(variable_get('transcripts_id_mapper'));
+	
+	$title = isset($val['transcript_id']) ? $val['transcript_id'] : '';
+	$videourl = isset($val['video_url']) ? $val['video_url'] : '';
+	$videotag = isset($val['video_tag']) ? $val['video_tag'] : '';
+
+	if (!$title) {
+		return "No title";
+	}
+	
+	//get default or make first in list
+	reset($modes);
+	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
+  
+  $response = transcript_player_get($title, $tiers, $options);
+  $return = "No data for $title";
+  if (count($response->response->docs) > 0) {
+  	if (!$videotag) { //use video_url
+			$tag = isset($val['audio']) ? 'audio' : 'video';
+			$videotag = "<$tag controls>";
+			foreach ($videourl as $vurl) {
+				$videotag .= "<source src='$vurl' />";
+			}
+			$videotag .= "</$tag>";
+		}
+    $info = $defaultMode . "_transcripts_info";
+		$vals = $info();
+		$to = $vals['to']; 
+    list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
+    $playerid = 'pid-'.$id; //id should be node id!!
+    module_invoke_all('transcript_player_prepare_player', $id);
+    $return = 	transcript_player_tiermode_controls($playerid, $tiers, $modes) . 
+    					"<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>" . 
+    						"<div class='v-column'>" . 
+    							$videotag . 
+    							"<div class='v-sub'>" . 
+    								transcript_player_video_controls($playerid) .
+    								$hits . 
+    							"</div>" . 
+    						"</div>" . 
+    						"<div class='t-column'>" . 
+    							$transcript_div . 
+    						"</div>" . 
+    					"</div>";
+  }
+  return $return;
+}
+
+function transcript_player_transcript($response, $tiers) {
+		$docs = $response->response->docs;
+		$highlight = isset($response->highlighting) ? TRUE : FALSE;
+    $return = "<div class='transcript scroller'>";
+    $hits = array();
+    foreach ($docs as $sentence) {
+    	$sid = 's-'.$sentence->is_nid.'-'.$sentence->ss_sid;
+      if (isset($sentence->fts_start, $sentence->fts_end, $sentence->fts_duration) && $sentence->fts_duration>0) {
+      	if (isset($sentence->ss_speaker)) {
+      		$line = "<div id='$sid' class='clearfix' data-participant='{$sentence->ss_speaker}' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
+      	} else {
+      		$line = "<div id='$sid' class='clearfix' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
+      	}
+      } else {
+        $line = "<div id='$sid' class='untimed'>";
+      }
+      if (isset($sentence->ss_speaker)) {
+      	$line .= "<div class='speaker-label'>{$sentence->ss_speaker}</div><div class='tiers speaker-tiers'>";
+      } else {
+      	$line .= "<div class='tiers'>";
+      }
+      foreach (array_keys($tiers) as $tier) {
+        if (isset($sentence->$tier)) {
+        	if ($highlight) {
+        		$id = $sentence->id;
+						if (isset($response->highlighting->$id->$tier)) {
+							$replace = $response->highlighting->$id->$tier;
+							$line .= "<div class='tier $tier hit np'>{$replace[0]}</div>";
+							//move to theme function
+							if (isset($sentence->fts_start) && $sentence->fts_start > 0) {
+								$mins = floor ($sentence->fts_start / 60);
+								$secs = $sentence->fts_start % 60;
+								$time = sprintf ("%d:%02d", $mins, $secs);
+              } else {
+              	$time = "0:00";
+              }
+              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->ss_sid}' class='play-hit'><span class='ui-icon ui-icon-play'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+						} else {
+							$line .= "<div class='tier $tier'>{$sentence->$tier}</div>";
+						}
+					} else {
+						$line .= "<div class='tier $tier np'>{$sentence->$tier}</div>";
+					}
+        }
+      }
+      $line .= "</div>"; //div.tiers
+      $line .= "</div>"; //div#id
+      $return .= $line;
+    }
+    $return .= "</div>"; //transcript
+    
+    $clearHits = "<div class='hit-summary-controls'><a href='#' class='clear-hits'><span class='ui-icon ui-icon-closethick'>Clear hits</span></a></div>";
+    //$clearHits = "<button class='clear-hits'>Clear search results</button>";
+    $hitHeader = $highlight ? "<div class='hit-summary-header'>".$clearHits."<div class='hit-summary-info'>Found " . count($hits) . " sentences</div></div>" : "";
+    $hitBody = $highlight ? "<div class='hit-body'>" . implode('', $hits) . "</div>" : "";
+    $hitSummary = "<div class='hit-summary'>" .$hitHeader.$hitBody. "</div>";
+    
+    return array($return, $hitSummary);
+}
+
+function transcript_player_get($title, $tiers, $options) {
+  $solr = transcripts_get_solr();
+  
+  $tiers = array_keys($tiers);
+  $fl = implode(",", $tiers) . ",id,is_nid,ss_sid,ss_speaker,fts_start,fts_end,fts_duration";
+  if ($options['term'] == '') {
+		$params = array(
+			'q' => '*:*', 
+			'start' => 0, 
+			'rows' => 1000, //what if transcript has more than 1000 lines??
+			'fl' => $fl,
+  		'qt' => 'standard',
+		);
+	} else { //highlighting
+		$arr = array();
+		foreach ($tiers as $tier) {
+			$arr[] = "$tier:" . $options['term'];
+		}
+		$q = implode(" OR ", $arr);
+		if (!$options['justhits']) {
+			$q .= " OR *:*";
+		}
+  	$params = array(
+  		'q' => $q,
+  		'start' => 0, 
+  		'rows' => 1000, //what if transcript has more than 1000 lines??
+  		'fl' => $fl,
+  		'qt' => 'standard',
+  		'hl' => 'true',
+  		'hl.fl' => implode(' ', $tiers),
+  		'hl.fragsize' => 0,
+  		'hl.simple.pre' => "<span class='hit'>",
+  		'hl.simple.post' => "</span>",
+  	);
+	}
+  $query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
+  $query->addFilter("is_fid", $title);
+  //$query->addFilter("title", $title);
+  
+  //see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr
+  $query->setAvailableSort('fts_start', array(
+    'title' => t('Temporal order'),
+    'default' => 'asc',
+  ));
+	list($final_query, $response) = transcript_player_do_query($query);
+
+  return $response;
+}
+
+function transcript_player_do_query(DrupalSolrQueryInterface $current_query) {
+  if (!is_object($current_query)) {
+    throw new Exception(t('NULL query object in function apachesolr_do_query()'));
+  }
+  // Allow modules to alter the query prior to statically caching it.
+  // This can e.g. be used to add available sorts.
+  $searcher = $current_query->getSearcher();
+
+  // Cache the original query. Since all the built queries go through
+  // this process, all the hook_invocations will happen later
+  $env_id = $current_query->solr('getId');
+  $query = apachesolr_current_query($env_id, $current_query);
+  $keys = $query->getParam('q');
+  
+  // We must run htmlspecialchars() here since converted entities are in the index.
+  // and thus bare entities &, > or < won't match. Single quotes are converted
+  // too, but not double quotes since the dismax parser looks at them for
+  // phrase queries.
+  $keys = htmlspecialchars($keys, ENT_NOQUOTES, 'UTF-8');
+  $keys = str_replace("'", '&#039;', $keys);
+  $response = $query->search($keys);
+  // The response is cached so that it is accessible to the blocks and anything
+  // else that needs it beyond the initial search.
+  apachesolr_static_response_cache($searcher, $response);
+  return array($query, $response);
+}
+
+function transcript_player_tiermode_controls($playerid, $tiers, $modes) {
+	$t = "";
+  if (count($tiers)>1) {
+		$t .= "<form class='tier-controller'><div class='tier-controls'>";
+		foreach ($tiers as $tier => $display) {
+			$t .= "<input type='checkbox' id='$playerid-$tier' name='checkbox-tier' value='$tier' checked='true'/><label for='$playerid-$tier'>$display</label>";
+		}
+		$t .= "</div></form>";
+	}
+	$m = "";
+  if (count($modes)>1) {
+		$m .= "<form class='mode-controller'><div class='mode-controls'>";
+		foreach ($modes as $mode => $display) {
+			$info = $mode . "_transcripts_info";
+			$vals = $info();
+			$to = $vals['to'];
+			$back = $vals['back'];
+			$m .= "<input type='radio' id='$playerid-$mode' name='radio-mode' value='$mode' data-to='$to' data-back='$back'/><label for='$playerid-$mode'>$display</label>";
+		}
+		$m .= "</div></form>";
+	}
+  return "<div class='transcript-controls clearfix' data-for='$playerid'>" .$t.$m. "</div>";;
+}
+
+function transcript_player_video_controls($playerid) {
+	$return = "	<div class='video-controls ui-widget-header'>"
+								."<span class='sentence-controls'>"
+									//."<button class='beginning'>go to beginning</button>"
+									."<button class='previous'>Previous</button>"
+									."<button class='sameagain'>Same again</button>"
+									."<button class='next'>Next</button>"
+									//."<button class='end'>go to end</button>"
+                ."</span>"
+                ."<span class='mode-controls'>"
+                	."<button class='playmode playstop'></button>"
+                ."</span>"
+              ."</div>";
+  
+  return $return;
+}
+
+?>

@@ -1,0 +1,517 @@
+<?php
+// $Id$
+
+function transcripts_default_transcript_extensions() {
+  $default = array('eaf','trs','xml');
+  return $default;
+}
+
+function transcripts_check_extension($ext) {
+  $default = implode(' ', transcripts_default_transcript_extensions());
+  return in_array($ext, explode(' ', variable_get('transcripts_transcript_extensions', $default)));
+}
+
+function transcripts_environment() {
+	return variable_get('transcripts_env_id', apachesolr_default_environment());
+}
+
+function transcripts_get_solr() {
+	return apachesolr_get_solr(transcripts_environment());
+}
+
+/**
+ * Implements hook_theme().
+ */
+function transcripts_theme() {
+  return array(
+    'apachesolr_search_snippets__fragment__sentence' => array(
+      'variables' => array('doc' => NULL, 'snippets' => array()),
+    ),
+  );
+}
+
+function theme_apachesolr_search_snippets__fragment__sentence($vars) {
+	$doc = $vars['doc'];
+  $snippets = $vars['snippets'];
+  $reslink = variable_get('transcripts_result_link', 'NODE');
+  if ($reslink != 'NODE') {
+  	$doc->path = "transcripts/" . $reslink . "/" . $doc->is_nid;
+  }
+  $url = url($doc->path, array('fragment' => $doc->ss_sid));
+  $result  = "<p>";
+  if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
+  	$result .= "<div class='sentence-result'>";
+  	$result .= "<div class='sentence-controls'><a href='$url'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a></div>";
+  }
+  /* possible icons for untimed: ui-icon-arrowthick-1-ne, ui-icon-zoomin */
+  else { //or 
+  	$result .= "<div class='sentence-result untimed'>";
+  	$result .= "<div class='sentence-controls'><a href='$url'><span class='ui-icon ui-icon-zoomin ui-state-default ui-corner-all'>Play</span></a></div>";
+  }
+  $result .= "<div class='tiers'>";
+  
+  $tiers = transcripts_all_tiers();
+  foreach ($tiers as $tier) {
+  	$result .= "<div class='tier $tier'>" . (isset($snippets[$tier]) ? $snippets[$tier] : (isset($doc->{$tier}) ? $doc->{$tier} : '')) . "</div>";
+  }
+  $result .= "</div>"; //tiers
+  $result .= "</div>"; //sentence-result
+  return $result;
+}
+
+/**
+ * Prepare the query by adding parameters, sorts, etc.
+ *
+ * This hook is invoked before the query is cached.  The cached query
+ * is used after the search such as for building facet and sort blocks,
+ * so parameters added during this hook may be visible to end users.
+ *
+ * This is otherwise the same as HOOK_apachesolr_query_alter(), but runs
+ * before it.
+ *
+ * @param $query
+ *  An object implementing DrupalSolrQueryInterface. No need for &.
+ */
+function transcripts_apachesolr_query_prepare($query) {  
+  //should we really assume this is what people want?
+  $filters = $query->getFilters('bundle');
+  foreach ($filters as $filter) {
+  	if ($filter['#value'] == 'sentence' && !$filter['#exclude']) {
+			$query->removeAvailableSort('sort_label');
+			$query->removeAvailableSort('bundle');
+			$query->removeAvailableSort('sort_name');
+			$query->removeAvailableSort('ds_created');
+		
+			// Add a sort on the transcript title
+			$query->setAvailableSort('ss_node_label', array(
+				'title' => t('Transcript'),
+				'default' => 'asc',
+			));  		
+  	}
+  }
+}
+
+/**
+ * Implements hook_apachesolr_query_alter().
+ */
+function transcripts_apachesolr_query_alter($query) {
+  $query->addParams(array('fl' => array('is_nid', 'ss_sid', 'fts_duration')));
+  $tiers = transcripts_all_tiers();
+  if (count($tiers) > 0) {
+  	$query->addParams(array('fl' => $tiers));
+  	$query->addParams(array('hl.fl' => $tiers));
+  }
+  $query->replaceParam('hl.simple.pre', variable_get('transcripts_hl_simple_pre', '<strong>'));
+  $query->replaceParam('hl.simple.post', variable_get('transcripts_hl_simple_post', '</strong>'));
+  $query->replaceParam('hl.fragsize', 0);
+  $query->addParam('f.content.hl.fragsize', 100);
+}
+
+function transcripts_preprocess_search_result(&$variables) {
+	$fields = $variables['result']['fields'];
+	
+	if ($fields['entity_type'] == 'fragment' && $fields['search_term'] != '') {
+		$variables['result']['link'] = url($fields['path'], array('query' => array('term' => $fields['search_term']))); //needed for some themes
+		$variables['url'] = url($fields['path'], array('query' => array('term' => $fields['search_term']))); //needed for other themes
+	}
+}
+
+function transcripts_apachesolr_search_result_alter($doc, &$extra, $query) {
+	if ($doc->entity_type == 'fragment') {
+		$keyword = $query->getParam('q');
+		$doc->search_term = $keyword ? $keyword : '';
+	}
+}
+
+function transcripts_apachesolr_process_results(&$results, $query) {
+	if (count($results) > 1) {
+		$last = "";
+		foreach ($results as &$result) {
+			if ($result['link'] == $last) {
+				$result['title'] = ' '; //calling unset causes problems
+			}
+			$last = $result['link'];
+		}
+	}
+}
+
+function transcripts_init() {
+  drupal_add_css(drupal_get_path('module', 'transcripts') .'/transcripts.css', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts') .'/transcripts.js', 'file');
+  module_load_include('inc', 'transcripts', 'transcripts.index');
+}
+
+/**
+ * Implements hook_help().
+ *
+ * @see apachesolr_search_help()
+ */
+function transcripts_help($path, $arg) {
+	switch ($path) {
+		case 'admin/help#transcripts':
+			return t('The Transcripts module helps users to manage, search, and display a corpus of audio or video files along with time-aligned transcription or annotation files.');
+	}
+}
+
+function transcripts_permission() {
+	$profiles = transcripts_all_profiles();
+	$permissions = array();
+  $permissions['administer transcripts'] = array(
+      'title' => t('Administer transcripts module, including managing profiles'),
+  );
+	foreach ($profiles as $profile) {
+		$pid = $profile['pid'];
+		$permissions["view profile $pid"] = array(
+			'title' => t('View profile %pid', array('%pid' => $profile['pid']))
+		);
+	}
+  return $permissions;
+}
+
+function transcripts_menu() {
+  $items = array();
+  	
+  $items['admin/config/search/apachesolr/transcripts'] = array(
+  	'title' => 'Transcripts',
+  	'description' => t('Configuration for the Transcripts module'),
+  	'page callback' => 'drupal_get_form',
+  	'page arguments' => array('transcripts_admin_form'),
+  	'access arguments' => array('administer transcripts'),
+    'file' => 'transcripts.admin.inc',
+  	'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile'] = array(
+    'title'              => 'Transcripts profile edit',
+    'description'        => 'edit Transcripts profile',
+    'page callback'      => 'drupal_get_form',
+    'page arguments'     => array('transcripts_profile_edit_form', 5),
+    'access arguments'   => array('administer transcripts'),
+    'file' 							 => 'transcripts.admin.inc',
+    'type'               => MENU_CALLBACK,
+  );
+  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile/edit'] = array(
+    'title'              => 'Edit',
+    'weight'             => -20,
+    'type'               => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile/delete'] = array(
+    'title'              => 'Transcripts profile delete',
+    'page callback'      => 'drupal_get_form',
+    'page arguments'     => array('transcripts_profile_delete_form', 5),
+    'access arguments'   => array('administer transcripts'),
+    'file' 							 => 'transcripts.admin.inc',
+    'type'               => MENU_CALLBACK,
+  );
+  $items['admin/config/search/apachesolr/transcripts/add'] = array(
+    'title'              => 'Transcripts profile add',
+    'description'        => 'add a Transcripts display profile',
+    'page callback'      => 'drupal_get_form',
+    'page arguments'     => array('transcripts_profile_edit_form', NULL),
+    'access arguments'   => array('administer transcripts'),
+    'file' 							 => 'transcripts.admin.inc',
+    'type'               => MENU_CALLBACK,
+  );
+  $profiles = transcripts_all_profiles();
+  foreach ($profiles as $profile) {
+  	$pid = $profile['pid'];
+  	$menu = $profile['menu'];
+  	$items["transcripts/$menu/%"] = array(
+  		'title' => '',
+  		'page callback' => 'transcript_player_title',
+  		'page arguments' => array(2, $pid),
+  		'access callback' => 'user_access',
+  		'access arguments' => array("view profile $pid"),
+  	);
+  }
+  return $items;
+}
+
+function transcripts_goto($url, $menu_tail) {
+	drupal_goto($url . '/' . $menu_tail);
+}
+
+function transcripts_all_tiers() {
+	$val = trim(variable_get('transcripts_all_tiers', ''));
+	return $val == '' ? array() : array_map('trim', explode(",", $val));
+}
+
+/* this should really be cached */
+function transcripts_all_profiles($currentUser = FALSE) {
+	$profiles = db_query("SELECT * FROM {transcripts_display_profile}")->fetchAllAssoc('pid', PDO::FETCH_ASSOC);
+	foreach ($profiles as $pid => &$profile) {	
+		$profile['tiers'] = unserialize($profile['tiers']);
+		$profile['modes'] = unserialize($profile['modes']);
+	}
+	if ($currentUser) {
+		$profiles = array_filter($profiles, "transcripts_profile_access_callback");
+	}
+  return $profiles;
+}
+
+function transcripts_profile_access_callback($profile) {
+	$pid = $profile['pid'];
+	if (user_access("view profile $pid")) {
+		return TRUE;
+	}
+}
+
+function transcripts_profile_load($pid) {
+  $profiles = transcripts_all_profiles();
+  return isset($profiles[$pid]) ? $profiles[$pid] : FALSE;
+}
+
+function transcripts_tiers() {
+	return variable_get('transcripts_tiers', array());
+}
+
+function transcripts_all_modes() {
+  $modes = array();
+  $hook = 'transcripts_info';
+  foreach (module_implements($hook) as $module) {
+    $function = $module.'_'.$hook;
+    $values = $function();
+    $modes[$module] = $values['name'];
+  }
+  return $modes;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function transcripts_field_formatter_info() {
+	$info = array();
+  $profiles = transcripts_all_profiles();
+  foreach ($profiles as $profile) {
+  	$pid = $profile['pid'];
+  	$info[$pid] = array(
+  		'label' => "Transcripts: $pid",
+  		'field types' => array('file'),
+  	);
+  	$info[$pid .  '__transcript-player-link' ] = array(
+  		'label' => "Transcripts Player Link: $pid",
+  		'field types' => array('file'),
+  	);
+  	
+  }
+  return $info;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function transcripts_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  if (is_transcript_field($field['field_name'])) {
+     $pid_plus_formatter_type = explode('__', $display['type']); 
+     $pid = $pid_plus_formatter_type[0];
+     $link_only = 'transcript-player-link' == $pid_plus_formatter_type[1];
+		if (in_array($pid, array_keys(transcripts_all_profiles()))) {
+			foreach ($items as $delta => $item) {
+				$nid = arg(1);
+				if ( $link_only ) {
+				   $link = l(t('View Transcript'), sprintf('transcripts/%s/%d',$pid,$nid));
+				   $element[$delta] = array('#markup' => $link);
+				}
+				else {
+				   $element[$delta] = array('#markup' => transcript_player_title($nid,$pid));
+				}
+			}
+		}
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function transcripts_form_alter(&$form, $form_state, $form_id) {
+  if (isset($form['#field']) && $form['#field']['type'] == 'file') {
+  	$form['instance']['transcripts'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Transcripts Settings'),
+      '#collapsed' => FALSE,
+      '#weight' => 20,
+    );
+    $form['instance']['transcripts']['is_transcript'] = array(
+    	'#type' => 'checkbox',
+    	'#title' => t('Treat as transcript'),
+    	'#default_value' => is_transcript_field($form['#field']['field_name']),
+    	'#description' => t('Tick this box if files should be indexed as part of a transcripts.'),
+    	'#weight' => 2
+    );
+    if (!in_array('transcripts_form_submit', $form['#submit'])) {
+    	$form['#submit'][] = 'transcripts_form_submit';
+    }
+  }
+}
+
+function is_transcript_field($field_name) {
+	$transcript_fields = variable_get('transcripts_transcript_fields', array());
+	if (in_array($field_name, array_keys($transcript_fields))) {
+		return $transcript_fields[$field_name]; 
+	}
+	else {
+		return 0;
+	}
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function transcripts_form_submit($form, &$form_state) {
+	$field_name = $form_state['values']['instance']['field_name'];
+	$is_transcript = $form_state['values']['instance']['transcripts']['is_transcript'];
+	$transcript_fields = variable_get('transcripts_transcript_fields', array());
+	$transcript_fields[$field_name] = $is_transcript;
+	variable_set('transcripts_transcript_fields', $transcript_fields);
+}
+
+function improved_list_allowed_values_string($values, $delim = "\n") {
+  $lines = array();
+  foreach ($values as $key => $value) {
+    $lines[] = "$key|$value";
+  }
+  return implode($delim, $lines);
+}
+
+function improved_list_extract_allowed_values($string) {
+  $values = array();
+
+  $list = explode("\n", $string);
+  $list = array_map('trim', $list);
+  $list = array_filter($list, 'strlen');
+
+  foreach ($list as $position => $text) {
+    $value = $key = FALSE;
+
+    // Check for an explicit key.
+    $matches = array();
+    if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
+      $key = $matches[1];
+      $value = $matches[2];
+      $explicit_keys = TRUE;
+    }
+    $values[$key] = $value;
+  }
+
+  return $values;
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * If node is unpublished, mark all associated attachments as removed.
+ *
+ * @see apachesolr_node_delete()
+ */
+function transcripts_node_update($node) {
+  if (!$node->status) {
+    transcripts_node_delete($node);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * Mark all associated attachments as removed.
+ *
+ * @see apachesolr_node_delete()
+ */
+function transcripts_node_delete($node) {
+  // Mark attachments for later deletion if the query fails.
+  if (transcripts_remove_transcripts_from_index($node->nid)) {
+    db_delete('transcripts_transcript')->condition('nid', $node->nid)->execute();
+  }
+  else {
+    db_update('transcripts_transcript')->fields(array('removed' => 1))->condition('nid', $node->nid)->execute();
+  }
+}
+
+/**
+ * For a particular node ID, remove all file attachments from the Solr index.
+ *
+ * @see apachesolr_delete_node_from_index()
+ */
+function transcripts_remove_transcripts_from_index($nid) {
+  static $failed = FALSE;
+  if ($failed) {
+    return FALSE;
+  }
+  try {
+    $solr = transcripts_get_solr();
+    $solr->deleteByQuery("is_nid:$nid AND entity_type:file AND bundle:transcript AND hash:" . apachesolr_site_hash());
+    $solr->commit();
+    return TRUE;
+  }
+  catch (Exception $e) {
+    watchdog('Transcripts', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+    // Don't keep trying queries if they are failing.
+    $failed = TRUE;
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Delete all removed transcripts from the Solr store.
+ *
+ * @see apachesolr_nodeapi_mass_delete()
+ */
+function transcripts_cron() {
+  $files = db_query("SELECT fid, nid FROM {transcripts_transcript} WHERE removed = :removed", array(':removed' => 1));
+
+  $ids = array();
+  $fids = array();
+  foreach ($files as $file) {
+    $ids[] = apachesolr_document_id($file->fid . '-' . $file->nid, 'file');
+    $fids[] = $file->fid;
+  }
+  /* EDGE will delete apachesolr attachments also */
+  if ($ids) {
+    try {
+      $solr = transcripts_get_solr();
+      $solr->deleteByMultipleIds($ids);
+      $solr->commit();
+      // There was no exception, so update the table.
+      db_delete('transcripts_transcript')->condition('fid', $fids, 'IN')->execute();
+    }
+    catch (Exception $e) {
+      watchdog('Transcripts', nl2br(check_plain($e->getMessage())) . ' in transcripts_cron', NULL, WATCHDOG_ERROR);
+    }
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function transcripts_block_info() {
+   $blocks=array();
+   $blocks['transcript_search'] = array(
+      'info' => 'Search Transcripts',
+      'custom' => FALSE,
+      );
+   return $blocks;
+}
+
+function transcripts_block_view($delta) {
+   switch($delta) { 
+   case 'transcript_search':
+      $block['subject'] = 'Search Transcripts';
+      $block['content'] = transcript_search_form();
+      return $block;
+   }
+}
+   
+function transcript_search_form() {
+   module_load_include('inc','apachesolr','apachesolr_search.pages');
+   global $base_path;
+   $search_forms = apachesolr_search_custom_page('transcripts');
+   $transcript_search_form = $search_forms['search_form'];
+   unset( $transcript_search_form['basic']['keys']['#title'] );
+   unset( $transcript_search_form['basic']['retain-filters'] );
+   $output = drupal_render($transcript_search_form);
+   return $output;
+}
+?>

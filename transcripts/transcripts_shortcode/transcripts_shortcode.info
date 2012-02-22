@@ -1,0 +1,9 @@
+;$Id$
+name = Transcripts Shortcode
+description = Drupal module for embedding transcripts into content using shortcodes
+dependencies[] = transcripts
+dependencies[] = transcript_player
+dependencies[] = shortcode
+package = Pinedrop Transcripts
+core = 7.x
+files[] = transcripts_shortcode.module

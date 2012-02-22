@@ -1,0 +1,94 @@
+<?php
+// $Id$
+
+function transcripts_schema() {
+	$schema['transcripts_display_profile'] = array(
+		'description' => 'Transcripts display profiles',
+		'fields' => array(
+			'pid' => array(
+        'description' => 'Unique identifier for this profile',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+			'uid' => array(
+        'description' => 'the user that owns this display profile',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'menu' => array(
+        'description' => 'menu fragment identifying this display profile',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+			'tiers' => array(
+				'description' => 'tiers to display as part of this profile',
+				'type' => 'text',
+				'not null' => TRUE,
+				'serialize' => TRUE,
+			),
+			'modes' => array(
+				'description' => 'display modes enabled as part of this profile',
+				'type' => 'text',
+				'not null' => TRUE,
+				'serialize' => TRUE,
+			),
+			'default_mode' => array(
+				'description' => 'default display mode for this profile',
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'serialize' => TRUE,
+			),
+		),
+		'primary key' => array('pid'),
+	);
+	//should change to singular
+  $schema['transcripts_transcript'] = array(
+    'description' => 'Stores a record of when a transcript property changed to determine if it needs indexing by Solr.',
+    'fields' => array(
+      'fid' => array(
+        'description' => 'The primary identifier for the transcript file.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'The primary identifier for the node to which the transcript file is attached.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'removed' => array(
+        'description' => 'TRUE if the transcript file is no longer attached to a node.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'hash' => array(
+        'description' => "A hash of the transcript file's body, to check for changes.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'body' => array(
+        'description' => 'The cached body (extracted text) of the file, unless it is a text file.',
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'removed' => array('removed'),
+    ),
+    'primary key' => array('fid'),
+  );
+	return $schema;
+}
+
+?>

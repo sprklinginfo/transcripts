@@ -1,0 +1,11 @@
+;$Id$
+name = Transcripts
+description = Drupal module for working with a corpus of transcripts stored in a SOLR index
+dependencies[] = apachesolr
+dependencies[] = apachesolr_search
+package = Pinedrop Transcripts
+core = 7.x
+files[] = transcripts.module
+files[] = transcripts.install
+files[] = transcripts.admin.inc
+configure = admin/config/transcripts
