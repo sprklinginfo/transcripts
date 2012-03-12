@@ -22,7 +22,8 @@ function transcript_player_init() {
 function transcript_player_title($id, $pid, $options = array()) {
 	$profile = transcripts_profile_load($pid);
 	if (!$profile) return; //graceful degradation - or should there be an error message?
-	$tiers = $profile['tiers'];
+	
+	$tiers = array_intersect_key($profile['tiers'], array_flip(transcripts_all_tiers()));
 	$modes = array_intersect_key(transcripts_all_modes(), array_filter($profile['modes']));
 	
 	// how will options get through when function is not called as part of page request?
@@ -95,10 +96,10 @@ function transcript_player_transcript($response, $tiers) {
       		$line = "<div id='$sid' class='clearfix' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
       	}
       } else {
-        $line = "<div id='$sid' class='untimed'>";
+        $line = "<div id='$sid' class='untimed clearfix'>";
       }
       if (isset($sentence->ss_speaker)) {
-      	$line .= "<div class='speaker-label'>{$sentence->ss_speaker}</div><div class='tiers speaker-tiers'>";
+      	$line .= "<div class='info'><div class='speakername'>{$sentence->ss_speaker}</div></div><div class='tiers speaker-tiers'>";
       } else {
       	$line .= "<div class='tiers'>";
       }
@@ -117,7 +118,7 @@ function transcript_player_transcript($response, $tiers) {
               } else {
               	$time = "0:00";
               }
-              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->ss_sid}' class='play-hit'><span class='ui-icon ui-icon-play'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->ss_sid}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
 						} else {
 							$line .= "<div class='tier $tier'>{$sentence->$tier}</div>";
 						}
@@ -238,19 +239,17 @@ function transcript_player_tiermode_controls($playerid, $tiers, $modes) {
 		}
 		$m .= "</div></form>";
 	}
-  return "<div class='transcript-controls clearfix' data-for='$playerid'>" .$t.$m. "</div>";;
+  return "<div class='transcript-controls ui-widget-header ui-corner-all clearfix' data-for='$playerid'>" .$t.$m. "</div>";;
 }
 
 function transcript_player_video_controls($playerid) {
-	$return = "	<div class='video-controls ui-widget-header'>"
-								."<span class='sentence-controls'>"
-									//."<button class='beginning'>go to beginning</button>"
+	$return = "	<div class='video-controls ui-widget-header ui-corner-all'>"
+								."<span class='controls'>"
 									."<button class='previous'>Previous</button>"
-									."<button class='sameagain'>Same again</button>"
+									."<button class='sameagain'>Same line</button>"
 									."<button class='next'>Next</button>"
-									//."<button class='end'>go to end</button>"
                 ."</span>"
-                ."<span class='mode-controls'>"
+                ."<span class='control-block mode-controls'>"
                 	."<button class='playmode playstop'></button>"
                 ."</span>"
               ."</div>";

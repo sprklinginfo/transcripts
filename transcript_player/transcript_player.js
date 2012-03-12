@@ -44,15 +44,7 @@ Drupal.behaviors.transcriptPlayer = {
       }).toArray().sort(function(a,b) {
         return a.end - b.end;
       });
-      //requires jquery 1.4.3
-      $player.find('.transcript.scroller *[data-begin]').live({
-      	mouseover: function() {
-      		jQuery(this).css('cursor', 'pointer');
-      	},
-        click: function() {
-        	playOne(pid, jQuery(this));
-        }
-      });
+      enableClickAndPlay($player);
       setPlayMode(pid, 'playstop');
       attachListeners($player);
       
@@ -70,6 +62,20 @@ Drupal.behaviors.transcriptPlayer = {
 		})
 		.addClass('player-processed');
   }
+}
+
+function enableClickAndPlay($player) {
+	var pid = $player.attr('id');
+	$player.delegate('.transcript.scroller *[data-begin]', 'mouseover', function() {
+  	jQuery(this).css('cursor', 'pointer');
+  });
+	$player.delegate('.transcript.scroller *[data-begin]', 'click', function() {
+  	playOne(pid, jQuery(this));
+  });
+}
+
+function disableClickAndPlay($player) {
+	$player.undelegate('.transcript.scroller *[data-begin]');
 }
 
 function attachListeners($player) {

@@ -71,28 +71,13 @@
           if ($controls.is(':empty')) {
           	$controls.css({'height':'0px'});
           }
-					$player.find('.previous').button({
-						text: false,
-						icons: {
-							primary: 'ui-icon-seek-prev'
-						}
-					}).click(function() {
+					$player.find('.previous').click(function() {
 						previous(pid);
 					});
-					$player.find('.sameagain').button({
-						text: false,
-						icons: {
-							primary: 'ui-icon-play'
-						}
-					}).click(function() {
+					$player.find('.sameagain').click(function() {
 						sameAgain(pid);
 					});
-					$player.find('.next').button({
-						text: false,
-						icons: {
-							primary: 'ui-icon-seek-next'
-						}
-					}).click(function() {
+					$player.find('.next').click(function() {
 						next(pid);
 					});
 					$player.find('.playmode')
@@ -119,24 +104,6 @@
 						$player.find('.hit').removeClass('hit');
 						return false;
 					});
-					/*$player.find('.play-hit').button({
-						text: false,
-						icons: {
-							primary: 'ui-icon-play'
-						}
-					}).click(function() {
-						playOne(pid, $('#' + $(this).parents('div.hit-container').attr('data-refid')));
-					});
-					$player.find('.clear-hits').button({
-						text: false,
-						icons: {
-							primary: 'ui-icon-closethick'
-						}
-					}).click(function() {
-						$player.find('.hit-summary').remove();
-						$player.find('.hit').removeClass('hit'); //removes from both div and span
-						//playOne($('#' + $(this).parents('div.hit-container').attr('data-refid')));
-					});*/
 			})
 			.addClass('player-processed');
 		}
@@ -161,12 +128,12 @@ var playthru = {
 					
 function setPlayStop($player) {
 	$player.find('.playmode').addClass('playstop').button("option", playstop);
-	$player.find('.sentence-controls button').button("option", "disabled", false);
+	$player.find('.controls button').button("option", "disabled", false);
 	setPlayMode($player.attr('id'), 'playstop');
 }
 
 function setPlayThru($player) {
 	$player.find('.playmode').removeClass('playstop').button("option", playthru);
-	$player.find('.sentence-controls button').button("option", "disabled", true);
+	$player.find('.controls button').button("option", "disabled", true);
 	setPlayMode($player.attr('id'), 'playthru');
 }

@@ -74,14 +74,6 @@ function toBubbler($player) {
 				}
 			}
 		);
-		$player.find('.play-hit').button({
-			text: false,
-			icons: {
-				primary: 'ui-icon-play'
-			}
-		}).click(function() {
-			playOne(pid, jQuery('#' + jQuery(this).parents('div.hit-container').attr('data-refid')));
-		});
 				var data = Drupal.settings['speechBubbles_' + shortpid];
 				positionBubbles($player, data);
 				saveSettings[pid] = data.saveSettings;

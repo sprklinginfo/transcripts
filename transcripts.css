@@ -5,7 +5,7 @@
 .untimed {
 	color:grey;
 }
-.sentence-result .sentence-controls {
+.sentence-result .controls {
 	float: left;
 	width: 20px;
 }

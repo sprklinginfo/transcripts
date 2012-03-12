@@ -6,7 +6,7 @@
 .transcript-player {
   position: relative;
 }
-.transcript.bubbler .speaker-label {
+.transcript.bubbler .info {
   display: none;
 }
 .transcript.bubbler .tier {

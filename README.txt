@@ -69,7 +69,9 @@ INDEXING TRANSCRIPTS
 
 To index transcripts, attach a new field of type "file" to an existing content
 type. Go to the edit page for your field, and tick the box "Treat as transcript"
-under TRANSCRIPTS SETTINGS.
+under TRANSCRIPTS SETTINGS. The motivation for linking transcripts to existing
+file fields is so that the module can easily plug both in and out of existing
+Drupal websites. Any file field is a candidate for transcript indexing.
 
 The Transcripts module will then attempt to index files attached to the field,
 using the following settings (see admin/config/search/apachesolr/transcripts):

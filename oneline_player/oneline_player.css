@@ -6,7 +6,7 @@
 	height:450px;
 	overflow-y:auto;
 }
-.transcript.oneliner .speaker-label {
+.transcript.oneliner .info {
   display: none;
 }
 .transcript.oneliner .tier {

@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file
+ * Code for the Transcripts Settings feature.
+ */
+
+include_once('transcripts_settings.features.inc');
+
+/**
+ * Implements hook_system_info_alter().
+ *
+ * Expose the testing feature in Features module to spaces
+ */
+function transcripts_settings_system_info_alter(&$info, $file, $type) {
+  if ($file->name == 'transcripts_settings') {
+    $info['spaces']['types'][] = 'all';
+  }
+}
+
+/**
+ * Implements of hook_menu().
+ */
+function transcripts_settings_menu() {
+  $items = array();
+  $items['features/transcripts_settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('transcripts_project_settings_form'),
+    'access callback' => TRUE,
+    //'access arguments'   => array('administer transcripts'),
+    'file' => 'transcripts.admin.inc',
+    'file path' => drupal_get_path('module', 'transcripts'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements of hook_drupal_goto_alter().
+ */
+function transcripts_drupal_goto_alter(&$path, &$options, &$http_response_code) {
+	/* prevent search and other forms from improperly redirecting within PURL context */
+	$options['purl'] = array('disabled' => TRUE); 
+}
+

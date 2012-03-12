@@ -36,7 +36,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
     if (count($files) > 0) {
       //inherit node taxonomies
       $extras = array(); //$fields[] = array('key' => $index_key, 'value' => $ancestor->tid,);
-      $indexed_fields = apachesolr_entity_fields('node');
+      /*$indexed_fields = apachesolr_entity_fields('node');
       foreach ($indexed_fields as $index_key => $field_info) {
       	if ($field_info['field']['type'] == 'taxonomy_term_reference') {
       		$field_name = $field_info['field']['field_name'];
@@ -48,7 +48,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
             }
           }
         }
-      }
+      }*/
     
 			foreach ($files as $file) {
 				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
@@ -111,7 +111,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
   
   $params = array();
   foreach ($extras as $extra) {
-  	$params[] = $extra['key'] . '=' . $extra['value'];
+  	$params[] = $extra['key'] . '=' . escapeshellarg($extra['value']);
   }
   $more = '"' . implode(',',$params) . '"';
   
@@ -121,14 +121,15 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
     ' -jar ' . escapeshellarg($saxon) .
     ' -s:'. escapeshellarg($filepath) . ' -xsl:' . escapeshellarg($xslt) .
     ' nid=' . $node->nid .
-    ' nlabel="' . $node->title . '"' .
+    ' nlabel=' . escapeshellarg($node->title) .
+    //' nlabel="' . escapeshellarg($node->title) . '"' .
     ' fid=' . $file['fid'] .
     ' site=' . url(NULL, array('absolute' => TRUE)) .
     ' hash=' . apachesolr_site_hash() .
     ' path=' . $path .
-    ' extras=' . $more; // . ' 2>&1'; //for debugging
+    ' extras=' . $more; //. ' 2>&1'; //for debugging
   
-  //watchdog('Transcripts', "Saxon - $cmd", NULL, WATCHDOG_ERROR);
+  watchdog('Transcripts', "Saxon - $cmd", NULL, WATCHDOG_ERROR);
     
   return shell_exec($cmd);
 }

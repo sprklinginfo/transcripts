@@ -1,29 +1,52 @@
 /* css for tier and mode controller blocks */
 .transcript-controls {
-	/*width: 100%;*/
+	margin-bottom: .2em;
+}
+.transcript-controls .ui-button, .transcript-controls .ui-button {
+	margin-right: .1em;
+	border-radius: 11px 11px 11px 11px;
+	/* background: -moz-linear-gradient(center top , #FFFFFF 0%, #DDDDDD 100%) repeat scroll 0 0 transparent; */
+}
+.transcript-controls .ui-button-text {
+	height: 1em;
+	font: bold 12px/1.2 Arial,sans-serif;
+	padding: .4em 1em .5em 1em;
 }
 .tier-controller {
   width: 400px;
   float: left;
+  margin-left: .5em;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 .mode-controller {
 	float: right;
+	margin-right: .5em;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 .tier-controller label, .mode-controller label {
   font-family: arial;
 }
-.video-controls .ui-button {
+
+/* for some reason labels are two pixels taller and wider than buttons */
+.video-controls button.ui-button {
 	margin-right: 0;
-	border-radius: 0;
+	width: 22px;
+	height: 22px;
+	vertical-align: middle;
 }
+.video-controls label.ui-button {
+	margin-right: 0;
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+}
+
 .video-controls {
 	font-weight: normal;
 }
-.video-controls .mode-controls {
+.video-controls .control-block {
 	padding-left: 10px;
 }
 
@@ -62,7 +85,7 @@ audio {
   overflow-y:scroll;
   position:relative;
 }
-.transcript.scroller .speaker-label {
+.transcript.scroller .info {
 	float: left;
 	width: 150px;
 }

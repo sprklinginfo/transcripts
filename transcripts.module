@@ -41,12 +41,12 @@ function theme_apachesolr_search_snippets__fragment__sentence($vars) {
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
   	$result .= "<div class='sentence-result'>";
-  	$result .= "<div class='sentence-controls'><a href='$url'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a></div>";
+  	$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a></div>";
   }
   /* possible icons for untimed: ui-icon-arrowthick-1-ne, ui-icon-zoomin */
   else { //or 
   	$result .= "<div class='sentence-result untimed'>";
-  	$result .= "<div class='sentence-controls'><a href='$url'><span class='ui-icon ui-icon-zoomin ui-state-default ui-corner-all'>Play</span></a></div>";
+  	$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-zoomin ui-state-default ui-corner-all'>Play</span></a></div>";
   }
   $result .= "<div class='tiers'>";
   
@@ -173,9 +173,9 @@ function transcripts_menu() {
   	
   $items['admin/config/search/apachesolr/transcripts'] = array(
   	'title' => 'Transcripts',
-  	'description' => t('Configuration for the Transcripts module'),
+  	'description' => t('Transcripts module settings'),
   	'page callback' => 'drupal_get_form',
-  	'page arguments' => array('transcripts_admin_form'),
+  	'page arguments' => array('transcripts_site_settings_form'),
   	'access arguments' => array('administer transcripts'),
     'file' => 'transcripts.admin.inc',
   	'type' => MENU_LOCAL_TASK,
@@ -260,10 +260,6 @@ function transcripts_profile_load($pid) {
   return isset($profiles[$pid]) ? $profiles[$pid] : FALSE;
 }
 
-function transcripts_tiers() {
-	return variable_get('transcripts_tiers', array());
-}
-
 function transcripts_all_modes() {
   $modes = array();
   $hook = 'transcripts_info';
@@ -284,11 +280,11 @@ function transcripts_field_formatter_info() {
   foreach ($profiles as $profile) {
   	$pid = $profile['pid'];
   	$info[$pid] = array(
-  		'label' => "Transcripts: $pid",
+  		'label' => "Transcript player: $pid",
   		'field types' => array('file'),
   	);
   	$info[$pid .  '__transcript-player-link' ] = array(
-  		'label' => "Transcripts Player Link: $pid",
+  		'label' => "Transcript player link: $pid",
   		'field types' => array('file'),
   	);
   	
@@ -514,4 +510,5 @@ function transcript_search_form() {
    $output = drupal_render($transcript_search_form);
    return $output;
 }
+
 ?>

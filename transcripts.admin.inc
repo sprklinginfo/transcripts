@@ -152,8 +152,8 @@ function transcripts_profile_save_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/config/search/apachesolr/transcripts';
 }
 
-function transcripts_admin_form($form, &$form_state) {
-	/* solr settings */
+function transcripts_solr_settings() {
+  $form = array();
   $environments = apachesolr_load_all_environments();
   foreach ($environments as $id => $environment) {
     $options[$id] = $environment['name'];
@@ -161,7 +161,7 @@ function transcripts_admin_form($form, &$form_state) {
   $form['transcripts_solr_settings'] = array(
     '#title' => t('Solr settings '),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
+    //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
   $form['transcripts_solr_settings']['transcripts_env_id'] = array(
@@ -172,28 +172,41 @@ function transcripts_admin_form($form, &$form_state) {
     '#description' => t('The Solr search environment that is used by this module.'),
     '#weight' => -30,
   );
-  try {
-    // Gets search pages directly from the index.
-    // @todo Honor "enabled" settings?
-    $result = db_select('apachesolr_search_page', 's')
-      ->fields('s', array('page_id', 'search_path', 'page_title', 'env_id'))
-      ->condition('env_id', '', '<>')
-      ->execute();
-  }
-  catch (Exception $e) {
-    watchdog_exception('apachesolr_search', $e);
-    $result = array();
-  }
-  $options = array();
-  foreach ($result as $record) {
-  	$options[$record->page_id] = $record->page_title.": ".$record->search_path;
-  }
-  
-  /* indexing settings */
+  return $form;
+}
+
+function transcripts_saxon_settings() {
+  $form = array();
+  $form['transcripts_saxon_settings'] = array(
+    '#title' => t('Saxon XSLT Processor'),
+    '#type' => 'fieldset',
+    //'#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['transcripts_saxon_settings']['transcripts_saxon_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Saxon directory path'),
+    '#size' => 80,
+    '#maxlength' => 100,
+    '#description' => t("The full path to the Saxon directory. All library jars must be in the same directory. If on Windows, use forward slashes in the path."),
+    '#default_value' => variable_get('transcripts_saxon_path', ''),
+  );
+  $form['transcripts_saxon_settings']['transcripts_saxon_jar'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Saxon jar file'),
+    '#size' => 20,
+    '#description' => t("The name of the Saxon application jar file (e.g. saxon9he.jar)."),
+    '#default_value' => variable_get('transcripts_saxon_jar', 'saxon9he.jar'),
+  );
+  return $form;
+}
+
+function transcripts_index_settings() {	
+	$form = array();
   $form['transcripts_indexing_settings'] = array(
     '#title' => t('Indexing settings'),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
+    //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
   $default = implode(' ', transcripts_default_transcript_extensions());
@@ -205,21 +218,6 @@ function transcripts_admin_form($form, &$form_state) {
     '#maxlength' => 255,
     '#description' => t('File extensions that are treated as transcripts. Separate extensions with a space and do not include the leading dot.'),
   );
-  $form['transcripts_indexing_settings']['transcripts_saxon_path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Saxon directory path'),
-    '#size' => 80,
-    '#maxlength' => 100,
-    '#description' => t("The full path to the Saxon directory. All library jars must be in the same directory. If on Windows, use forward slashes in the path."),
-    '#default_value' => variable_get('transcripts_saxon_path', ''),
-  );
-  $form['transcripts_indexing_settings']['transcripts_saxon_jar'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Saxon jar file'),
-    '#size' => 20,
-    '#description' => t("The name of the Saxon application jar file (e.g. saxon9he.jar)."),
-    '#default_value' => variable_get('transcripts_saxon_jar', 'saxon9he.jar'),
-  );
   $form['transcripts_indexing_settings']['transcripts_xslt_file'] = array(
     '#type' => 'textfield',
     '#title' => t('XSLT file'),
@@ -227,27 +225,22 @@ function transcripts_admin_form($form, &$form_state) {
     '#description' => t("The name of the XSLT file within the saxon directory."),
     '#default_value' => variable_get('transcripts_xslt_file', ''),
   );
-  
-  /* search results */
+  return $form;
+}
+
+function transcripts_search_settings() {
+	$form = array();
   $form['transcripts_search_results'] = array(
     '#title' => t('Search results'),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
+    //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
-  );
-  $form['transcripts_search_results']['transcripts_all_tiers'] = array(
-  	'#title' => t('Transcript tiers'),
-  	'#type' => 'textfield',
-  	'#size' => 150,
-  	'#default_value' => variable_get('transcripts_all_tiers', ''),
-  	'#description' => t('Enter a comma-separated list of all transcript tiers. These tiers will be searched and shown in search results.'),
-  	'#required' => TRUE,
   );
   $profiles = transcripts_all_profiles();
   $options = array();
   $options['NODE'] = t('Node');
   foreach ($profiles as $pid => $data) {
-  	$options[$data['menu']] = "Display profile: ".$pid;
+  	$options[$data['menu']] = "Transcript player: ".$pid;
   }
   $form['transcripts_search_results']['transcripts_result_link'] = array(
   	'#title' => t('Link results to'),
@@ -271,12 +264,34 @@ function transcripts_admin_form($form, &$form_state) {
     '#description' => t('What HTML code should follow a hit?'),
     '#required' => TRUE,
   );
-  
-  /* fieldset */
-  $form['transcripts_profiles'] = array(
-    '#title' => t('Display profiles'),
+  return $form;
+}
+
+function transcripts_tier_settings() {
+	$form = array();
+  $form['transcripts_tier_settings'] = array(
+    '#title' => t('Tier settings'),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
+    //'#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['transcripts_tier_settings']['transcripts_all_tiers'] = array(
+  	'#title' => t('Transcript tiers'),
+  	'#type' => 'textfield',
+  	'#size' => 150,
+  	'#default_value' => variable_get('transcripts_all_tiers', ''),
+  	'#description' => t('Enter a comma-separated list of all transcript tiers. These tiers will be searched and shown in search results.'),
+  	'#required' => TRUE,
+  );
+  return $form;
+}
+
+function transcripts_profile_settings() {
+	$form = array();
+  $form['transcripts_profiles'] = array(
+    '#title' => t('Player profiles'),
+    '#type' => 'fieldset',
+    //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
   
@@ -289,7 +304,7 @@ function transcripts_admin_form($form, &$form_state) {
     t('Modes'),
   );
   $rows = array();
-  foreach ($profiles as $pid => $data) {
+  foreach (transcripts_all_profiles() as $pid => $data) {
     $rows[] = array('data' =>
       array(
         // Cells
@@ -316,12 +331,16 @@ function transcripts_admin_form($form, &$form_state) {
   $form['transcripts_profiles']['transcripts_actions'] = array(
     '#markup' => '<ul class="action-links">' . drupal_render($actions) . '</ul>',
   );
-  
+  return $form;
+}
+
+function transcripts_mapper_settings() {
   /* interpret id - should permissions check for PHP writing ability */
+  $form = array();
   $form['transcripts_mapper'] = array(
     '#title' => t('Mapping info'),
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
+    //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
   $form['transcripts_mapper']['transcripts_id_mapper'] = array(
@@ -348,30 +367,32 @@ function transcripts_admin_form($form, &$form_state) {
   	'#rows' => 10,
     '#default_value' => variable_get('transcripts_id_mapper', ''),
   );
-  
-  /* submit */
-  $form['submit'] = array(
-  	'#type' => 'submit',
-  	'#value' => t('Save settings'),
-  );
-
   return $form;
 }
 
-function transcripts_admin_form_submit($form, &$form_state) {
-	variable_set('transcripts_env_id', $form_state['values']['transcripts_env_id']);
-	//variable_set('transcripts_page_id', $form_state['values']['transcripts_page_id']);
-	variable_set('transcripts_transcript_extensions', $form_state['values']['transcripts_transcript_extensions']);
-	variable_set('transcripts_saxon_path', $form_state['values']['transcripts_saxon_path']);
-	variable_set('transcripts_saxon_jar', $form_state['values']['transcripts_saxon_jar']);
-	variable_set('transcripts_xslt_file', $form_state['values']['transcripts_xslt_file']);
-	variable_set('transcripts_hl_simple_pre', $form_state['values']['transcripts_hl_simple_pre']);
-	variable_set('transcripts_hl_simple_post', $form_state['values']['transcripts_hl_simple_post']);
-	variable_set('transcripts_all_tiers', $form_state['values']['transcripts_all_tiers']);
-	variable_set('transcripts_result_link', $form_state['values']['transcripts_result_link']);
-	variable_set('transcripts_id_mapper', $form_state['values']['transcripts_id_mapper']);
-	//menu_rebuild(); //just needed if transcripts_page_id has changed
-	drupal_set_message(t('Your new settings have been saved.'));
+function transcripts_site_settings_form($form, &$form_state) {
+	return system_settings_form(array_merge(
+		$form,
+		transcripts_solr_settings(),
+		transcripts_saxon_settings(),
+		transcripts_index_settings(),
+		transcripts_search_settings(),
+		transcripts_tier_settings(),
+		transcripts_profile_settings(),
+		transcripts_mapper_settings()
+	));
 }
 
-?>
+function transcripts_project_settings_form($form, &$form_state) {
+	return system_settings_form(array_merge(
+		$form,
+		//transcripts_solr_settings(),
+		//transcripts_saxon_settings(),
+		transcripts_index_settings(),
+		transcripts_search_settings(),
+		transcripts_tier_settings()
+		//transcripts_profile_settings(),
+		//transcripts_mapper_settings()
+	));
+}
+

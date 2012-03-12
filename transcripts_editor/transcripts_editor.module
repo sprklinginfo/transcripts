@@ -1,6 +1,21 @@
 <?php
 // $Id$
 
+function transcripts_editor_init() {
+  drupal_add_library('system', 'ui.autocomplete'); //jquery ui
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.hoverIntent.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.ui.combobox.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.jeditable.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.jeditable.elastic.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.jeditable.combobox.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.elastic.source.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/transcripts_editor.js', 'file');
+  drupal_add_css(drupal_get_path('module', 'transcripts_editor') .'/transcripts_editor.css', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/ui.spinner.js', 'file');
+  drupal_add_js(drupal_get_path('module', 'transcripts_editor') .'/jquery.jeditable.spinner.js', 'file');
+  drupal_add_css(drupal_get_path('module', 'transcripts_editor') .'/ui.spinner.css', 'file');
+}
+
 /**
  * Define all facets provided by the module.
  *
