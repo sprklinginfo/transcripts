@@ -288,6 +288,15 @@ function transcripts_all_modes() {
  */
 function transcripts_field_formatter_info() {
 	$info = array();
+	$info['player'] = array(
+		'label' => 'Default transcript player',
+		'field types' => array('file'),
+	);
+	$info['link'] = array(
+		'label' => 'Link to default transcript player',
+		'field types' => array('file'),
+	);
+	/*
   $profiles = transcripts_all_profiles();
   foreach ($profiles as $profile) {
   	$pid = $profile['pid'];
@@ -300,7 +309,7 @@ function transcripts_field_formatter_info() {
   		'field types' => array('file'),
   	);
   	
-  }
+  }*/
   return $info;
 }
 
@@ -310,9 +319,22 @@ function transcripts_field_formatter_info() {
 function transcripts_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   if (is_transcript_field($field['field_name'])) {
-     $pid_plus_formatter_type = explode('__', $display['type']); 
-     $pid = $pid_plus_formatter_type[0];
-     $link_only = 'transcript-player-link' == $pid_plus_formatter_type[1];
+  	$link_only = ($diplay['type'] == 'link');
+		foreach ($items as $delta => $item) {
+			$nid = arg(1);
+			if ( $link_only ) {
+			   $link = l(t('View Transcript'), sprintf('node/%d/transcript',$nid));
+			   $element[$delta] = array('#markup' => $link);
+			}
+			else {
+			   $element[$delta] = array('#markup' => transcript_player_title($nid));
+			}
+		}
+  	
+  	/*
+    $pid_plus_formatter_type = explode('__', $display['type']); 
+    $pid = $pid_plus_formatter_type[0];
+    $link_only = 'transcript-player-link' == $pid_plus_formatter_type[1];
 		if (in_array($pid, array_keys(transcripts_all_profiles()))) {
 			foreach ($items as $delta => $item) {
 				$nid = arg(1);
@@ -324,7 +346,7 @@ function transcripts_field_formatter_view($entity_type, $entity, $field, $instan
 				   $element[$delta] = array('#markup' => transcript_player_title($nid,$pid));
 				}
 			}
-		}
+		}*/
   }
 
   return $element;
