@@ -14,7 +14,7 @@ function transcripts_settings_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_all_tiers';
-  $strongarm->value = 'ts_content_wylie, ts_content_eng, ts_content_zho';
+  $strongarm->value = 'content_bod, ts_content_wylie, ts_content_eng, ts_content_zho';
   $export['transcripts_all_tiers'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -93,7 +93,7 @@ $val = array(
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_saxon_path';
-  $strongarm->value = '/lv1/var/html/mediabase/sites/mediabase/lib/saxon';
+  $strongarm->value = '/opt/saxon';
   $export['transcripts_saxon_path'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -110,6 +110,7 @@ $val = array(
   $strongarm->value = array(
     'field_transcript' => 1,
     'field_friendly' => 0,
+    'field_transformer' => 0,
   );
   $export['transcripts_transcript_fields'] = $strongarm;
 

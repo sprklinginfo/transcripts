@@ -94,6 +94,7 @@
 									);
 									$('.t1,.t2', $player).editable(
 										function(value, settings) {
+											console.log($(this).html());
 											console.log(value);
 											return(value);
 										},{
@@ -105,6 +106,13 @@
 												defaultStep :	.01,
 												largeStep		: .1
 											},
+											callback		: function(value, settings) {
+												var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
+												var $s = $(this).parents('div[' + t + ']');
+												if ($s.attr(t) != value) { //changed
+													//alert('changed');
+												}
+											}
 										}
 									);
 									

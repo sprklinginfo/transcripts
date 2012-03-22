@@ -220,10 +220,19 @@ function transcripts_index_settings() {
   );
   $form['transcripts_indexing_settings']['transcripts_xslt_file'] = array(
     '#type' => 'textfield',
-    '#title' => t('XSLT file'),
+    '#title' => t('Default XSLT file'),
     '#size' => 20,
-    '#description' => t("The name of the XSLT file within the saxon directory."),
+    '#description' => t("The default XSLT file to be used to transform incoming transcripts into a format to be used by Drupal and Solr."),
     '#default_value' => variable_get('transcripts_xslt_file', ''),
+  );
+  $message = "Specify the name of an existing file field to allow users the ability to use a different stylesheet. "
+  					."Users will then be able to drive transformations to Drupal and Solr using their own stylesheets.";
+  $form['transcripts_indexing_settings']['transcripts_xslt_field'] = array(
+    '#type' => 'textfield',
+    '#title' => t('File field for XSLT overrides'),
+    '#size' => 20,
+    '#description' => t($message),
+    '#default_value' => variable_get('transcripts_xslt_field', ''),
   );
   return $form;
 }
@@ -388,7 +397,7 @@ function transcripts_project_settings_form($form, &$form_state) {
 		$form,
 		//transcripts_solr_settings(),
 		//transcripts_saxon_settings(),
-		transcripts_index_settings(),
+		//transcripts_index_settings(),
 		transcripts_search_settings(),
 		transcripts_tier_settings()
 		//transcripts_profile_settings(),

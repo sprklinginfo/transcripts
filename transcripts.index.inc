@@ -71,7 +71,18 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
 	watchdog('Transcripts', "Indexing transcript at nid %nid", array('%nid' => $node->nid), WATCHDOG_NOTICE);
   
 	$saxon_path = realpath(variable_get('transcripts_saxon_path', ''));
-  $xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
+	
+	$xslfield = variable_get('transcripts_xslt_field','field_transcripts_xsl');
+	if ($node->{$xslfield}) {
+		$field = $node->{$xslfield};
+		$uri = $field[$node->language][0]['uri'];
+		watchdog('Transcripts', "Use XSL $uri", NULL, WATCHDOG_WARNING);
+		$xslt = drupal_realpath($node->{$xslfield}[$node->language][0]['uri']);
+		watchdog('Transcripts', "Use XSL $xslt", NULL, WATCHDOG_WARNING);
+	} else {
+		$xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
+	}
+	
   $saxon = realpath($saxon_path . '/' . variable_get('transcripts_saxon_jar', 'saxon9he.jar'));
   if (!$saxon || !is_file($saxon)) {
     throw new Exception(t('Invalid path or filename for saxon application jar.'));

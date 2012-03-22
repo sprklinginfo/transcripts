@@ -21,7 +21,18 @@ USING WITH SPACES OG
 --------------------
 
 * Set PURL for group
-* Disable PURL for primary menu links
+
+
+2. Disable PURL behavior for menus as necessary
+
+When using PURL with Spaces, page links are normally rewritten to contain the
+active persistent url elements. In other words, in a space activated by the 
+PURL prefix "doughnuts", the menu link "members" would be rewritten as 
+"doughnuts/members". To disable this behavior, go to 
+
+admin/structure/menu/manage/MENU-NAME/edit
+
+and choose 'Discard' under Persistent URL Behavior.
 
 
 VERSION HISTORY
