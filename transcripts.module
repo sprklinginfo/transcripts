@@ -223,6 +223,18 @@ function transcripts_menu() {
   		'access arguments' => array("view profile $pid"),
   	);
   }
+  $items['node/%/transcript'] = array(
+  	'title' => '',
+  	'page callback' => 'transcript_player_title',
+  	'page arguments' => array(1),
+  	'access callback' => TRUE,
+  );
+  $items['transcript/%'] = array(
+  	'title' => '',
+  	'page callback' => 'transcript_player_title',
+  	'page arguments' => array(1),
+  	'access callback' => TRUE,
+  );
   return $items;
 }
 

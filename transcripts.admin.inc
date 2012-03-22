@@ -291,6 +291,19 @@ function transcripts_tier_settings() {
   	'#default_value' => variable_get('transcripts_all_tiers', ''),
   	'#description' => t('Enter a comma-separated list of all transcript tiers. These tiers will be searched and shown in search results.'),
   	'#required' => TRUE,
+  );;
+  $profiles = transcripts_all_profiles();
+  $options = array();
+  foreach ($profiles as $pid => $data) {
+  	$options[$pid] = "Transcript player: ".$pid;
+  }
+  $form['transcripts_tier_settings']['transcripts_default_profile'] = array(
+  	'#title' => t('Default transcript profile'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => variable_get('transcripts_default_profile', ''),
+  	'#description' => t('Select the default transcript player profile.'),
+  	'#required' => TRUE,
   );
   return $form;
 }

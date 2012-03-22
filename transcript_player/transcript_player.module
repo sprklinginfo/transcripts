@@ -19,7 +19,14 @@ function transcript_player_init() {
   drupal_add_js(drupal_get_path('module', 'transcript_player') .'/jquery.scrollTo.js', 'file');
 }
 
-function transcript_player_title($id, $pid, $options = array()) {
+function transcript_player_title($id, $pid = '', $options = array()) {
+	if (!$pid) {
+		$pid = variable_get('transcripts_default_profile', '');
+		if (!$pid) {
+			return "No data";
+		}
+  }
+	
 	$profile = transcripts_profile_load($pid);
 	if (!$profile) return; //graceful degradation - or should there be an error message?
 	

@@ -20,6 +20,13 @@ function transcripts_settings_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_default_profile';
+  $strongarm->value = 'default';
+  $export['transcripts_default_profile'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_env_id';
   $strongarm->value = 'solr';
   $export['transcripts_env_id'] = $strongarm;
@@ -111,8 +118,16 @@ $val = array(
     'field_transcript' => 1,
     'field_friendly' => 0,
     'field_transformer' => 0,
+    'field_transcripts_xsl' => 0,
   );
   $export['transcripts_transcript_fields'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_xslt_field';
+  $strongarm->value = 'field_transcripts_xsl';
+  $export['transcripts_xslt_field'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
