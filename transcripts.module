@@ -287,15 +287,16 @@ function transcripts_all_modes() {
  * Implements hook_field_widget_info().
  */
 function transcripts_field_formatter_info() {
-	$info = array();
-	$info['player'] = array(
-		'label' => 'Default transcript player',
-		'field types' => array('file'),
-	);
-	$info['link'] = array(
-		'label' => 'Link to default transcript player',
-		'field types' => array('file'),
-	);
+   return array(
+      'transcripts_default_player' => array(
+         'label' => t('Transcript player embed'),
+         'field types' => array('file'),
+         ),
+      'transcripts_default_player_link' => array(
+         'label' => t('Transcript player link'),
+         'field types' => array('file'),
+         ),
+      );
 	/*
   $profiles = transcripts_all_profiles();
   foreach ($profiles as $profile) {
@@ -309,8 +310,8 @@ function transcripts_field_formatter_info() {
   		'field types' => array('file'),
   	);
   	
-  }*/
-  return $info;
+  }
+  return $info; */
 }
 
 /**
@@ -319,7 +320,7 @@ function transcripts_field_formatter_info() {
 function transcripts_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   if (is_transcript_field($field['field_name'])) {
-  	$link_only = ($diplay['type'] == 'link');
+  	$link_only = ($diplay['type'] == 'transcripts_default_player_link');
 		foreach ($items as $delta => $item) {
 			$nid = arg(1);
 			if ( $link_only ) {
