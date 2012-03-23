@@ -38,8 +38,11 @@ function transcripts_settings_menu() {
 /**
  * Implements of hook_drupal_goto_alter().
  */
+
+/*
 function transcripts_drupal_goto_alter(&$path, &$options, &$http_response_code) {
-	/* prevent search and other forms from improperly redirecting within PURL context */
+	// prevent search and other forms from improperly redirecting within PURL context
 	$options['purl'] = array('disabled' => TRUE); 
 }
+*/
 
