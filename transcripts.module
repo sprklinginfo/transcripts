@@ -34,9 +34,13 @@ function theme_apachesolr_search_snippets__fragment__sentence($vars) {
 	$doc = $vars['doc'];
   $snippets = $vars['snippets'];
   $reslink = variable_get('transcripts_result_link', 'NODE');
+  if ($reslink == 'PLAYER') {
+  	$doc->path = "node/" . $doc->is_nid . "/transcript";
+  }
+  /*
   if ($reslink != 'NODE') {
   	$doc->path = "transcripts/" . $reslink . "/" . $doc->is_nid;
-  }
+  }*/
   $url = url($doc->path, array('fragment' => $doc->ss_sid));
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {

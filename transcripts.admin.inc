@@ -248,9 +248,11 @@ function transcripts_search_settings() {
   $profiles = transcripts_all_profiles();
   $options = array();
   $options['NODE'] = t('Node');
+  $options['PLAYER'] = t('Transcript player');
+  /*
   foreach ($profiles as $pid => $data) {
   	$options[$data['menu']] = "Transcript player: ".$pid;
-  }
+  }*/
   $form['transcripts_search_results']['transcripts_result_link'] = array(
   	'#title' => t('Link results to'),
     '#type' => 'select',
