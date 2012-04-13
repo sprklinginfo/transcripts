@@ -36,6 +36,14 @@ function bubtitles_permission() {
 function bubtitles_menu() {
   $items = array();
 
+  $items['node/%/transcript'] = array(
+  	'title' => '',
+  	'page callback' => 'transcript_player_title',
+  	'page arguments' => array(1),
+  	'access callback' => TRUE,
+  );
+  
+  /*
   $items['bubble-positions/%/get'] = array(
   	'title' => 'Get speech bubble positions',
   	'description' => t('Get positions of speech bubbles'),
@@ -45,6 +53,36 @@ function bubtitles_menu() {
   );
   
   $items['bubble-positions/%/set'] = array(
+  	'title' => 'Set speech bubbles',
+  	'description' => t('Write speech bubble positions to database'),
+  	'page callback' => 'bubtitles_set',
+  	'page arguments' => array(1),
+  	'access arguments' => array('move bubbles'),
+  );*/
+  
+  
+  $items['node/%/transcript/bubbles/get'] = array(
+  	'title' => 'Get speech bubble positions',
+  	'description' => t('Get positions of speech bubbles'),
+  	'page callback' => 'bubtitles_get',
+  	'page arguments' => array(1),
+  	'access callback' => TRUE,
+  );
+  $items['node/%/bubbles/get'] = array(
+  	'title' => 'Get speech bubble positions',
+  	'description' => t('Get positions of speech bubbles'),
+  	'page callback' => 'bubtitles_get',
+  	'page arguments' => array(1),
+  	'access callback' => TRUE,
+  );
+  $items['node/%/transcript/bubbles/set'] = array(
+  	'title' => 'Set speech bubbles',
+  	'description' => t('Write speech bubble positions to database'),
+  	'page callback' => 'bubtitles_set',
+  	'page arguments' => array(1),
+  	'access arguments' => array('move bubbles'),
+  );
+  $items['node/%/bubbles/set'] = array(
   	'title' => 'Set speech bubbles',
   	'description' => t('Write speech bubble positions to database'),
   	'page callback' => 'bubtitles_set',
