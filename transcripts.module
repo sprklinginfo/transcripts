@@ -160,8 +160,11 @@ function transcripts_help($path, $arg) {
 function transcripts_permission() {
 	$profiles = transcripts_all_profiles();
 	$permissions = array();
+  $permissions['view transcripts'] = array(
+  	'title' => t('View transcripts'),
+  );
   $permissions['administer transcripts'] = array(
-      'title' => t('Administer transcripts module, including managing profiles'),
+  	'title' => t('Administer transcripts module, including managing profiles'),
   );
 	foreach ($profiles as $profile) {
 		$pid = $profile['pid'];
@@ -228,20 +231,27 @@ function transcripts_menu() {
   	);
   }
   $items['node/%/transcript'] = array(
-  	'title' => '',
+  	'title' => 'Transcript',
   	'page callback' => 'transcript_player_title',
   	'page arguments' => array(1),
-  	'access callback' => TRUE,
+  	'access callback' => 'transcripts_transcript_access',
+  	'access arguments' => array(1),
+  	'type' => MENU_LOCAL_TASK,
+  	'weight' => 80,
   );
   $items['transcript/%'] = array(
-  	'title' => '',
   	'page callback' => 'transcript_player_title',
   	'page arguments' => array(1),
-  	'access callback' => TRUE,
+  	'access callback' => 'transcripts_transcript_access',
+  	'access arguments' => array(1),
   );
   return $items;
 }
 
+function transcripts_transcript_access($nid) {
+	return user_access('view transcripts') && node_access('view', node_load($nid)) ? true : false;
+}
+	
 function transcripts_goto($url, $menu_tail) {
 	drupal_goto($url . '/' . $menu_tail);
 }

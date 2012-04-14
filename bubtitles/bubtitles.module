@@ -17,16 +17,10 @@ function bubtitles_transcripts_info() {
 }
 
 function bubtitles_permission() {
-  return array(/*
-    'tag bubble participants' => array(
-      'title' => t('Tag and link participants to speech bubbles'),
-      ),*/
+  return array(
     'move bubbles' => array(
     	'title' => t('Tag participants and position speech bubbles'),
-    ),/*
-    'change bubble styles' => array(
-    	'title' => t('Change display and style of bubbles'),
-    ),*/
+    ),
     'administer bubtitles' => array(
       'title' => t('Administer bubtitles module'),
       ),
@@ -42,25 +36,6 @@ function bubtitles_menu() {
   	'page arguments' => array(1),
   	'access callback' => TRUE,
   );
-  
-  /*
-  $items['bubble-positions/%/get'] = array(
-  	'title' => 'Get speech bubble positions',
-  	'description' => t('Get positions of speech bubbles'),
-  	'page callback' => 'bubtitles_get',
-  	'page arguments' => array(1),
-  	'access callback' => TRUE,
-  );
-  
-  $items['bubble-positions/%/set'] = array(
-  	'title' => 'Set speech bubbles',
-  	'description' => t('Write speech bubble positions to database'),
-  	'page callback' => 'bubtitles_set',
-  	'page arguments' => array(1),
-  	'access arguments' => array('move bubbles'),
-  );*/
-  
-  
   $items['node/%/transcript/bubbles/get'] = array(
   	'title' => 'Get speech bubble positions',
   	'description' => t('Get positions of speech bubbles'),

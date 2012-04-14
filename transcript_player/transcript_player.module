@@ -70,7 +70,7 @@ function transcript_player_title($id, $pid = '', $options = array()) {
 		$vals = $info();
 		$to = $vals['to']; 
     list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
-    $playerid = 'pid-'.$id; //id should be node id!!
+    $playerid = 'pid-'.$id; //id is node id!!
     module_invoke_all('transcript_player_prepare_player', $id);
     $return = 	transcript_player_tiermode_controls($playerid, $tiers, $modes) . 
     					"<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>" . 

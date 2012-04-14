@@ -2,20 +2,16 @@
 		Drupal.behaviors.transcriptsEditor = {
 			attach:
 				function(context, settings) {
-					var mayEdit = true;
-					if (mayEdit) {
-						$('.transcript-player:not(editable-processed)', context).each(function() {
-							var $player = $(this);
-							var pid = $player.attr('id');
+					$('.transcript-player', context).once('editable').each(function() {
+						var $player = $(this);
+						var pid = $player.attr('id');
+						var data = Drupal.settings['transcripts_editor_' + pid.substring(4)];
+						if (data.editable) {
 							var pencilId = "pencil" + pid;
-							//var clockId = "clock" + pid;
 							var $input = $('<input id="' + pencilId + '" class="pencil" type="checkbox"/>');
-							//var $clock = $('<input id="' + clockId + '" class="clock" type="checkbox"/>');
-							
 							$('<span class="control-block edit-controls"></span>')
 								.appendTo($player.find('.video-controls'))
-								.append($input).append('<label for="' + pencilId + '"></label>')
-								;//.append($clock).append('<label for="' + clockId + '"></label>');
+								.append($input).append('<label for="' + pencilId + '"></label>');
 								
 							$input.button({
 								label: 'Edit transcript',
@@ -39,7 +35,6 @@
 										var $play = $("<button></button>");
 										var $controls = $("<div class='infocontrols'></div>").appendTo($playwrapper).append($play);
 										$play.button({
-											//label: 'Play sentence',
 											icons: {
 												primary: 'ui-icon-play'
 											},
@@ -61,9 +56,9 @@
 									
 									$('.tier', $player).editable(
 										function(value, settings) { 
-											console.log(this); //<div class="tier content_bod editable active" style="">
+											/*console.log(this); //<div class="tier content_bod editable active" style="">
 											console.log(value); 
-											console.log(settings);
+											console.log(settings);*/
 											return(value); //return value is displayed after editing is complete
 										},{
 											type      	: 'elastic',
@@ -94,8 +89,8 @@
 									);
 									$('.t1,.t2', $player).editable(
 										function(value, settings) {
-											console.log($(this).html());
-											console.log(value);
+											/*console.log($(this).html());
+											console.log(value);*/
 											return(value);
 										},{
 											type				: 'spinner',
@@ -115,14 +110,6 @@
 											}
 										}
 									);
-									
-									$('.timecodes form', $player).focusin(function() {
-										console.log('got focus');
-									});
-									$('.timecodes form', $player).focusout(function() {
-										console.log('lost focus');
-									});
-									
 									$('.playwrapper', $player).hoverIntent(
 										function() {
 											$('.infocontrols', this).css('visibility', 'visible');
@@ -144,8 +131,8 @@
 									enableClickAndPlay($player);
 								}
 							});
-						}).addClass('editable-processed');
-					}
+						}
+					});
 				}
 		}
 })(jQuery);

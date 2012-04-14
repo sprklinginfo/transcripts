@@ -104,6 +104,11 @@ case, it may help to add the following line to settings.php:
 VIEWING TRANSCRIPTS
 -------------------
 
+Users must have the 'view transcripts' permission in order to view a transcript
+player. A sensible setting is to give this permission to both anonymous and
+authenticated users. This way they will be able to view all and only those
+transcripts attached to nodes they can view.
+
 In order to view time-coded transcripts in synchronization with media, you must
 create one or more "display profiles". A display profile consists of various
 attributes which together define one mode of presentation of a transcript:

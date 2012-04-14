@@ -10,59 +10,60 @@ var lastNow = [];
 var playListeners = [];
 var sweetSpot = [];
 
-Drupal.behaviors.transcriptPlayer = {
-	attach: function(context, settings) {
-		jQuery('.transcript-player:not(.player-processed)', context).each(function() {
-			var $player = jQuery(this);
-			var pid = $player.attr('id');
-			
-			sweetSpot[pid] = 0;
-			playSentence[pid] = 0; //timeout for playing single sentence
-			playIndex[pid] = 0;
-			startPointer[pid] = 0;
-			lastNow[pid] = 0;
-			playListeners[pid] = [];
-			
-      starts[pid] = $player.find('div[data-begin]').map(function(element, index) {
-      	var o = {};
-        o.$item = jQuery(this);
-        o.begin = jQuery(this).attr('data-begin');
-        o.end = jQuery(this).attr('data-end');
-        return o;                    
-      }).toArray().sort(function(a,b) {
-      	return a.begin - b.begin;
-      });
-      for (var i=0; i<starts[pid].length; i++) {
-      	starts[pid][i].$item.attr('data-starts-index', i);
-      }
-      ends[pid] = $player.find('div[data-end]').map(function(element, index) {
-      	var o = {};
-        o.$item = jQuery(this);
-        o.begin = jQuery(this).attr('data-begin');
-        o.end = jQuery(this).attr('data-end');
-        return o; 
-      }).toArray().sort(function(a,b) {
-        return a.end - b.end;
-      });
-      enableClickAndPlay($player);
-      setPlayMode(pid, 'playstop');
-      attachListeners($player);
-      
-      if ($player.find('.transcript').hasClass('scroller')) {
-				var fn = window[$player.attr('data-tofunction')];
-				if(typeof fn === 'function') {
-					fn($player);
-				}
+(function($) {
+		Drupal.behaviors.transcriptPlayer = {
+			attach: function(context, settings) {
+				$('.transcript-player', context).once('player').each(function() {
+					var $player = $(this);
+					var pid = $player.attr('id');
+					
+					sweetSpot[pid] = 0;
+					playSentence[pid] = 0; //timeout for playing single sentence
+					playIndex[pid] = 0;
+					startPointer[pid] = 0;
+					lastNow[pid] = 0;
+					playListeners[pid] = [];
+					
+					starts[pid] = $player.find('div[data-begin]').map(function(element, index) {
+						var o = {};
+						o.$item = $(this);
+						o.begin = $(this).attr('data-begin');
+						o.end = $(this).attr('data-end');
+						return o;                    
+					}).toArray().sort(function(a,b) {
+						return a.begin - b.begin;
+					});
+					for (var i=0; i<starts[pid].length; i++) {
+						starts[pid][i].$item.attr('data-starts-index', i);
+					}
+					ends[pid] = $player.find('div[data-end]').map(function(element, index) {
+						var o = {};
+						o.$item = $(this);
+						o.begin = $(this).attr('data-begin');
+						o.end = $(this).attr('data-end');
+						return o; 
+					}).toArray().sort(function(a,b) {
+						return a.end - b.end;
+					});
+					enableClickAndPlay($player);
+					setPlayMode(pid, 'playstop');
+					attachListeners($player);
+					
+					if ($player.find('.transcript').hasClass('scroller')) {
+						var fn = window[$player.attr('data-tofunction')];
+						if(typeof fn === 'function') {
+							fn($player);
+						}
+					}
+					var hash = $.param.fragment();
+					if (hash != '') {
+						var jump = '#s-' + pid.substring(4) + '-' + hash;
+						jumpPlay(pid, $(jump));
+					}
+				});
 			}
-			var hash = jQuery.param.fragment();
-			if (hash != '') {
-				var jump = '#s-' + pid.substring(4) + '-' + hash;
-				jumpPlay(pid, jQuery(jump));
-			}
-		})
-		.addClass('player-processed');
-  }
-}
+		}
+})(jQuery);
 
 function enableClickAndPlay($player) {
 	var pid = $player.attr('id');

@@ -1,7 +1,7 @@
 (function($) {
 		Drupal.behaviors.playerControls = {
 			attach: function(context, settings) {
-				$('.transcript-controls:not(.player-processed)', context).each(function() {
+				$('.transcript-controls', context).once('player').each(function() {
 					var $controls = $(this);
 					var pid = $controls.attr('data-for');
 					var pidfix = '#' + pid + '-';
@@ -104,8 +104,7 @@
 						$player.find('.hit').removeClass('hit');
 						return false;
 					});
-			})
-			.addClass('player-processed');
+			});
 		}
 	}
 	

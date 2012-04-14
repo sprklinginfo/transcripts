@@ -13,6 +13,15 @@ Pinedrop uses a modified version of Facetapi Slider which fixes certain problems
 with the version available from drupal.org.
 
 
+PERMISSIONS
+-----------
+
+In order to edit transcripts, users must have the 'edit transcripts' permission.
+A sensible default is for authenticated users to be granted this permission.
+That way, they will be able to edit all and only those transcripts belonging to
+nodes which they can edit.
+
+
 CONFIGURING FACET BLOCKS
 ------------------------
 
