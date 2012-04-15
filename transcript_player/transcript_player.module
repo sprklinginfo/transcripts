@@ -96,7 +96,14 @@ function transcript_player_transcript($response, $tiers) {
     $hits = array();
     foreach ($docs as $sentence) {
     	$sid = 's-'.$sentence->is_nid.'-'.$sentence->ss_sid;
-      if (isset($sentence->fts_start, $sentence->fts_end, $sentence->fts_duration) && $sentence->fts_duration>0) {
+    	$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
+    	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
+    	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
+    	$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
+    	$line .= "<div class='info'><div class='speakername'>$speaker</div></div>";
+    	$line .= "<div class='tiers speaker-tiers'>";
+    	/* 
+    	if (isset($sentence->fts_start, $sentence->fts_end, $sentence->fts_duration) && $sentence->fts_duration>0) {
       	if (isset($sentence->ss_speaker)) {
       		$line = "<div id='$sid' class='clearfix' data-participant='{$sentence->ss_speaker}' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
       	} else {
@@ -109,7 +116,7 @@ function transcript_player_transcript($response, $tiers) {
       	$line .= "<div class='info'><div class='speakername'>{$sentence->ss_speaker}</div></div><div class='tiers speaker-tiers'>";
       } else {
       	$line .= "<div class='tiers'>";
-      }
+      } */
       foreach (array_keys($tiers) as $tier) {
         if (isset($sentence->$tier)) {
         	if ($highlight) {
@@ -132,6 +139,8 @@ function transcript_player_transcript($response, $tiers) {
 					} else {
 						$line .= "<div class='tier $tier np'>{$sentence->$tier}</div>";
 					}
+        } else { //empty tier for editing
+        	$line .= "<div class='tier $tier np'></div>";
         }
       }
       $line .= "</div>"; //div.tiers

@@ -109,3 +109,8 @@
 	box-shadow: none;
 }
 
+.transcript.scroller.editing .playing {
+  background-color: transparent; /* cancels default scroller highlight */
+  border: 2px dashed #6cf;
+}
+

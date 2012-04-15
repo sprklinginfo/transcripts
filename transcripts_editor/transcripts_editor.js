@@ -2,6 +2,7 @@
 		Drupal.behaviors.transcriptsEditor = {
 			attach:
 				function(context, settings) {
+					var hoverPlaywrapper = false;
 					$('.transcript-player', context).once('editable').each(function() {
 						var $player = $(this);
 						var pid = $player.attr('id');
@@ -22,6 +23,7 @@
 							}).change(function() {
 								if ($input.is(':checked')) {
 									disableClickAndPlay($player);
+									$('.transcript', $player).addClass('editing');
 									
 									//display timecodes
 									$('div[data-participant]', $player).each(function() {
@@ -55,16 +57,16 @@
 									$('.transcript span', $player).contents().unwrap(); //remove spans from transcript
 									
 									$('.tier', $player).editable(
-										function(value, settings) { 
+										function(value, settings) {
 											/*console.log(this); //<div class="tier content_bod editable active" style="">
 											console.log(value); 
 											console.log(settings);*/
 											return(value); //return value is displayed after editing is complete
 										},{
-											type      	: 'elastic',
-											placeholder	: '(EMPTY)',
-											onblur    	: 'submit',
-											elastic : {}
+											type: 'elastic',
+											placeholder: '&lt;Empty&gt;',
+											onblur: 'submit',
+											elastic: {}
 										}
 									);	
 									var dupes = {};
@@ -78,49 +80,55 @@
 									});			
 									$('.speakername', $player).editable(
 										function(value, settings) {
-											console.log(value); 
+											var $s = $(this).parents('div[data-participant]');
+											if ($s.attr('data-participant') != value) { //changed
+												$s.attr('data-participant', value);
+											}
 											return(value); //return value is displayed after editing is complete
 										},{
-											type				: 'combobox',
-											placeholder	: '(EMPTY)',
-											data				: speakers,
-											onblur			: 'submit'
+											type: 'combobox',
+											placeholder: '&lt;No name&gt;',
+											data: speakers,
+											onblur: 'submit'
 										}
 									);
 									$('.t1,.t2', $player).editable(
 										function(value, settings) {
-											/*console.log($(this).html());
-											console.log(value);*/
+											var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
+											var $s = $(this).parents('div[' + t + ']');
+											if ($s.attr(t) != value) { //changed
+												$s.attr(t, value);
+											}
 											return(value);
 										},{
-											type				: 'spinner',
-											onblur			: 'submit',
-											spinner			: {
-												min					: 0,
-												places			: 3,
-												defaultStep :	.01,
-												largeStep		: .1
-											},
-											callback		: function(value, settings) {
-												var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
-												var $s = $(this).parents('div[' + t + ']');
-												if ($s.attr(t) != value) { //changed
-													//alert('changed');
-												}
+											type: 'spinner',
+											onblur: //submit without delay
+												function(value, settings) {
+													$('form', this).submit();
+												},
+											spinner: {
+												min: 0,
+												places: 3,
+												defaultStep: .01,
+												largeStep: .1
 											}
 										}
 									);
-									$('.playwrapper', $player).hoverIntent(
-										function() {
-											$('.infocontrols', this).css('visibility', 'visible');
-											$('.timecodes', this).css('visibility', 'visible');
-										},
-										function() {
-											$('.timecodes input', this).blur();
-											$('.infocontrols', this).css('visibility', 'hidden');
-											$('.timecodes', this).css('visibility', 'hidden');
-										}
-									);
+									if (hoverPlaywrapper) {
+										$('.playwrapper', $player).hoverIntent(
+											function() {
+												$('.infocontrols', this).css('visibility', 'visible');
+												$('.timecodes', this).css('visibility', 'visible');
+											},
+											function() {
+												$('.timecodes input', this).blur();
+												$('.infocontrols', this).css('visibility', 'hidden');
+												$('.timecodes', this).css('visibility', 'hidden');
+											}
+										);
+									} else {
+										$('.infocontrols, .timecodes', $player).css('visibility', 'visible');
+									}
 								} else {
 									$('.tier', $player).editable('destroy');
 									$('.speakername', $player).editable('destroy');
@@ -128,6 +136,8 @@
 									//remove extra controls in info section
 									$('.infocontrols', $player).remove();
 									$('.playwrapper', $player).remove();
+									
+									$('.transcript', $player).removeClass('editing');
 									enableClickAndPlay($player);
 								}
 							});
