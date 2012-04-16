@@ -169,7 +169,7 @@ function cancelCanSave($player) {
 			$bubble.draggable('destroy').resizable('destroy');
 		}
 	);
-	$player.find('v-column').draggable('destroy').unbind('mousemove');
+	$player.find('.v-column').draggable('destroy').unbind('mousemove');
 }
 
 function setCanSave($player) {

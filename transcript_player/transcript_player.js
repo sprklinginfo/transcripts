@@ -9,6 +9,8 @@ var startPointer = [];
 var lastNow = [];
 var playListeners = [];
 var sweetSpot = [];
+var psnSweet = [];
+
 
 (function($) {
 		Drupal.behaviors.transcriptPlayer = {
@@ -18,6 +20,7 @@ var sweetSpot = [];
 					var pid = $player.attr('id');
 					
 					sweetSpot[pid] = 0;
+					psnSweet[pid] = false;
 					playSentence[pid] = 0; //timeout for playing single sentence
 					playIndex[pid] = 0;
 					startPointer[pid] = 0;
@@ -151,7 +154,8 @@ function getPlayMode(pid) {
 
 // play methods
 
-function playOne(pid, $item) {
+function playOne(pid, $item, resetSweet) {
+	resetSweet = typeof resetSweet !== 'undefined' ? resetSweet : true;
 	var vid = jQuery('#' + pid).find('video,audio')[0];
   if ($item.attr('data-end') - $item.attr('data-begin') > 0) {
   	if (playMode[pid] == 'playstop') {
@@ -160,7 +164,9 @@ function playOne(pid, $item) {
   	var $player = jQuery('#' + pid);
   	if ($player.find('.transcript.scroller').size() == 1) {
   		endAll(pid);
-  		sweetSpot[pid] = $item.position().top;
+  		if (resetSweet) {
+  			sweetSpot[pid] = $item.position().top;
+  		}
   		
   	}
   	playIndex[pid] = parseInt($item.attr('data-starts-index'));
@@ -190,12 +196,15 @@ function startPlay(pid, $id) {
   var $scroller = $player.find('.transcript.scroller');
   if ($scroller.size() == 1) {
   	var idTop = $id.position().top;
+  	
   	//sentence out of view above
-  	if (idTop < 0) {
+  	if (idTop < 0 && sweetSpot[pid] < 0) {
+  		sweetSpot[pid] = 0;
   		$player.find('.transcript').scrollTo($id);
   	}
+  	
   	//sentence above scroll sweet spot
-  	else if (idTop < sweetSpot[pid]) {
+  	else if (idTop < 0 || idTop < sweetSpot[pid]) {
   		$player.find('.transcript').scrollTo('-=' + (sweetSpot[pid]-idTop), {axis: 'y'});
   	}
   	//sentence below scroll sweet spot
@@ -228,7 +237,9 @@ function endPlay(pid, $id) {
 
 function endAll(pid) {
 	var $player = jQuery('#' + pid);
-	$player.find('.playing').removeClass('playing');
+	$player.find('.playing').each(function() {
+		endPlay(pid, jQuery(this));
+	});	
 }
 
 function jumpPlay(pid, $id) {
@@ -242,16 +253,16 @@ function jumpPlay(pid, $id) {
 function previous(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] > 0 ? playIndex[pid]-1 : 0;
-  playOne(pid, jQuery(starts[pid][n].$item));
+  playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
 }
         
 function sameAgain(pid) {
   var $player = jQuery('#' + pid);
-  playOne(pid, jQuery(starts[pid][playIndex[pid]].$item));
+  playOne(pid, jQuery(starts[pid][playIndex[pid]].$item), psnSweet[pid]);
 }
 
 function next(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] == starts[pid].length-1 ? playIndex[pid] : playIndex[pid]+1;
-  playOne(pid, jQuery(starts[pid][n].$item));
+  playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
 }
