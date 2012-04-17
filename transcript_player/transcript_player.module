@@ -100,7 +100,18 @@ function transcript_player_transcript($response, $tiers) {
     	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
     	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
     	$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
-    	$line .= "<div class='info'><div class='speakername'>$speaker</div></div>";
+    	//$line .= "<div class='info'><div class='speakername'>$speaker</div></div>";
+    	$line .= "<div class='info'>";
+    	$line .= "<div class='speakername'>$speaker</div>";
+    	$line .= "<div class='playwrapper'>";
+    	$line .= "<div class='infocontrols'><button></button></div>";
+    	$line .= "<div class='timecodes'>";
+    	$line .= "<div class='t1'>$begin</div><div class='clearfix'></div>";
+    	$line .= "<div class='t2'>$end</div><div class='clearfix'></div>";
+    	$line .= "</div>"; //timecodes
+    	$line .= "</div>"; //playwrapper
+    	$line .= "</div>"; //info
+    	
     	$line .= "<div class='tiers speaker-tiers'>";
     	/* 
     	if (isset($sentence->fts_start, $sentence->fts_end, $sentence->fts_duration) && $sentence->fts_duration>0) {

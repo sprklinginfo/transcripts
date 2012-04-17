@@ -48,6 +48,19 @@ var psnSweet = [];
 					}).toArray().sort(function(a,b) {
 						return a.end - b.end;
 					});
+					
+					$('div[data-begin]', $player).each(function() {
+						var $s = $(this);
+						$('.infocontrols button', this).button({
+							icons: {
+								primary: 'ui-icon-play'
+							},
+							text: false
+						}).click(function() {
+							playOne(pid, $s);
+						});
+					});
+					
 					enableClickAndPlay($player);
 					setPlayMode(pid, 'playstop');
 					attachListeners($player);

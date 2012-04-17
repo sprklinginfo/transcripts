@@ -63,7 +63,7 @@
 						.append( "<a>" + item.label + "</a>" )
 						.appendTo( ul );
 				};
-
+					
 				this.button = $( "<button type='button'>&nbsp;</button>" )
 					.attr( "tabIndex", -1 )
 					.attr( "title", "Show All Items" )
@@ -90,6 +90,7 @@
 						input.autocomplete( "search", "" );
 						input.focus();
 					});
+					
 			},
 
 			destroy: function() {
