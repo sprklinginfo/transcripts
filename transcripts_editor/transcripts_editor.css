@@ -80,8 +80,51 @@
 	box-shadow: none;
 }
 
-.transcript.scroller.editing .playing {
-  background-color: transparent; /* cancels default scroller highlight */
-  border: 2px dashed #6cf;
-}
 
+.transcript.scroller.editing {
+	margin-bottom:15px;
+}
+.transcript.scroller.editing div[data-begin] {
+	position:relative;
+	border:1px dotted #aaaaaa;
+	margin-right:10px;
+}
+.transcript.scroller.editing div[data-begin].playing {
+  background-color: transparent; /* cancels default scroller highlight */
+  border: 2px solid #6cf;
+}
+.transcript.scroller .delete-wrapper {
+	display:block;
+}
+.delete-wrapper
+	{
+	display:none; /* override for scroller only */
+	min-width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	box-shadow:0px 1px 5px #ccc;
+	-moz-box-shadow:0px 1px 5px #ccc;
+	-webkit-box-shadow:0px 1px 5px #ccc;
+	float:left;
+	position:absolute;
+	top:-8px;
+	right:-8px;
+	z-index:9999;
+}
+.delete-wrapper .ui-icon-close {
+	border-radius:8px;
+}
+.delete-wrapper .ui-state-focus {
+	box-shadow:0px 1px 10px green;
+}
+.delete-dialog {
+	font-size:.8em;
+}
+.delete-dialog .ui-dialog-titlebar {
+	display:none;
+}
+.delete-dialog .ui-icon {
+	display:inline;
+}

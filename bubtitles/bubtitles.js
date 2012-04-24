@@ -79,7 +79,6 @@ function toBubbler($player) {
 				saveSettings[pid] = data.saveSettings;
 				if (data.saveSettings) {
 					var $bubbleControls = jQuery('<span class="bubble-controls"></span>');
-					//var $bubbleControls = jQuery('<span class="bubble-controls">Bubbles: </span>');
 					var $editBubbles = jQuery('<button class="edit-bubbles"></button>');
 					var $saveBubbles = jQuery('<button class="save-bubbles"></button>');
 					var $cancelBubbles = jQuery('<button class="cancel-bubbles"></button>');
@@ -458,7 +457,7 @@ function fromBubbler($player) {
     $player.find('.transcript').append(cache[pid][i]);
   }
   cancelCanSave($player);
-  $player.find('.bubble-controls').removeClass('editing');
+  $player.find('.bubble-controls').removeClass('editing').hide();
   $player.find('div.participant').remove();
   $player.find('.transcript').removeClass('bubbler').addClass('scroller').appendTo($player.find('.t-column'));
   

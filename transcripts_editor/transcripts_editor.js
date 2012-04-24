@@ -102,6 +102,60 @@
 											}
 										}
 									);
+									var msg = "This sentence will be deleted from the transcript. Are you sure?";
+									
+									$('div[data-begin]', $player)
+										.each(
+											function() {
+												var $s = $(this);
+												var $del = $('<a href="#"></a>')
+													.addClass('s-delete')
+													.attr('role', 'button')
+													.attr('title', 'Delete sentence')
+													.append('<span class="ui-icon ui-icon-close ui-state-default ui-corner-all">Delete</span>')
+													.hover(
+														function() {
+															$('span',this).addClass('ui-state-hover');
+														},
+														function() {
+															$('span',this).removeClass('ui-state-hover');
+														}
+													)
+													.focus(function() {
+														$('span',this).addClass('ui-state-focus');
+													})
+													.blur(function() {
+														$('span',this).removeClass('ui-state-focus');
+													})
+													.click(function(event) {
+														$(this).focus(); //not consistent across browsers
+														$('<div></div>')
+															.html('<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;">Alert</span> ' + msg)
+															.dialog({
+																dialogClass:'delete-dialog',
+																title:'Delete sentence?',
+																resizable: false,
+																height:120,
+																modal: true,
+																closeOnEscape:false,
+																buttons: {
+																	"Yes": function() {
+																		$s.find('.delete-wrapper').remove().end().hide('blind',750, function() {
+																			$s.remove();
+																		});
+																		$( this ).dialog( "close" );
+																	},
+																	"No": function() {
+																		$('.delete-wrapper .ui-icon',$s).removeClass('ui-state-focus');
+																		$( this ).dialog( "close" );
+																	}
+																}
+															});
+															return false;
+													});
+												$('<div class="delete-wrapper">').append($del).appendTo($s);
+											}
+										);
 								} else {  
 									/* remove placeholders, replace is here because of IE */
 									$('.tier', $player).each(function() {
@@ -118,6 +172,9 @@
 									});
 									$('.tier', $player).editable('destroy');
 									$('.speakername', $player).editable('destroy');
+									
+									//remove delete button
+									$('.delete-wrapper', $player).remove();
 									
 									//hide info controls
 									$('.playwrapper', $player).hide();
