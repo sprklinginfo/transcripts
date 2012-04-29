@@ -100,7 +100,6 @@ function transcript_player_transcript($response, $tiers) {
     	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
     	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
     	$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
-    	//$line .= "<div class='info'><div class='speakername'>$speaker</div></div>";
     	$line .= "<div class='info'>";
     	$line .= "<div class='speakername'>$speaker</div>";
     	$line .= "<div class='playwrapper'>";
@@ -113,21 +112,6 @@ function transcript_player_transcript($response, $tiers) {
     	$line .= "</div>"; //info
     	
     	$line .= "<div class='tiers speaker-tiers'>";
-    	/* 
-    	if (isset($sentence->fts_start, $sentence->fts_end, $sentence->fts_duration) && $sentence->fts_duration>0) {
-      	if (isset($sentence->ss_speaker)) {
-      		$line = "<div id='$sid' class='clearfix' data-participant='{$sentence->ss_speaker}' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
-      	} else {
-      		$line = "<div id='$sid' class='clearfix' data-begin='{$sentence->fts_start}' data-end='{$sentence->fts_end}'>";
-      	}
-      } else {
-        $line = "<div id='$sid' class='untimed clearfix'>";
-      }
-      if (isset($sentence->ss_speaker)) {
-      	$line .= "<div class='info'><div class='speakername'>{$sentence->ss_speaker}</div></div><div class='tiers speaker-tiers'>";
-      } else {
-      	$line .= "<div class='tiers'>";
-      } */
       foreach (array_keys($tiers) as $tier) {
         if (isset($sentence->$tier)) {
         	if ($highlight) {
@@ -161,7 +145,6 @@ function transcript_player_transcript($response, $tiers) {
     $return .= "</div>"; //transcript
     
     $clearHits = "<div class='hit-summary-controls'><a href='#' class='clear-hits'><span class='ui-icon ui-icon-closethick'>Clear hits</span></a></div>";
-    //$clearHits = "<button class='clear-hits'>Clear search results</button>";
     $hitHeader = $highlight ? "<div class='hit-summary-header'>".$clearHits."<div class='hit-summary-info'>Found " . count($hits) . " sentences</div></div>" : "";
     $hitBody = $highlight ? "<div class='hit-body'>" . implode('', $hits) . "</div>" : "";
     $hitSummary = "<div class='hit-summary'>" .$hitHeader.$hitBody. "</div>";
@@ -206,7 +189,6 @@ function transcript_player_get($title, $tiers, $options) {
 	}
   $query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
   $query->addFilter("is_fid", $title);
-  //$query->addFilter("title", $title);
   
   //see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr
   $query->setAvailableSort('fts_start', array(
