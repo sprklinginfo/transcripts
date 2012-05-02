@@ -33,10 +33,15 @@
                 },
 								plugin : function(settings, original) {
 									var form = $(this);
-									var select = form.find('select.combobox');
+									var select = form.find('select.combobox')
+										.append($("<option></option>")
+											.attr("value",'+')
+											.text('New speaker'));
+									
 									select.combobox().change(function() {
 										form.submit();
 									});
+									/*
 									var button = form.find('button');
 									var input = form.find('input');
 									var t;
@@ -52,7 +57,7 @@
 										});
 									button.click(function() {
 										input.focus();
-									});
+									});*/
 								}
 	});
 })(jQuery);

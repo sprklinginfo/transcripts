@@ -5,6 +5,10 @@
 					select = this.element.hide(),
 					selected = select.children( ":selected" ),
 					value = selected.val() ? selected.text() : "";
+        
+				var $last = select.children("option:last-child");
+				$last.data('newtext','(' + $last.text() + ')');
+					
 				var input = this.input = $( "<input>" )
 					.insertAfter( select )
 					.val( value )
@@ -13,9 +17,13 @@
 						minLength: 0,
 						source: function( request, response ) {
 							var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
-							response( select.children( "option" ).map(function() {
+							var exact = false;
+							var r = select.children("option").not(':last-child').map(function() {
 								var text = $( this ).text();
-								if ( this.value && ( !request.term || matcher.test(text) ) )
+								if ( this.value && ( !request.term || matcher.test(text) ) ) {
+									if (request.term.toLowerCase().trim() == text.toLowerCase().trim())
+										exact = true;
+									
 									return {
 										label: text.replace(
 											new RegExp(
@@ -26,14 +34,30 @@
 										value: text,
 										option: this
 									};
-							}) );
+								}
+							});
+	
+							if (request.term == '' || exact) {
+								response(r);
+							}
+							else {
+								var msg = " <span class='newitem-msg'>" + $last.data('newtext') + "</span>";
+								$last.attr('value',request.term).text(request.term);
+								r.push({
+									label: request.term + msg,
+									value: request.term,
+									option: $last[0],
+									type: 'new'
+								});
+								response(r);
+							}
 						},
 						select: function( event, ui ) {
 							ui.item.option.selected = true;
 							self._trigger( "selected", event, {
 								item: ui.item.option
 							});
-							select.change(); //EDGE inserted
+							select.change();
 						},
 						change: function( event, ui ) {
 							if ( !ui.item ) {
@@ -56,12 +80,74 @@
 						}
 					})
 					.addClass( "ui-widget ui-widget-content ui-corner-left" );
-
+				
 				input.data( "autocomplete" )._renderItem = function( ul, item ) {
-					return $( "<li></li>" )
-						.data( "item.autocomplete", item )
-						.append( "<a>" + item.label + "</a>" )
-						.appendTo( ul );
+					if (item.type == 'new') {
+						return $( "<li class='itemlink newitem'></li>" )
+							.data( "item.autocomplete", item )
+							.append( "<a>" + item.label + "</a>" )
+							.appendTo( ul );
+					}
+					else {
+						var $li = $("<li class='itemlink'></li>");
+						
+						var $pencil = $('<span style="float:left;" class="edit-name ui-icon ui-icon-pencil" title="Edit">&nbsp;</span>')
+							.click(function(e) {
+								e.stopPropagation();
+							
+								var $span = $li.find('.itemname');
+								var $input = $('<input class="editoption" type="text">')
+									.val(item.value)
+									.click(function(e) {
+										e.preventDefault();
+										e.stopPropagation();
+									})
+									.focus(function() {
+										$li.addClass('editing');
+									})
+									.blur(function() {
+										$li.removeClass('editing');
+									})
+									.keydown(function(e) {
+										var keyCode = $.ui.keyCode;
+										switch (e.keyCode) {
+											case keyCode.ESCAPE:
+												e.preventDefault();
+												$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+												break;
+											case keyCode.ENTER:
+											case keyCode.NUMPAD_ENTER:
+												e.preventDefault();
+												//passthrough
+											case keyCode.TAB:
+												var val = $(this).val().trim();
+												if ($('option[value='+val+']',select).size()==0) {
+													/* need to fire event saying which option has changed */
+													item.label = item.value = val;
+													item.option.selected = true;
+													$(item.option).attr('value',val).text(val);
+													$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+													$li.find('a').click(); //select menu item
+												}
+												else {
+													$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+												}
+												break;
+                    }
+                  })
+									.css('height',$span.css('height'));
+								
+								$span.replaceWith($input);
+								$input.focus().click();
+							});
+							
+						var $links = $('<div class="itemedit-links"></div>').append($pencil);
+						return $li.data( "item.autocomplete", item )
+							.append($("<a></a>")
+								.append($links)
+								.append("<span class='itemname'>" + item.label + "</span>"))
+							.appendTo( ul );
+					}
 				};
 					
 				this.button = $( "<button type='button'>&nbsp;</button>" )
@@ -92,7 +178,7 @@
 					});
 					
 			},
-
+			
 			destroy: function() {
 				this.input.remove();
 				this.button.remove();
@@ -100,4 +186,4 @@
 				$.Widget.prototype.destroy.call( this );
 			}
 		});
-	})( jQuery );
+})( jQuery );
