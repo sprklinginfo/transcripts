@@ -1,0 +1,186 @@
+/* css for tier and mode controller blocks */
+.transcript-controls {
+	margin-bottom: .2em;
+}
+.transcript-controls .ui-button, .transcript-controls .ui-button {
+	margin-right: .1em;
+	border-radius: 11px 11px 11px 11px;
+	/* background: -moz-linear-gradient(center top , #FFFFFF 0%, #DDDDDD 100%) repeat scroll 0 0 transparent; */
+}
+.transcript-controls .ui-button-text {
+	height: 1em;
+	font: bold 12px/1.2 Arial,sans-serif;
+	padding: .4em 1em .5em 1em;
+}
+.tier-controller {
+  width: 400px;
+  float: left;
+  margin-left: .5em;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.mode-controller {
+	float: right;
+	margin-right: .5em;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.tier-controller label, .mode-controller label {
+  font-family: arial;
+}
+
+/* for some reason labels are two pixels taller and wider than buttons */
+.video-controls button.ui-button {
+	margin-right: 0;
+	width: 22px;
+	height: 22px;
+	vertical-align: middle;
+}
+.video-controls label.ui-button {
+	margin-right: 0;
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+}
+
+.video-controls {
+	font-weight: normal;
+}
+.video-controls .control-block {
+	padding-left: 10px;
+}
+
+/* css for internal arrangement of transcript player */
+.transcript-player {
+  width: 100%;
+  padding-bottom:20px;
+}
+.v-column {
+  padding-left: 5px;
+  padding-right: 5px;
+  position: relative;
+  float: left;
+}
+video {
+  width: 400px;
+  height: 300px;
+}
+audio {
+  width: 400px;
+}
+.video-nav {
+	width: 100px;
+	float: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.t-column {
+  margin-left: 420px;
+  min-height: 500px;
+}
+.transcript.scroller {
+  width:100%;
+  min-height:500px;
+  max-height:500px;
+  overflow-y:scroll;
+  position:relative;
+}
+.transcript.scroller .info {
+	float: left;
+	width: 150px;
+}
+.transcript.scroller .speaker-tiers {
+    margin-left: 160px;
+}
+.transcript.scroller .tier {
+  display: none;
+}
+.transcript.scroller .tier.active {
+  display: block;
+}
+.transcript.scroller .playing {
+  background-color: #6cf;
+}
+.transcript.scroller div[data-begin] {
+  /*clear: both;*/
+  margin-bottom: 10px;
+}
+.v-sub {
+	width: 400px;
+	height: 195px;
+}
+
+/* hit container */
+.hit-summary-header {
+	margin:3px 0px 8px 0px;
+	padding:2px;
+	border:1px solid #BBBBBB;
+}
+.hit-summary-controls {
+	float: left;
+	width: 20px;
+	margin-top:2px;
+}
+.hit-summary-info {
+	margin-left: 25px;
+}
+.v-sub .hit-body {
+	height:120px;
+	overflow-y:auto;
+}
+.playing .hit-ref {
+	background-color: #6cf;
+}
+.hit-container {
+	clear:both;
+}
+.hit-container .hit-controls {
+	float: left;
+	width: 40px;
+	padding-bottom: 5px;
+}
+.hit-container .hit-ref {
+	margin-left: 45px;
+	margin-bottom: 5px;
+}
+span.hit {
+	background: yellow;
+}
+
+/* for some reason labels are two pixels taller and wider than buttons */
+.playwrapper {
+	display:none;
+}
+.infocontrols {
+	float:left;
+	margin-left:10px;
+	width:25px;
+}
+.infocontrols button.ui-button {
+	margin-right: 0;
+	width: 18px;
+	height: 18px;
+	vertical-align: middle;
+}
+.infocontrols label.ui-button {
+	margin-right: 0;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+.info .timecodes {
+	margin-left:40px;
+	font:inherit;
+	/* height:inherit; */
+}
+.info .t1, .info .t2 {
+	border:none;
+	font:inherit;
+	text-align:right;
+	width:68px;
+	padding-right:16px; /* so clicking right will open spinner */
+}
+
+li.item-new {
+	border-top:1px solid #AAAAAA;
+}

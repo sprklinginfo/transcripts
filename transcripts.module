@@ -99,7 +99,7 @@ function transcripts_apachesolr_query_prepare($query) {
  * Implements hook_apachesolr_query_alter().
  */
 function transcripts_apachesolr_query_alter($query) {
-  $query->addParams(array('fl' => array('is_nid', 'ss_sid', 'fts_duration')));
+  $query->addParams(array('fl' => array('ss_node_label', 'is_nid', 'ss_sid', 'fts_duration')));
   $tiers = transcripts_all_tiers();
   if (count($tiers) > 0) {
   	$query->addParams(array('fl' => $tiers));
@@ -128,12 +128,11 @@ function transcripts_apachesolr_search_result_alter($doc, &$extra, $query) {
 }
 
 function transcripts_apachesolr_process_results(&$results, $query) {
+	watchdog("T", "Results = " . dprint_r($results,TRUE), NULL, WATCHDOG_NOTICE);
 	if (count($results) > 1) {
 		$last = "";
 		foreach ($results as &$result) {
-			if ($result['link'] == $last) {
-				$result['title'] = ' '; //calling unset causes problems
-			}
+			$result['title'] = $result['link'] == $last ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
 			$last = $result['link'];
 		}
 	}

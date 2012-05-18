@@ -22,14 +22,12 @@
     
     <xsl:template match="TITLE">
         <add>
-            <xsl:variable name="title" select="@id"/>
             <xsl:variable name="extrafields">
             	<xsl:for-each select="tokenize($extras, ',')">
               	<field name="{substring-before(.,'=')}"><xsl:value-of select="substring-after(.,'=')"/></field>
               </xsl:for-each>
             </xsl:variable>
             <xsl:apply-templates select="TEXT/S">
-                <xsl:with-param name="title" select="$title" />
                 <xsl:with-param name="series">
                     <xsl:for-each select="METADATA/belongsTo">
                         <xsl:choose>
@@ -51,7 +49,6 @@
     </xsl:template>
    
     <xsl:template match="S">
-        <xsl:param name="title" select="''"/>
         <xsl:param name="series" select="''"/>
         <xsl:param name="high" select="''"/>
         <xsl:param name="low" select="''"/>
@@ -59,13 +56,11 @@
         <xsl:param name="extrafields" select="''"/>
         
         <xsl:variable name="sid" select="@id"/>
-        <xsl:variable name="snum" select="format-number(number(substring($title,2)) * 1000 + position(), '#')" />
         <doc>   					
         		<field name="id"><xsl:value-of select="concat($hash,'/sentence/',$nid,'-',$sid)"/></field>
             <field name="entity_type">fragment</field>
             <field name="bundle">sentence</field>
             <field name="bundle_name">Sentence</field>
-            <field name="label"><xsl:value-of select="$nlabel"/></field>
             <field name="hash"><xsl:value-of select="$hash"/></field>
             <field name="site"><xsl:value-of select="$site"/></field>
             <field name="is_nid"><xsl:value-of select="$nid"/></field>
