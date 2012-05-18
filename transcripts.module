@@ -128,7 +128,6 @@ function transcripts_apachesolr_search_result_alter($doc, &$extra, $query) {
 }
 
 function transcripts_apachesolr_process_results(&$results, $query) {
-	watchdog("T", "Results = " . dprint_r($results,TRUE), NULL, WATCHDOG_NOTICE);
 	if (count($results) > 1) {
 		$last = "";
 		foreach ($results as &$result) {
