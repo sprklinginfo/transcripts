@@ -25,7 +25,7 @@
 										exact = true;
 									
 									return {
-										label: text.replace(
+										label: request.term == '' ? text : text.replace(
 											new RegExp(
 												"(?![^&;]+;)(?!<[^<>]*)(" +
 												$.ui.autocomplete.escapeRegex(request.term) +
