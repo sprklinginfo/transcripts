@@ -234,6 +234,7 @@ function transcripts_index_settings() {
     '#description' => t($message),
     '#default_value' => variable_get('transcripts_xslt_field', ''),
   );
+
   return $form;
 }
 
@@ -278,15 +279,33 @@ function transcripts_search_settings() {
   return $form;
 }
 
-function transcripts_tier_settings() {
+function transcripts_display_settings() {
 	$form = array();
-  $form['transcripts_tier_settings'] = array(
-    '#title' => t('Tier settings'),
+  $form['transcripts_display_settings'] = array(
+    '#title' => t('Transcript display'),
     '#type' => 'fieldset',
     //'#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['transcripts_tier_settings']['transcripts_all_tiers'] = array(
+  $form['transcripts_display_settings']['bundles'] = array(
+    '#type' => 'markup',
+    '#markup' => t('Specify the entity types and bundles that can have transcripts.'),
+  );
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    if (!empty($entity_info['apachesolr']['indexable'])) {
+      $options = array();
+      foreach ($entity_info['bundles'] as $key => $info) {
+        $options[$key] = $info['label'];
+      }
+      $form['transcripts_display_settings']['entities']['transcripts_'.$entity_type] = array(
+        '#type' => 'checkboxes',
+        '#title' => check_plain($entity_info['label']),
+        '#options' => $options,
+        '#default_value' => variable_get('transcripts_'.$entity_type, array()),
+      );
+    }
+  }
+  $form['transcripts_display_settings']['transcripts_all_tiers'] = array(
   	'#title' => t('Transcript tiers'),
   	'#type' => 'textfield',
   	'#size' => 150,
@@ -299,7 +318,7 @@ function transcripts_tier_settings() {
   foreach ($profiles as $pid => $data) {
   	$options[$pid] = "Transcript player: ".$pid;
   }
-  $form['transcripts_tier_settings']['transcripts_default_profile'] = array(
+  $form['transcripts_display_settings']['transcripts_default_profile'] = array(
   	'#title' => t('Default transcript profile'),
     '#type' => 'select',
     '#options' => $options,
@@ -401,7 +420,7 @@ function transcripts_site_settings_form($form, &$form_state) {
 		transcripts_saxon_settings(),
 		transcripts_index_settings(),
 		transcripts_search_settings(),
-		transcripts_tier_settings(),
+		transcripts_display_settings(),
 		transcripts_profile_settings(),
 		transcripts_mapper_settings()
 	));
@@ -414,7 +433,7 @@ function transcripts_project_settings_form($form, &$form_state) {
 		//transcripts_saxon_settings(),
 		//transcripts_index_settings(),
 		transcripts_search_settings(),
-		transcripts_tier_settings()
+		transcripts_display_settings()
 		//transcripts_profile_settings(),
 		//transcripts_mapper_settings()
 	));

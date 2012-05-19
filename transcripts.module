@@ -252,7 +252,7 @@ function transcripts_transcript_access($nid) {
 }
 
 function transcripts_has_transcript($node) {
-	return $node->type == 'video' || $node->type == 'audio';
+	return in_array($node->type, array_filter(variable_get('transcripts_node', array())));
 }
 	
 function transcripts_goto($url, $menu_tail) {

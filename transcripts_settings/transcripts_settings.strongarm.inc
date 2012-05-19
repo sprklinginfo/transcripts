@@ -34,6 +34,15 @@ function transcripts_settings_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_file';
+  $strongarm->value = array(
+    'file' => 0,
+  );
+  $export['transcripts_file'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_hl_simple_post';
   $strongarm->value = '</span>';
   $export['transcripts_hl_simple_post'] = $strongarm;
@@ -78,6 +87,20 @@ $val = array(
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_node';
+  $strongarm->value = array(
+    'audio' => 'audio',
+    'video' => 'video',
+    'page' => 0,
+    'collection' => 0,
+    'test_video' => 0,
+    'test' => 0,
+  );
+  $export['transcripts_node'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_page_id';
   $strongarm->value = 'core_search';
   $export['transcripts_page_id'] = $strongarm;
@@ -86,7 +109,7 @@ $val = array(
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_result_link';
-  $strongarm->value = 'default';
+  $strongarm->value = 'PLAYER';
   $export['transcripts_result_link'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -117,8 +140,8 @@ $val = array(
   $strongarm->value = array(
     'field_transcript' => 1,
     'field_friendly' => 0,
-    'field_transformer' => 0,
     'field_transcripts_xsl' => 0,
+    'field_pdf' => 0,
   );
   $export['transcripts_transcript_fields'] = $strongarm;
 
