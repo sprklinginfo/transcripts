@@ -57,7 +57,7 @@
 							self._trigger( "selected", event, {
 								item: ui.item.option
 							});
-							select.change();
+							select.change(); //EDGE inserted
 						},
 						change: function( event, ui ) {
 							if ( !ui.item ) {
@@ -106,6 +106,7 @@
 										$li.addClass('editing');
 									})
 									.blur(function() {
+										$(this).replaceWith("<span class='itemname'>" + item.label + "</span>");
 										$li.removeClass('editing');
 									})
 									.keydown(function(e) {
@@ -113,7 +114,7 @@
 										switch (e.keyCode) {
 											case keyCode.ESCAPE:
 												e.preventDefault();
-												$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+												$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
 												break;
 											case keyCode.ENTER:
 											case keyCode.NUMPAD_ENTER:
@@ -126,11 +127,11 @@
 													item.label = item.value = val;
 													item.option.selected = true;
 													$(item.option).attr('value',val).text(val);
-													$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
 													$li.find('a').click(); //select menu item
 												}
 												else {
-													$(this).blur().replaceWith("<span class='itemname'>" + item.label + "</span>");
+													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
 												}
 												break;
                     }
@@ -162,15 +163,15 @@
 					})
 					.removeClass( "ui-corner-all" )
 					.addClass( "ui-corner-right ui-button-icon" )
-					.click(function() {
+					.click(function(e) {
 						// close if already visible
 						if ( input.autocomplete( "widget" ).is( ":visible" ) ) {
 							input.autocomplete( "close" );
 							return;
 						}
-
+						
 						// work around a bug (likely same cause as #5265)
-						$( this ).blur();
+						$(this).blur(); 
 
 						// pass empty string as value to search for, displaying all results
 						input.autocomplete( "search", "" );

@@ -41,23 +41,6 @@
 									select.combobox().change(function() {
 										form.submit();
 									});
-									/*
-									var button = form.find('button');
-									var input = form.find('input');
-									var t;
-									input.blur(function() {
-										t = setTimeout(
-											function() {
-												form.submit();
-											}, 200);
-										}).focus(function() {
-											if (t) {
-												clearTimeout(t);
-											}
-										});
-									button.click(function() {
-										input.focus();
-									});*/
 								}
 	});
 })(jQuery);

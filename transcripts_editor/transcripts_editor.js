@@ -86,7 +86,37 @@
 										);
 									};
 									$('.speakername', $player).each(editableSpeaker);
-										
+
+									var t1,t2;
+									$('.speakername', $player)
+										.delegate('input', {
+											'focus': function() {
+												if (t1) {
+													clearTimeout(t1);
+												}
+												if (t2) {
+													clearTimeout(t2);
+												}
+											},
+											'blur': function() {
+													var select = $(this).parents('form').find('select.combobox');
+													t1 = setTimeout(
+														function() {
+															select.change();
+														},100);
+													$(this).autocomplete("widget")
+														.focusin(function() {
+															clearTimeout(t1);
+														})
+														.focusout(function() {
+															t2 = setTimeout(
+																function() {
+																	select.change();
+																},100);
+															});
+											}
+										});
+									
 									var editableTime = function() {
 										$(this).editable(
 											function(value, settings) {
