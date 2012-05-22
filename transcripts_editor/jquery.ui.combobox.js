@@ -1,5 +1,10 @@
 (function( $ ) {
-		$.widget( "ui.combobox", {
+		$.widget( "ui.combobox", {	
+			options: {
+				editOption: null,
+				newOption: null
+			},
+			
 			_create: function() {
 				var self = this,
 					select = this.element.hide(),
@@ -57,6 +62,9 @@
 							self._trigger( "selected", event, {
 								item: ui.item.option
 							});
+							if (ui.item.type == 'new' && $.isFunction(self.options.newOption)) {
+								self.options.newOption($last[0], ui.item.option.value);
+							}
 							select.change(); //EDGE inserted
 						},
 						change: function( event, ui ) {
@@ -123,10 +131,14 @@
 											case keyCode.TAB:
 												var val = $(this).val().trim();
 												if ($('option[value='+val+']',select).size()==0) {
-													/* need to fire event saying which option has changed */
+													var $option = $(item.option);
+													var old = $option.attr('value');
 													item.label = item.value = val;
 													item.option.selected = true;
-													$(item.option).attr('value',val).text(val);
+													$option.attr('value',val).text(val);
+													if ($.isFunction(self.options.editOption)) {
+														self.options.editOption($option, old);
+													}
 													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
 													$li.find('a').click(); //select menu item
 												}

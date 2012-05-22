@@ -38,9 +38,10 @@
 											.attr("value",'+')
 											.text('New speaker'));
 									
-									select.combobox().change(function() {
+									select.combobox(settings.combobox).change(function() {
 										form.submit();
 									});
 								}
 	});
 })(jQuery);
+

@@ -73,7 +73,8 @@
 										$(this).editable(
 											function(value, settings) {
 												var $s = $(this).parents('div[data-participant]');
-												if ($s.attr('data-participant') != value) { //changed
+												var oldValue = $s.attr('data-participant');
+												if (oldValue != value) { //changed
 													$s.attr('data-participant', value);
 												}
 												return(value); //return value is displayed after editing is complete
@@ -81,7 +82,22 @@
 												type: 'combobox',
 												placeholder: speakerHolder,
 												data: speakers,
-												onblur: 'submit'
+												onblur: 'submit',
+												combobox: {
+													editOption: function($option, oldValue) {
+														var value = $option.attr('value');
+														delete speakers[oldValue];
+														speakers[value] = value;
+														//change all speakers
+														$('div[data-participant=' + oldValue + ']', $player).each(function() {
+															$(this).attr('data-participant', value);
+															$('.speakername',this).html(value);
+														});
+													},
+													newOption: function($option, value) {
+														speakers[value] = value; //add new speaker to list
+													}
+												}
 											}
 										);
 									};
@@ -103,7 +119,7 @@
 													t1 = setTimeout(
 														function() {
 															select.change();
-														},100);
+														},200);
 													$(this).autocomplete("widget")
 														.focusin(function() {
 															clearTimeout(t1);
@@ -112,7 +128,7 @@
 															t2 = setTimeout(
 																function() {
 																	select.change();
-																},100);
+																},200);
 															});
 											}
 										});
