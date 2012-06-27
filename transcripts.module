@@ -131,8 +131,13 @@ function transcripts_apachesolr_process_results(&$results, $query) {
 	if (count($results) > 1) {
 		$last = "";
 		foreach ($results as &$result) {
-			$result['title'] = $result['link'] == $last ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
-			$last = $result['link'];
+			if ($result['entity_type'] == 'fragment') {
+				$result['title'] = $result['link'] == $last ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
+				$last = $result['link'];
+			}
+			else {
+				$last = "";
+			}
 		}
 	}
 }
