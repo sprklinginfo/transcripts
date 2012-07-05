@@ -178,6 +178,21 @@ function transcripts_permission() {
   return $permissions;
 }
 
+function transcripts_og_permission() {
+	$profiles = transcripts_all_profiles();
+	$permissions = array();
+  $permissions['view transcripts'] = array(
+  	'title' => t('View transcripts'),
+  );
+	foreach ($profiles as $profile) {
+		$pid = $profile['pid'];
+		$permissions["view profile $pid"] = array(
+			'title' => t('View profile %pid', array('%pid' => $profile['pid']))
+		);
+	}
+  return $permissions;
+}
+
 function transcripts_menu() {
   $items = array();
   	

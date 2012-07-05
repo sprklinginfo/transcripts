@@ -161,6 +161,14 @@ function transcripts_editor_permission() {
    );
 }
 
+function transcripts_editor_og_permission() {
+  return array(
+    'edit transcripts' => array(
+    	'title' => t('Edit transcripts and timecodes'),
+    )
+   );
+}
+
 function transcripts_editor_transcript_player_prepare_player($nid) {
 	$return = array(
 		'editable' => user_access('edit transcripts') && node_access('update', node_load($nid)) ? true : false

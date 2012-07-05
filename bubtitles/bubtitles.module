@@ -27,6 +27,14 @@ function bubtitles_permission() {
     );
 }
 
+function bubtitles_og_permission() {
+  return array(
+    'move bubbles' => array(
+    	'title' => t('Tag participants and position speech bubbles'),
+    ),
+  );
+}
+
 function bubtitles_menu() {
   $items = array();
 
