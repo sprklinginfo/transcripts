@@ -56,7 +56,6 @@ function transcript_player_title($id, $pid = '', $options = array()) {
 	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
   
   $response = transcript_player_get($title, $tiers, $options);
-  $return = "No data for $title";
   if (count($response->response->docs) > 0) {
   	if (!$videotag) { //use video_url
 			$tag = isset($val['audio']) ? 'audio' : 'video';
@@ -72,7 +71,7 @@ function transcript_player_title($id, $pid = '', $options = array()) {
     list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
     $playerid = 'pid-'.$id; //id is node id!!
     module_invoke_all('transcript_player_prepare_player', $id);
-    $return = 	transcript_player_tiermode_controls($playerid, $tiers, $modes) . 
+    return 	transcript_player_tiermode_controls($playerid, $tiers, $modes) . 
     					"<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>" . 
     						"<div class='v-column'>" . 
     							$videotag . 
@@ -86,7 +85,9 @@ function transcript_player_title($id, $pid = '', $options = array()) {
     						"</div>" . 
     					"</div>";
   }
-  return $return;
+  else {
+  	return t("This transcript is still being processed for display.");
+  }
 }
 
 function transcript_player_transcript($response, $tiers) {
