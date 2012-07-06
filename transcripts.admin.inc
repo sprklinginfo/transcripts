@@ -188,7 +188,7 @@ function transcripts_saxon_settings() {
     '#title' => t('Saxon directory path'),
     '#size' => 80,
     '#maxlength' => 100,
-    '#description' => t("The full path to the Saxon directory. All library jars must be in the same directory. If on Windows, use forward slashes in the path."),
+    '#description' => t("The relative path from the Drupal root to the Saxon directory. All library jars must be in the same directory. Do not include a leading slash."),
     '#default_value' => variable_get('transcripts_saxon_path', ''),
   );
   $form['transcripts_saxon_settings']['transcripts_saxon_jar'] = array(
