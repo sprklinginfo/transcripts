@@ -151,7 +151,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
 function transcripts_get_indexable_transcripts($node) {
   $files = array();
 
-  $field_names = transcripts_get_field_names();
+  $field_names = transcripts_all_file_fields();
   foreach ($field_names as $field_name) {
     if (!empty($node->$field_name) && is_transcript_field($field_name)) {
       $field = $node->$field_name;
@@ -168,23 +168,6 @@ function transcripts_get_indexable_transcripts($node) {
     }
   }
   return $file_list;
-}
-
-/**
- * Return all fields that are of type 'file'. Copied from apachesolr_attachments.
- */
-
-function transcripts_get_field_names() {
-  $field_names = array();
-  if (module_exists('file')) {
-    $fields = field_info_fields();
-    foreach ($fields as $field_name => $field) {
-      if ($field['type'] == 'file') {
-        $field_names[] = $field_name;
-      }
-    }
-  }
-  return $field_names;
 }
 
 ?>

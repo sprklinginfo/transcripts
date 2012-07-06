@@ -272,9 +272,38 @@ function transcripts_transcript_access($nid) {
 }
 
 function transcripts_has_transcript($node) {
-	return in_array($node->type, array_filter(variable_get('transcripts_node', array())));
+	//first check node type
+	if (in_array($node->type, array_filter(variable_get('transcripts_node', array())))) {
+		$fields = transcripts_all_file_fields();
+		foreach ($fields as $field) {
+			if (!empty($node->$field) && is_transcript_field($field)) {
+				return true;
+			}
+		}
+	}
+	else {
+		return false;
+	}
 }
-	
+
+
+/**
+ * Return all fields that are of type 'file'. Copied from apachesolr_attachments.
+ */
+
+function transcripts_all_file_fields() {
+  $field_names = array();
+  if (module_exists('file')) {
+    $fields = field_info_fields();
+    foreach ($fields as $field_name => $field) {
+      if ($field['type'] == 'file') {
+        $field_names[] = $field_name;
+      }
+    }
+  }
+  return $field_names;
+}
+
 function transcripts_goto($url, $menu_tail) {
 	drupal_goto($url . '/' . $menu_tail);
 }
@@ -334,21 +363,6 @@ function transcripts_field_formatter_info() {
          'field types' => array('file'),
          ),
       );
-	/*
-  $profiles = transcripts_all_profiles();
-  foreach ($profiles as $profile) {
-  	$pid = $profile['pid'];
-  	$info[$pid] = array(
-  		'label' => "Transcript player: $pid",
-  		'field types' => array('file'),
-  	);
-  	$info[$pid .  '__transcript-player-link' ] = array(
-  		'label' => "Transcript player link: $pid",
-  		'field types' => array('file'),
-  	);
-  	
-  }
-  return $info; */
 }
 
 /**
@@ -368,23 +382,6 @@ function transcripts_field_formatter_view($entity_type, $entity, $field, $instan
 			   $element[$delta] = array('#markup' => transcript_player_title($nid));
 			}
 		}
-  	
-  	/*
-    $pid_plus_formatter_type = explode('__', $display['type']); 
-    $pid = $pid_plus_formatter_type[0];
-    $link_only = 'transcript-player-link' == $pid_plus_formatter_type[1];
-		if (in_array($pid, array_keys(transcripts_all_profiles()))) {
-			foreach ($items as $delta => $item) {
-				$nid = arg(1);
-				if ( $link_only ) {
-				   $link = l(t('View Transcript'), sprintf('transcripts/%s/%d',$pid,$nid));
-				   $element[$delta] = array('#markup' => $link);
-				}
-				else {
-				   $element[$delta] = array('#markup' => transcript_player_title($nid,$pid));
-				}
-			}
-		}*/
   }
 
   return $element;
