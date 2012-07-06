@@ -510,8 +510,6 @@ function transcripts_remove_transcripts_from_index($nid) {
     return TRUE;
   }
   catch (Exception $e) {
-    watchdog('Transcripts', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
-    // Don't keep trying queries if they are failing.
     $failed = TRUE;
     return FALSE;
   }

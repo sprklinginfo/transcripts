@@ -52,7 +52,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
     
 			foreach ($files as $file) {
 				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
-				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_ERROR);
+				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_DEBUG);
 				$solr = transcripts_get_solr(); //within try-catch?
 				$solr->update($rawPost);
 			}
@@ -68,7 +68,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
  * @throws Exception
  */
 function transcripts_saxon_transform_text($file, $node, $extras) {
-	watchdog('Transcripts', "Indexing transcript at nid %nid", array('%nid' => $node->nid), WATCHDOG_NOTICE);
+	watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
   
 	$saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
 	
@@ -76,9 +76,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
 	if ($node->{$xslfield}) {
 		$field = $node->{$xslfield};
 		$uri = $field[$node->language][0]['uri'];
-		watchdog('Transcripts', "Use XSL $uri", NULL, WATCHDOG_WARNING);
 		$xslt = drupal_realpath($node->{$xslfield}[$node->language][0]['uri']);
-		watchdog('Transcripts', "Use XSL $xslt", NULL, WATCHDOG_WARNING);
 	} else {
 		$xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
 	}
@@ -140,7 +138,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
     ' path=' . $path .
     ' extras=' . $more; //. ' 2>&1'; //for debugging
   
-  watchdog('Transcripts', "Saxon - $cmd", NULL, WATCHDOG_ERROR);
+  //watchdog('Transcripts', "Saxon - $cmd", NULL, WATCHDOG_DEBUG);
     
   return shell_exec($cmd);
 }
