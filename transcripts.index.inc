@@ -70,7 +70,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
 function transcripts_saxon_transform_text($file, $node, $extras) {
 	watchdog('Transcripts', "Indexing transcript at nid %nid", array('%nid' => $node->nid), WATCHDOG_NOTICE);
   
-	$saxon_path = realpath(variable_get('transcripts_saxon_path', ''));
+	$saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
 	
 	$xslfield = variable_get('transcripts_xslt_field','field_transcripts_xsl');
 	if ($node->{$xslfield}) {
