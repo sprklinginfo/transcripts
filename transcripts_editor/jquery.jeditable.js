@@ -123,7 +123,6 @@
             }
             
             $(this).bind(settings.event, function(e) {
-                
                 /* abort if disabled for this element */
                 if (true === $(this).data('disabled.editable')) {
                     return;
@@ -294,7 +293,6 @@
                 }
 
                 form.submit(function(e) {
-                		
                     if (t) { 
                         clearTimeout(t);
                     }

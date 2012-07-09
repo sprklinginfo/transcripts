@@ -45,19 +45,21 @@
 									$('.transcript', $player).addClass('editing');
 									$('.transcript span', $player).contents().unwrap(); //remove spans from transcript
 									
-									var editableTier = function() {	
-										$(this).editable(
-											function(value, settings) {
-												return(value); //return value is displayed after editing is complete
-											},{
-												type: 'elastic',
-												placeholder: tierHolder,
-												onblur: 'submit',
-												elastic: {}
-											}
-										);
+									var editableTier = function() {
+										$(this)
+												.editable(
+													function(value, settings) {
+														return(value); //return value is displayed after editing is complete
+													},{
+														type: 'elastic',
+														placeholder: tierHolder,
+														onblur: 'submit',
+														elastic: {}
+													}
+												)
+												.click();
 									};
-									$('.tier', $player).each(editableTier);
+									$('.tier', $player).one('click', editableTier);
 									
 									var dupes = {};
 									var speakers = [];
@@ -70,38 +72,41 @@
 									});
 									
 									var editableSpeaker = function() {
-										$(this).editable(
-											function(value, settings) {
-												var $s = $(this).parents('div[data-participant]');
-												var oldValue = $s.attr('data-participant');
-												if (oldValue != value) { //changed
-													$s.attr('data-participant', value);
-												}
-												return(value); //return value is displayed after editing is complete
-											},{
-												type: 'combobox',
-												placeholder: speakerHolder,
-												data: speakers,
-												onblur: 'submit',
-												combobox: {
-													editOption: function($option, oldValue) {
-														var value = $option.attr('value');
-														delete speakers[oldValue];
-														speakers[value] = value;
-														//change all speakers
-														$('div[data-participant=' + oldValue + ']', $player).each(function() {
-															$(this).attr('data-participant', value);
-															$('.speakername',this).html(value);
-														});
-													},
-													newOption: function($option, value) {
-														speakers[value] = value; //add new speaker to list
+										var $speakername = $(this);
+										$speakername.editable(
+													function(value, settings) {
+														var $s = $speakername.parents('div[data-participant]');
+														var oldValue = $s.attr('data-participant');
+														if (oldValue != value) { //changed
+															$s.attr('data-participant', value);
+														}
+														return(value); //return value is displayed after editing is complete
+													},{
+														type: 'combobox',
+														placeholder: speakerHolder,
+														data: speakers,
+														onblur: 'submit',
+														combobox: {
+															editOption: function($option, oldValue) {
+																var value = $option.attr('value');
+																delete speakers[oldValue];
+																speakers[value] = value;
+																//change all speakers
+																$('div[data-participant=' + oldValue + ']', $player)
+																	.attr('data-participant', value)
+																	.find('.speakername')
+																	.not($speakername)
+																	.html(value);
+															},
+															newOption: function($option, value) {
+																speakers[value] = value; //add new speaker to list
+															}
+														}
 													}
-												}
-											}
-										);
+												)
+												.click();
 									};
-									$('.speakername', $player).each(editableSpeaker);
+									$('.speakername', $player).one('click', editableSpeaker);
 
 									var t1,t2;
 									$('.speakername', $player)
@@ -134,30 +139,32 @@
 										});
 									
 									var editableTime = function() {
-										$(this).editable(
-											function(value, settings) {
-												var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
-												var $s = $(this).parents('div[' + t + ']');
-												if ($s.attr(t) != value) { //changed
-													$s.attr(t, value);
+										$(this)
+											.editable(
+												function(value, settings) {
+													var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
+													var $s = $(this).parents('div[' + t + ']');
+													if ($s.attr(t) != value) { //changed
+														$s.attr(t, value);
+													}
+													return(value);
+												},{
+													type: 'spinner',
+													onblur: //submit without delay
+														function(value, settings) {
+															$('form', this).submit();
+														},
+													spinner: {
+														min: 0,
+														places: 3,
+														defaultStep: .01,
+														largeStep: .1
+													}
 												}
-												return(value);
-											},{
-												type: 'spinner',
-												onblur: //submit without delay
-													function(value, settings) {
-														$('form', this).submit();
-													},
-												spinner: {
-													min: 0,
-													places: 3,
-													defaultStep: .01,
-													largeStep: .1
-												}
-											}
-										);
+											)
+											.click();
 									};
-									$('.t1,.t2', $player).each(editableTime);
+									$('.t1,.t2', $player).one('click', editableTime);
 									
 									var msg = "This sentence will be deleted from the transcript. Are you sure?";
 									
@@ -242,9 +249,9 @@
 												attachDelete($s2.find('a.s-delete'));
 												attachInsert($s2.find('a.s-insert'));
 												
-												$('.tier',$s2).each(editableTier);
-												$('.t1,.t2',$s2).each(editableTime);
-												$('.speakername', $s2).each(editableSpeaker);
+												$('.tier',$s2).one('click', editableTier);
+												$('.speakername', $s2).one('click', editableSpeaker);
+												$('.t1,.t2',$s2).one('click', editableTime);
 												$('.infocontrols button',$s2).click(function() {
 													playOne(pid, $s2);
 												});
@@ -292,7 +299,6 @@
 												$(this).css('opacity',0);
 											}
 										);
-										
 								} else {  
 									/* remove placeholders, replace is here because of IE */
 									$('.tier', $player).each(function() {

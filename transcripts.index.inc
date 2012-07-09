@@ -138,7 +138,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
     ' path=' . $path .
     ' extras=' . $more; //. ' 2>&1'; //for debugging
   
-  //watchdog('Transcripts', "Saxon - $cmd", NULL, WATCHDOG_DEBUG);
+  watchdog('Transcripts', "$cmd", NULL, WATCHDOG_DEBUG);
     
   return shell_exec($cmd);
 }

@@ -107,7 +107,6 @@
 								var $input = $('<input class="editoption" type="text">')
 									.val(item.value)
 									.click(function(e) {
-										e.preventDefault();
 										e.stopPropagation();
 									})
 									.focus(function() {
@@ -127,6 +126,7 @@
 											case keyCode.ENTER:
 											case keyCode.NUMPAD_ENTER:
 												e.preventDefault();
+												e.stopPropagation();
 												//passthrough
 											case keyCode.TAB:
 												var val = $(this).val().trim();
@@ -134,13 +134,12 @@
 													var $option = $(item.option);
 													var old = $option.attr('value');
 													item.label = item.value = val;
-													item.option.selected = true;
-													$option.attr('value',val).text(val);
+													$option.attr({'selected':'selected','value':val}).text(val);
 													if ($.isFunction(self.options.editOption)) {
 														self.options.editOption($option, old);
 													}
 													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
-													$li.find('a').click(); //select menu item
+													$li.find('a').focus().click(); //select menu item
 												}
 												else {
 													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
