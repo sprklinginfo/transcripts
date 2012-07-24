@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Inqscribe Export feature.
+ */
+
+include_once 'inqscribe_export.features.inc';
