@@ -88,10 +88,7 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
 
   $filepath = drupal_realpath($file['uri']);
   // Check that we have a valid filepath.
-  if (!$filepath) {
-    return FALSE;
-  }
-  elseif (!is_file($filepath)) {
+  if (!$filepath || !is_file($filepath)) {
     watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $file['uri']), WATCHDOG_WARNING);
     return FALSE;
   }
@@ -139,8 +136,10 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
     ' extras=' . $more; //. ' 2>&1'; //for debugging
   
   watchdog('Transcripts', "$cmd", NULL, WATCHDOG_DEBUG);
-    
-  return shell_exec($cmd);
+  
+  $document = shell_exec($cmd);
+  
+  return $document;
 }
 
 /**
