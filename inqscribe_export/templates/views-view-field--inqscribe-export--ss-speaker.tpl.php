@@ -19,4 +19,4 @@
   * the view is modified.
   */
 ?>
-<?php print decode_entities($output) . ": "; ?>
+<?php print decode_entities($output) . ":\n"; ?>

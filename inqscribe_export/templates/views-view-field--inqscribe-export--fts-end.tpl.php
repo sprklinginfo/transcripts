@@ -19,4 +19,4 @@
   * the view is modified.
   */
 ?>
-<?php print "[" . inqscribe1000fps($output) . "] "; ?>
+<?php print "[" . inqscribe1000fps($output) . "]\n"; ?>
