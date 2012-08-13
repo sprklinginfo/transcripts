@@ -146,6 +146,7 @@
 													var $s = $(this).parents('div[' + t + ']');
 													if ($s.attr(t) != value) { //changed
 														$s.attr(t, value);
+														recomputeSentenceStack($player);
 													}
 													return(value);
 												},{
@@ -200,9 +201,12 @@
 															"Yes": function() {
 																$s.hide('blind',500)
 																	.addClass('deleted')
+																	.removeAttr('data-starts-index')
 																	.find('.delete-wrapper').hide()
 																	.find('.ui-icon').removeClass('ui-state-focus');
 																	$(this).dialog('close');
+																	
+																recomputeSentenceStack($player);
 															},
 															"No": function() {
 																$('.delete-wrapper .ui-icon',$s).removeClass('ui-state-focus');
@@ -241,11 +245,15 @@
 												var $s2 = $s.clone(false)
 													.addClass('inserted')
 													.attr('id',id)
-													.find('.t1,.t2').html($s.find('.t2').html()).end() //set both times to t1
+													.attr('data-begin', $s.attr('data-end'))
+													.attr('data-end', $s.attr('data-end'))
+													.find('.t1,.t2').html($s.attr('data-end')).end() //set both times to t2
 													.find('.tier').empty().end() //don't copy tier data
 													.css('display','none') //show with effect
 													.insertAfter($s);
 															
+												recomputeSentenceStack($player);
+												
 												attachDelete($s2.find('a.s-delete'));
 												attachInsert($s2.find('a.s-insert'));
 												

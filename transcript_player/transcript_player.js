@@ -27,27 +27,7 @@ var psnSweet = [];
 					lastNow[pid] = 0;
 					playListeners[pid] = [];
 					
-					starts[pid] = $player.find('div[data-begin]').map(function(element, index) {
-						var o = {};
-						o.$item = $(this);
-						o.begin = $(this).attr('data-begin');
-						o.end = $(this).attr('data-end');
-						return o;                    
-					}).toArray().sort(function(a,b) {
-						return a.begin - b.begin;
-					});
-					for (var i=0; i<starts[pid].length; i++) {
-						starts[pid][i].$item.attr('data-starts-index', i);
-					}
-					ends[pid] = $player.find('div[data-end]').map(function(element, index) {
-						var o = {};
-						o.$item = $(this);
-						o.begin = $(this).attr('data-begin');
-						o.end = $(this).attr('data-end');
-						return o; 
-					}).toArray().sort(function(a,b) {
-						return a.end - b.end;
-					});
+					recomputeSentenceStack($player);
 					
 					$('div[data-begin]', $player).each(function() {
 						var $s = $(this);
@@ -80,6 +60,31 @@ var psnSweet = [];
 			}
 		}
 })(jQuery);
+
+function recomputeSentenceStack($player) {
+	var pid = $player.attr('id');
+	starts[pid] = $player.find('div[data-begin]').not('.deleted').map(function(element, index) {
+		var o = {};
+		o.$item = jQuery(this);
+		o.begin = jQuery(this).attr('data-begin');
+		o.end = jQuery(this).attr('data-end');
+		return o;                    
+	}).toArray().sort(function(a,b) {
+		return a.begin - b.begin;
+	});
+	for (var i=0; i<starts[pid].length; i++) {
+		starts[pid][i].$item.attr('data-starts-index', i);
+	}
+	ends[pid] = $player.find('div[data-end]').not('.deleted').map(function(element, index) {
+		var o = {};
+		o.$item = jQuery(this);
+		o.begin = jQuery(this).attr('data-begin');
+		o.end = jQuery(this).attr('data-end');
+		return o; 
+	}).toArray().sort(function(a,b) {
+		return a.end - b.end;
+	});
+}
 
 function enableClickAndPlay($player) {
 	var pid = $player.attr('id');
