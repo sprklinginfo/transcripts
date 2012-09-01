@@ -121,6 +121,8 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
   }
   $more = '"' . implode(',',$params) . '"';
   
+  setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8'); //don't mangle diacritics within arguments
+  
   // By default force UTF-8 output
   $cmd .= escapeshellcmd(variable_get('transcripts_java', 'java')) . ' ' .
     escapeshellarg(variable_get('transcripts_java_opts', '-Dfile.encoding=UTF8')) .
