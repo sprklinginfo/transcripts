@@ -27,6 +27,7 @@ function bubtitles_permission() {
     );
 }
 
+/*
 function bubtitles_og_permission() {
   return array(
     'move bubbles' => array(
@@ -34,6 +35,7 @@ function bubtitles_og_permission() {
     ),
   );
 }
+*/
 
 function bubtitles_menu() {
   $items = array();
