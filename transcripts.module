@@ -88,7 +88,7 @@ function transcripts_apachesolr_query_prepare($query) {
 		
 			// Add a sort on the transcript title
 			$query->setAvailableSort('ss_node_label', array(
-				'title' => t('Transcript'),
+				'title' => t('Title'),
 				'default' => 'asc',
 			));  		
   	}
