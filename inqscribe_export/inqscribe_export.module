@@ -5,3 +5,62 @@
  */
 
 include_once 'inqscribe_export.features.inc';
+
+/**
+ * Implements hook_element_info().
+ */
+function inqscribe_export_element_info() {
+  $elements = array();
+  $elements['managed_file']['#process'] = array('inqscribe_export_file_field_process');
+  return $elements;
+}
+
+/**
+ * An element #process callback for the file_generic field type.
+ *
+ * Expands the file_generic type to include inqscribe export button
+ */
+function inqscribe_export_file_field_process($element, &$form_state, $form) {
+  $item = $element['#value'];
+  $item['fid'] = $element['fid']['#value'];
+
+  $field = field_widget_field($element, $form_state);
+  $instance = field_widget_instance($element, $form_state);
+  $settings = $instance['widget']['settings'];
+
+  if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($form['nid']['#value'])) {
+		$element['inqscribe_export_button'] = array(
+			'#type' => 'submit',
+			'#value' => t('Export to InqScribe'),
+			'#validate' => array(),
+			'#submit' => array('inqscribe_export_submit'),
+		);
+  }
+  
+  return $element;
+}
+
+function inqscribe_export_submit($form, &$form_state) {
+	inqscribe_export_node_file($form['nid']['#value']);
+}
+
+function inqscribe_export_node_file($nid) {
+	drupal_goto('inqscribe-export', array('query'=>array('node'=>$nid)));
+}
+
+/* UNCOMMENT TO ENABLE MENU CALLBACK
+
+function inqscribe_export_menu() {
+  $items = array();
+
+  $items['node/%/transcript/export'] = array(
+  	'title' => 'Export to InqScribe',
+  	'page callback' => 'inqscribe_export_node_file',
+  	'page arguments' => array(1),
+  	'access callback' => 'transcripts_transcript_access',
+  	'access arguments' => array(1),
+  	'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+*/
