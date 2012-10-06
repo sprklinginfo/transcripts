@@ -161,19 +161,15 @@ function transcripts_editor_permission() {
    );
 }
 
-/*
-function transcripts_editor_og_permission() {
-  return array(
-    'edit transcripts' => array(
-    	'title' => t('Edit transcripts and timecodes'),
-    )
-   );
-}
-*/
-
 function transcripts_editor_transcript_player_prepare_player($nid) {
+	$blocked = FALSE;
+	foreach (module_implements('transcripts_editor_disable_editing') as $module) {
+		$blocked = module_invoke($module, 'transcripts_editor_disable_editing', $nid);
+		//if hook returns TRUE then not allowed to edit
+		if (!empty($blocked)) break;
+	}
 	$return = array(
-		'editable' => user_access('edit transcripts') && node_access('update', node_load($nid)) ? true : false
+		'editable' => !$blocked && user_access('edit transcripts') && node_access('update', node_load($nid)) ? true : false
 	);
 	drupal_add_js(array("transcripts_editor_$nid" => $return), 'setting');
 }
