@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Code for the transcripts_editor_disable feature.
+ */
+
+include_once 'transcripts_editor_disable.features.inc';
+
+/**
+ * Implements hook_element_info().
+ */
+function transcripts_editor_disable_element_info() {
+  $elements = array();
+  $elements['managed_file']['#process'] = array('transcripts_editor_disable_file_field_process');
+  return $elements;
+}
+
+function transcripts_editor_disable_file_field_process($element, &$form_state, $form) {
+  $item = $element['#value'];
+  $item['fid'] = $element['fid']['#value'];
+
+  $field = field_widget_field($element, $form_state);
+  $instance = field_widget_instance($element, $form_state);
+  $settings = $instance['widget']['settings'];
+
+  if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($form['nid']['#value'])) {
+		$element['transcripts_editor_disable_flag_link'] = array(
+			'#markup' => '<p>'.flag_create_link('transcripts_editor_disable', $form['nid']['#value']).'</p>',
+		);
+  }
+  
+  return $element;
+}
+
+function transcripts_editor_disable_transcripts_editor_disable_editing($nid) {
+	$flag = flag_get_flag('transcripts_editor_disable');
+	return $flag->is_flagged($nid);
+}
