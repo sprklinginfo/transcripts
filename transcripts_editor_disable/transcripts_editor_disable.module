@@ -25,7 +25,8 @@ function transcripts_editor_disable_file_field_process($element, &$form_state, $
 
   if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($form['nid']['#value'])) {
 		$element['transcripts_editor_disable_flag_link'] = array(
-			'#markup' => '<p>'.flag_create_link('transcripts_editor_disable', $form['nid']['#value']).'</p>',
+			'#markup' => "<div class='transcripts_editor_disable_flag_link form-item'>".flag_create_link('transcripts_editor_disable', $form['nid']['#value'])."</div>",
+			'#weight' => 0,
 		);
   }
   

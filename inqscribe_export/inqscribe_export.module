@@ -34,6 +34,9 @@ function inqscribe_export_file_field_process($element, &$form_state, $form) {
 			'#value' => t('Export to InqScribe'),
 			'#validate' => array(),
 			'#submit' => array('inqscribe_export_submit'),
+			'#weight' => 100,
+			'#prefix' => "<div class='inqscribe_export_link form-item'>",
+			'#suffix' => "</div>",
 		);
   }
   

@@ -1,0 +1,105 @@
+<?php
+
+
+/**
+ * Define default flags.
+ */
+function transcripts_editor_flag_default_flags() {
+	$flags = array();
+	// Exported flag: "The transcript has been dirtied by online editing".
+	$flags['transcripts_dirty_transcript'] = array(
+		'content_type' => 'node',
+		'title' => 'Dirty transcript',
+		'global' => '1',
+		'types' => array(
+			0 => 'audio',
+			1 => 'video',
+		),
+		'flag_short' => "Mark this transcript as dirty",
+		'flag_message' => "Your transcript settings have been changed.",
+		'unflag_short' => "I still want to build an interactive transcript from this file",
+		'unflag_message' => "Your transcript settings have been changed.",
+		'link_type' => 'normal',
+		'roles' => array(
+			'flag' => array(
+				0 => 2,
+			),
+			'unflag' => array(
+				0 => 2,
+			),
+		),
+		'weight' => 0,
+		'show_on_form' => 0,
+		'access_author' => '',
+		'show_on_page' => 0,
+		'show_on_teaser' => 0,
+		'show_contextual_link' => 0,
+		'i18n' => 0,
+		'api_version' => 2,
+	);
+	return $flags;
+}
+
+/**
+ * Allow modules to allow or deny access to flagging.
+ *
+ * @param $flag
+ *  The flag object.
+ * @param $content_id
+ *  The id of the entity in question.
+ * @param $action
+ *  The action to test. Either 'flag' or 'unflag'.
+ * @param $account
+ *  The user on whose behalf to test the flagging action.
+ *
+ * @return
+ *   Boolean TRUE if the user is allowed to flag/unflag the given content.
+ *   FALSE otherwise.
+ *
+ * @see flag_flag:access()
+ */
+function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
+	if ($flag->name == "transcripts_dirty_transcript") {
+		return (node_access('update', $content_id) && $action == 'unflag') ? TRUE : FALSE;
+	}
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function transcripts_editor_element_info() {
+  $elements = array();
+  $elements['managed_file']['#process'] = array('transcripts_editor_file_field_process');
+  return $elements;
+}
+
+function transcripts_editor_file_field_process($element, &$form_state, $form) {
+  $item = $element['#value'];
+  $item['fid'] = $element['fid']['#value'];
+  $nid = $form['nid']['#value'];
+
+  $field = field_widget_field($element, $form_state);
+  $instance = field_widget_instance($element, $form_state);
+  $settings = $instance['widget']['settings'];
+  
+  $dirty = "	This transcript has been changed by online editing.
+  						Unless you have uploaded a new authoritative version,
+  						you should not build an interactive transcript from this
+  						file.";
+  									
+  $clean = "	This file will be used to build an interactive transcript.";
+  
+  $message = flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid) ? $dirty : $clean;
+
+  if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($nid)) {
+		$element['transcripts_dirty_transcript_link'] = array(
+			'#prefix' => "<div class='transcripts_dirty_trancript_link form-item'>". $message ."<br/>",
+			'#markup' => flag_create_link('transcripts_dirty_transcript', $nid),
+			'#suffix' => "</div>",
+			'#weight' => -10,
+		);
+  }
+  
+  
+  return $element;
+}
