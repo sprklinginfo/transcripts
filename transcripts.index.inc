@@ -22,15 +22,10 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
   }
 
   if ($build_document) {
-    // Since there is no notification for an attachment being unassociated with a
-    // node (but that action will trigger it to be indexed again), we check for
-    // fids that were added before but no longer present on this node.
-    $fids = array();
-    $result = db_query("SELECT fid FROM {transcripts_transcript} WHERE nid = :nid", array(':nid' => $node->nid));
-    foreach ($result as $row) {
-      $fids[$row->fid] = $row->fid;
-    }
-    
+  	/*$index_position = apachesolr_get_last_index_position($env_id, 'node');
+  	$max_changed = $index_position['last_changed'];
+  	$max_entity_id = $index_position['last_entity_id'];*/
+  	
     $files = transcripts_get_indexable_transcripts($node);
     
     if (count($files) > 0) {
@@ -50,6 +45,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
         }
       }*/
     
+      $added = 0;
 			foreach ($files as $file) {
 				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
 				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_DEBUG);

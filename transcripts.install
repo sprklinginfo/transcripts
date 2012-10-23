@@ -45,49 +45,6 @@ function transcripts_schema() {
 		),
 		'primary key' => array('pid'),
 	);
-	//should change to singular
-  $schema['transcripts_transcript'] = array(
-    'description' => 'Stores a record of when a transcript property changed to determine if it needs indexing by Solr.',
-    'fields' => array(
-      'fid' => array(
-        'description' => 'The primary identifier for the transcript file.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'nid' => array(
-        'description' => 'The primary identifier for the node to which the transcript file is attached.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'removed' => array(
-        'description' => 'TRUE if the transcript file is no longer attached to a node.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'default' => 0,
-      ),
-      'hash' => array(
-        'description' => "A hash of the transcript file's body, to check for changes.",
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'body' => array(
-        'description' => 'The cached body (extracted text) of the file, unless it is a text file.',
-        'type' => 'text',
-        'not null' => FALSE,
-        'size' => 'big',
-      ),
-    ),
-    'indexes' => array(
-      'nid' => array('nid'),
-      'removed' => array('removed'),
-    ),
-    'primary key' => array('fid'),
-  );
 	return $schema;
 }
 

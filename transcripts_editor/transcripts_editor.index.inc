@@ -81,17 +81,36 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
   $field = field_widget_field($element, $form_state);
   $instance = field_widget_instance($element, $form_state);
   $settings = $instance['widget']['settings'];
-  
-  $dirty = "	This transcript has been changed by online editing.
-  						Unless you have uploaded a new authoritative version,
-  						you should not build an interactive transcript from this
-  						file.";
-  									
-  $clean = "	This file will be used to build an interactive transcript.";
-  
-  $message = flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid) ? $dirty : $clean;
 
-  if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($nid)) {
+  if (!$item['fid'] || !$nid) {
+  	$message = "Upload a file to build an interactive transcript.";
+  }
+  else if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
+		$message = "This transcript has been changed by online editing.
+								Unless you have uploaded a new authoritative version,
+								you should not build an interactive transcript from this
+								file.";
+  }
+  else {
+		$index_position = apachesolr_get_last_index_position(transcripts_environment(), 'node');
+		$max_changed = $index_position['last_changed'];
+		$max_nid = $index_position['last_entity_id'];
+		
+		$node = node_load($nid);
+		$file = file_load($item['fid']);
+		
+		//should confirm that this node type is really indexed
+		
+		//is it possible for an already existing file to be attached to a node?
+		if ($file->status == 0 || ($file->timestamp >= $max_changed && ($node->changed > $max_changed || ($node->changed == $max_changed && $nid > $max_nid)))) {
+			$message = "This file will be used to build an interactive transcript.";
+		}
+		else {
+			$message = "This file was used to build an interactive transcript.";
+		}
+  }
+
+  if ($item['fid'] && $nid && is_transcript_field($element['#field_name']) && transcripts_transcript_access($nid)) {
 		$element['transcripts_dirty_transcript_link'] = array(
 			'#prefix' => "<div class='transcripts_dirty_trancript_link form-item'>". $message ."<br/>",
 			'#markup' => flag_create_link('transcripts_dirty_transcript', $nid),
@@ -99,7 +118,6 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
 			'#weight' => -10,
 		);
   }
-  
   
   return $element;
 }

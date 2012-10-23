@@ -23,12 +23,13 @@ function inqscribe_export_element_info() {
 function inqscribe_export_file_field_process($element, &$form_state, $form) {
   $item = $element['#value'];
   $item['fid'] = $element['fid']['#value'];
+  $nid = $form['nid']['#value'];
 
   $field = field_widget_field($element, $form_state);
   $instance = field_widget_instance($element, $form_state);
   $settings = $instance['widget']['settings'];
 
-  if ($item['fid'] && is_transcript_field($element['#field_name']) && transcripts_transcript_access($form['nid']['#value'])) {
+  if ($item['fid'] && $nid && is_transcript_field($element['#field_name']) && transcripts_transcript_access($nid)) {
 		$element['inqscribe_export_button'] = array(
 			'#type' => 'submit',
 			'#value' => t('Export to InqScribe'),
