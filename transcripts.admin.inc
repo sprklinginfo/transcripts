@@ -312,7 +312,13 @@ function transcripts_display_settings() {
   	'#default_value' => variable_get('transcripts_all_tiers', ''),
   	'#description' => t('Enter a comma-separated list of all transcript tiers. These tiers will be searched and shown in search results.'),
   	'#required' => TRUE,
-  );;
+  );
+  $form['transcripts_display_settings']['transcripts_empty_tiers'] = array(
+        '#title' => t('Include empty tiers'),
+        '#type' => 'checkbox',
+        '#default_value' => variable_get('transcripts_empty_tiers', TRUE),
+        '#description' => t('Do you want empty tiers to be included in the transcript display? Non-included empty tiers cannot be edited.'),
+  );
   $profiles = transcripts_all_profiles();
   $options = array();
   foreach ($profiles as $pid => $data) {

@@ -135,7 +135,8 @@ function transcript_player_transcript($response, $tiers) {
 					} else {
 						$line .= "<div class='tier $tier np'>{$sentence->$tier}</div>";
 					}
-        } else { //empty tier for editing
+        } 
+        else if (variable_get('transcripts_empty_tiers', TRUE)) {
         	$line .= "<div class='tier $tier np'></div>";
         }
       }
