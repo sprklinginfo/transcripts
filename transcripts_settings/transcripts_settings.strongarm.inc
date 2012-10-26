@@ -20,6 +20,20 @@ function transcripts_settings_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_empty_tiers';
+  $strongarm->value = TRUE;
+  $export['transcripts_empty_tiers'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'transcripts_speaker_names';
+  $strongarm->value = TRUE;
+  $export['transcripts_speaker_names'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_default_profile';
   $strongarm->value = 'default';
   $export['transcripts_default_profile'] = $strongarm;
