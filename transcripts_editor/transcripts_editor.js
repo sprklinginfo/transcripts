@@ -10,6 +10,14 @@
 						var pid = $player.attr('id');
 						var data = Drupal.settings['transcripts_editor_' + pid.substring(4)];
 						if (data.editable) {
+							var timer;
+							var autosave = function autosave() {
+								if ($('div[data-changed=true]', $player).size() > 0) {
+									$('div[data-changed=true]', $player).removeAttr('data-changed');
+									console.log('Saving changes...');
+								}
+							}
+							
 							var pencilId = "pencil" + pid;
 							var $input = $('<input id="' + pencilId + '" class="pencil" type="checkbox"/>');
 							$('<span class="control-block edit-controls"></span>')
@@ -49,6 +57,7 @@
 										$(this)
 												.editable(
 													function(value, settings) {
+														$(this).parents('div[data-begin]').attr('data-changed', true); //trigger autosave
 														return(value); //return value is displayed after editing is complete
 													},{
 														type: 'elastic',
@@ -78,7 +87,7 @@
 														var $s = $speakername.parents('div[data-participant]');
 														var oldValue = $s.attr('data-participant');
 														if (oldValue != value) { //changed
-															$s.attr('data-participant', value);
+															$s.attr({'data-participant': value, 'data-changed': true});
 														}
 														return(value); //return value is displayed after editing is complete
 													},{
@@ -93,7 +102,7 @@
 																speakers[value] = value;
 																//change all speakers
 																$('div[data-participant=' + oldValue + ']', $player)
-																	.attr('data-participant', value)
+																	.attr({'data-participant': value, 'data-changed': true})
 																	.find('.speakername')
 																	.not($speakername)
 																	.html(value);
@@ -145,7 +154,7 @@
 													var t = $(this).hasClass('t1') ? 'data-begin' : 'data-end';
 													var $s = $(this).parents('div[' + t + ']');
 													if ($s.attr(t) != value) { //changed
-														$s.attr(t, value);
+														$s.attr(t, value).attr('data-changed', true);
 														recomputeSentenceStack($player);
 													}
 													return(value);
@@ -203,9 +212,10 @@
 																	.addClass('deleted')
 																	.removeAttr('data-starts-index')
 																	.find('.delete-wrapper').hide()
-																	.find('.ui-icon').removeClass('ui-state-focus');
-																	$(this).dialog('close');
-																	
+																	.find('.ui-icon').removeClass('ui-state-focus')
+																	.attr('data-changed', true);
+																
+																$(this).dialog('close');
 																recomputeSentenceStack($player);
 															},
 															"No": function() {
@@ -250,7 +260,8 @@
 													.find('.t1,.t2').html($s.attr('data-end')).end() //set both times to t2
 													.find('.tier').empty().end() //don't copy tier data
 													.css('display','none') //show with effect
-													.insertAfter($s);
+													.insertAfter($s)
+													.attr('data-changed', true); //trigger autosave
 															
 												recomputeSentenceStack($player);
 												
@@ -307,7 +318,12 @@
 												$(this).css('opacity',0);
 											}
 										);
-								} else {  
+										
+									timer = setInterval(autosave, 10000);
+								} else {
+									clearInterval(timer);
+									autosave();
+									
 									/* remove placeholders, replace is here because of IE */
 									$('.tier', $player).each(function() {
 										if ($(this).html().toLowerCase().replace(/(;|")/g, '') ==

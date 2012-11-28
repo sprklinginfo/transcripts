@@ -23,7 +23,7 @@ function transcript_player_title($id, $pid = '', $options = array()) {
 	if (!$pid) {
 		$pid = variable_get('transcripts_default_profile', '');
 		if (!$pid) {
-			return "No data";
+			return "Transcript configuration error.";
 		}
   }
 	
@@ -48,7 +48,7 @@ function transcript_player_title($id, $pid = '', $options = array()) {
 	$videotag = isset($val['video_tag']) ? $val['video_tag'] : '';
 
 	if (!$title) {
-		return "No title";
+		return "No transcript has been uploaded.";
 	}
 	
 	//get default or make first in list
