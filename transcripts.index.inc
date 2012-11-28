@@ -22,12 +22,37 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
   }
 
   if ($build_document) {
-  	/*$index_position = apachesolr_get_last_index_position($env_id, 'node');
-  	$max_changed = $index_position['last_changed'];
-  	$max_entity_id = $index_position['last_entity_id'];*/
   	
     $files = transcripts_get_indexable_transcripts($node);
     
+    $fids = array_keys($files);
+    
+		$result = db_select('transcripts_transcript', 'f')
+			->fields('f', array('fid', 'module', 'type', 'status'))
+			->condition('id', $node->nid)
+			->execute(); 
+  	
+		foreach ($result as $file) {
+			if (!in_array($file->fid, $fids)) {
+				try {
+					$query = "is_nid:".$node->nid." AND is_fid:".$file->fid;
+					$solr = transcripts_get_solr();
+					$solr->deleteByQuery($query);
+					db_delete('transcripts_transcript')
+						->condition('fid', $file->fid)
+						->condition('id', $node->nid)
+						->execute();
+				} 
+				catch (Exception $e) {
+					watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+					return FALSE;
+				}
+			}
+			else { //already indexed, don't do it again
+				unset($files[$file->fid]);
+			}
+		}
+		
     if (count($files) > 0) {
       //inherit node taxonomies
       $extras = array(); //$fields[] = array('key' => $index_key, 'value' => $ancestor->tid,);
@@ -44,15 +69,28 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
           }
         }
       }*/
-    
-      $added = 0;
+  
+			$solr = transcripts_get_solr(); //within try-catch?
 			foreach ($files as $file) {
+				
 				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
 				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_DEBUG);
-				$solr = transcripts_get_solr(); //within try-catch?
-				$solr->update($rawPost);
+				if ($rawPost) {
+					$solr->update($rawPost);
+					
+					db_merge('transcripts_transcript')
+						->key(array(
+							'fid' => $file['fid'],
+							'module' => 'transcripts',
+							'type' => 'node',
+							'id' => $node->nid,
+						))
+						->fields(array('status' => 1))
+						->execute();
+				}
 			}
-			$solr->commit();
+			$solr->commit(); //necessary?
+			
 		}
   }
   //return array(); //empty array of documents
@@ -164,5 +202,3 @@ function transcripts_get_indexable_transcripts($node) {
   }
   return $file_list;
 }
-
-?>

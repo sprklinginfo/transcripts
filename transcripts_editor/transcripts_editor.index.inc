@@ -15,10 +15,10 @@ function transcripts_editor_flag_default_flags() {
 			0 => 'audio',
 			1 => 'video',
 		),
-		'flag_short' => "Mark this transcript as dirty",
-		'flag_message' => "Your transcript settings have been changed.",
-		'unflag_short' => "I still want to build an interactive transcript from this file",
-		'unflag_message' => "Your transcript settings have been changed.",
+		'flag_short' => t("Mark this transcript as dirty"),
+		'flag_message' => t("Your transcript settings have been changed."),
+		'unflag_short' => t("Abandon changes and rebuild the interactive transcript"),
+		'unflag_message' => t("Your transcript settings have been changed."),
 		'link_type' => 'normal',
 		'roles' => array(
 			'flag' => array(
@@ -60,7 +60,7 @@ function transcripts_editor_flag_default_flags() {
  */
 function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
 	if ($flag->name == "transcripts_dirty_transcript") {
-		return (node_access('update', $content_id) && $action == 'unflag') ? TRUE : FALSE;
+		return (node_access('update', $content_id) && $action == 'unflag' && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
 	}
 }
 
@@ -86,10 +86,8 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
   	$message = "Upload a file to build an interactive transcript.";
   }
   else if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
-		$message = "This transcript has been changed by online editing.
-								Unless you have uploaded a new authoritative version,
-								you should not build an interactive transcript from this
-								file.";
+		$message = t("This transcript has been changed by online editing; it is no longer up to date.");
+		unset($element['remove_button']);
   }
   else {
 		$index_position = apachesolr_get_last_index_position(transcripts_environment(), 'node');
@@ -103,10 +101,10 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
 		
 		//is it possible for an already existing file to be attached to a node?
 		if ($file->status == 0 || ($file->timestamp >= $max_changed && ($node->changed > $max_changed || ($node->changed == $max_changed && $nid > $max_nid)))) {
-			$message = "This file will be used to build an interactive transcript.";
+			$message = t("This file will be used to build an interactive transcript.");
 		}
 		else {
-			$message = "This file was used to build an interactive transcript.";
+			$message = t("This file was used to build an interactive transcript.");
 		}
   }
 

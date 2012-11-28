@@ -1,6 +1,8 @@
 <?php
 // $Id$
 
+include_once 'transcripts_editor.index.inc';
+
 function transcripts_editor_init() {
   drupal_add_library('system', 'ui.autocomplete');
   drupal_add_library('system', 'ui.dialog');
@@ -157,7 +159,11 @@ function transcripts_editor_permission() {
   return array(
     'edit transcripts' => array(
     	'title' => t('Edit transcripts and timecodes'),
-    )
+    ),
+    'abandon transcript changes' => array(
+      'title' => t('Abandon transcript changes'), 
+      'description' => t('Return transcript to its original state by abandoning changes made to it online.'),
+    ),
    );
 }
 
@@ -173,5 +179,3 @@ function transcripts_editor_transcript_player_prepare_player($nid) {
 	);
 	drupal_add_js(array("transcripts_editor_$nid" => $return), 'setting');
 }
-
-?>
