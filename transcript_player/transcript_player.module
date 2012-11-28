@@ -95,13 +95,14 @@ function transcript_player_transcript($response, $tiers) {
 		$highlight = isset($response->highlighting) ? TRUE : FALSE;
     $return = "<div class='transcript scroller'>";
     $hits = array();
+    $show_speakers = variable_get('transcripts_speaker_names', TRUE);
     foreach ($docs as $sentence) {
     	$sid = 's-'.$sentence->is_nid.'-'.$sentence->ss_sid;
     	$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
     	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
     	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
     	$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
-    	$line .= "<div class='info'>";
+    	$line .= $show_speakers ? "<div class='info'>" : "<div class='info' style='display: none'>";
     	$line .= "<div class='speakername'>$speaker</div>";
     	$line .= "<div class='playwrapper'>";
     	$line .= "<div class='infocontrols'><button></button></div>";
@@ -111,8 +112,7 @@ function transcript_player_transcript($response, $tiers) {
     	$line .= "</div>"; //timecodes
     	$line .= "</div>"; //playwrapper
     	$line .= "</div>"; //info
-    	
-    	$line .= "<div class='tiers speaker-tiers'>";
+    	$line .= $show_speakers ? "<div class='tiers speaker-tiers'>" : "<div class='tiers speaker-tiers' style='margin-left: 0px'>";
       foreach (array_keys($tiers) as $tier) {
         if (isset($sentence->$tier)) {
         	if ($highlight) {
@@ -135,7 +135,8 @@ function transcript_player_transcript($response, $tiers) {
 					} else {
 						$line .= "<div class='tier $tier np'>{$sentence->$tier}</div>";
 					}
-        } else { //empty tier for editing
+        } 
+        else if (variable_get('transcripts_empty_tiers', TRUE)) {
         	$line .= "<div class='tier $tier np'></div>";
         }
       }
