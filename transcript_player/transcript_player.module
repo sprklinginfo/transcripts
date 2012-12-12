@@ -41,7 +41,8 @@ function transcript_player_title($id, $pid = '', $options = array()) {
 	$options = array_merge($defaults, $options);
 	
 	//note: var $id is passed and made available to eval
-	eval(variable_get('transcripts_id_mapper'));
+	$php_code = variable_get('transcripts_id_mapper');
+	eval( $php_code );
 	
 	$title = isset($val['transcript_id']) ? $val['transcript_id'] : '';
 	$videourl = isset($val['video_url']) ? $val['video_url'] : '';
