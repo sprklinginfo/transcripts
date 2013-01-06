@@ -75,7 +75,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
 				
 				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
 				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_DEBUG);
-				if ($rawPost) {
+				if ($rawPost !== FALSE) {
 					$solr->update($rawPost);
 					
 					db_merge('transcripts_transcript')
