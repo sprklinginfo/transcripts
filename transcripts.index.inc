@@ -1,18 +1,7 @@
 <?php
 // $Id$
 
-/**
- * Callback for apachesolr_index_nodes().
- *
- * Adds a document for each indexable file attachment for the given node ID.
- *
- * @see apachesolr_node_to_document()
- */
-//function transcripts_add_documents($node, $namespace) {
 function transcripts_apachesolr_index_document_build_node($document, $node, $env_id) {
-	$documents = array();
-  $hash = apachesolr_site_hash();
-  // Let any module exclude this node from the index.
   $build_document = TRUE;
   foreach (module_implements('apachesolr_node_exclude') as $module) {
     $exclude = module_invoke($module, 'apachesolr_node_exclude', $node, $namespace);
@@ -22,9 +11,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
   }
 
   if ($build_document) {
-  	
     $files = transcripts_get_indexable_transcripts($node);
-    
     $fids = array_keys($files);
     
 		$result = db_select('transcripts_transcript', 'f')
@@ -34,18 +21,15 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
   	
 		foreach ($result as $file) {
 			if (!in_array($file->fid, $fids)) {
-				try {
-					$query = "is_nid:".$node->nid." AND is_fid:".$file->fid;
-					$solr = transcripts_get_solr();
-					$solr->deleteByQuery($query);
-					db_delete('transcripts_transcript')
-						->condition('fid', $file->fid)
-						->condition('id', $node->nid)
-						->execute();
-				} 
-				catch (Exception $e) {
-					watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
-					return FALSE;
+				$tcuids = db_select('tcu', 't')
+					->fields('t', array('tcuid'))
+					->condition('nid', $node->nid)
+					->condition('fid', $file->fid)
+					->execute()
+					->fetchCol();
+					
+				if (count($tcuids) > 0) {
+					tcu_delete_multiple($tcuids);
 				}
 			}
 			else { //already indexed, don't do it again
@@ -69,39 +53,43 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
           }
         }
       }*/
-  
-			$solr = transcripts_get_solr(); //within try-catch?
 			foreach ($files as $file) {
+				$xml = transcripts_saxon_transform_text($file, $node, $extras);
+				$arr= json_decode(json_encode(simplexml_load_string($xml)), TRUE);
 				
-				$rawPost = transcripts_saxon_transform_text($file, $node, $extras);
-				//watchdog('Transcripts', "Rawpost - $rawPost", NULL, WATCHDOG_DEBUG);
-				if ($rawPost !== FALSE) {
-					$solr->update($rawPost);
-					
-					db_merge('transcripts_transcript')
-						->key(array(
+				//watchdog('Transcripts', "Rawpost - $xml", NULL, WATCHDOG_DEBUG);
+				
+				foreach ($arr['tcu'] as $tcu) {
+					$insert = tcu_create(
+						array(
+							'nid' => $node->nid,
 							'fid' => $file['fid'],
-							'module' => 'transcripts',
-							'type' => 'node',
-							'id' => $node->nid,
-						))
-						->fields(array('status' => 1))
-						->execute();
+							'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
+							'start' => isset($tcu['start']) ? $tcu['start'] : 0,
+							'end' => isset($tcu['end']) ? $tcu['end'] : 0,
+							'created' => REQUEST_TIME,
+							'changed' => REQUEST_TIME,
+						)
+					);
+					$insert->setTiers($tcu['tiers']);
+					tcu_save($insert);
 				}
+					
+				db_merge('transcripts_transcript')
+					->key(array(
+						'fid' => $file['fid'],
+						'module' => 'transcripts',
+						'type' => 'node',
+						'id' => $node->nid,
+					))
+					->fields(array('status' => 1))
+					->execute();
 			}
-			$solr->commit(); //necessary?
-			
 		}
   }
-  //return array(); //empty array of documents
 }
 
-/**
- * Transform the transcript getting just the raw text.
- *
- * @throws Exception
- */
-function transcripts_saxon_transform_text($file, $node, $extras) {
+function transcripts_saxon_transform_text($file, $node) {
 	watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
   
 	$saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
@@ -138,38 +126,13 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
     setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8');
   }
   
-  $path = 'node/' . $node->nid;
-  if (function_exists('drupal_get_path_alias')) {
-  	// Add any path alias to the index, looking first for language specific
-    // aliases but using language neutral aliases otherwise.
-    $language = empty($node->language) ? NULL : $node->language;
-    $output = drupal_get_path_alias($path, $language);
-    if ($output && $output != $path) {
-    	$path = $output;
-    }
-  }
-  
-  $params = array();
-  foreach ($extras as $extra) {
-  	$params[] = $extra['key'] . '=' . escapeshellarg($extra['value']);
-  }
-  $more = '"' . implode(',',$params) . '"';
-  
   setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8'); //don't mangle diacritics within arguments
   
   // By default force UTF-8 output
   $cmd .= escapeshellcmd(variable_get('transcripts_java', 'java')) . ' ' .
     escapeshellarg(variable_get('transcripts_java_opts', '-Dfile.encoding=UTF8')) .
     ' -jar ' . escapeshellarg($saxon) .
-    ' -s:'. escapeshellarg($filepath) . ' -xsl:' . escapeshellarg($xslt) .
-    ' nid=' . $node->nid .
-    ' nlabel=' . escapeshellarg($node->title) .
-    //' nlabel="' . escapeshellarg($node->title) . '"' .
-    ' fid=' . $file['fid'] .
-    ' site=' . url(NULL, array('absolute' => TRUE)) .
-    ' hash=' . apachesolr_site_hash() .
-    ' path=' . $path .
-    ' extras=' . $more; //. ' 2>&1'; //for debugging
+    ' -s:'. escapeshellarg($filepath) . ' -xsl:' . escapeshellarg($xslt); //. ' 2>&1'; //for debugging
   
   watchdog('Transcripts', "$cmd", NULL, WATCHDOG_DEBUG);
   
@@ -178,9 +141,6 @@ function transcripts_saxon_transform_text($file, $node, $extras) {
   return $document;
 }
 
-/**
- * Return all transcripts for a particular node.
- */
 function transcripts_get_indexable_transcripts($node) {
   $files = array();
 

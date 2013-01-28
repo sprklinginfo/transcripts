@@ -98,7 +98,7 @@ function transcript_player_transcript($response, $tiers) {
     $hits = array();
     $show_speakers = variable_get('transcripts_speaker_names', TRUE);
     foreach ($docs as $sentence) {
-    	$sid = 's-'.$sentence->is_nid.'-'.$sentence->ss_sid;
+    	$sid = 's-' .$sentence->entity_id;
     	$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
     	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
     	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
@@ -129,7 +129,7 @@ function transcript_player_transcript($response, $tiers) {
               } else {
               	$time = "0:00";
               }
-              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->ss_sid}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
 						} else {
 							$line .= "<div class='tier $tier'>{$sentence->$tier}</div>";
 						}
@@ -159,7 +159,7 @@ function transcript_player_get($title, $tiers, $options) {
   $solr = transcripts_get_solr();
   
   $tiers = array_keys($tiers);
-  $fl = implode(",", $tiers) . ",id,is_nid,ss_sid,ss_speaker,fts_start,fts_end,fts_duration";
+  $fl = implode(",", $tiers) . ",id,is_nid,entity_id,ss_speaker,fts_start,fts_end,fts_duration";
   if ($options['term'] == '') {
 		$params = array(
 			'q' => '*:*', 

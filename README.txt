@@ -4,7 +4,9 @@ will have been time-aligned to audio or video files, but this is not required.
 INSTALLATION
 ------------
 
-Required: Drupal 7, Apache Solr Search Integration (7.x-1.0-beta15 or above)
+Required: Drupal 7
+          Apache Solr Search Integration (7.x-1.1 or above)
+          Time Code Unit (tcu)
 
 Optional: Facet API, Shortcode
 
@@ -19,43 +21,36 @@ CONFIGURING TRANSCRIPT SEARCH
 The Transcripts module transforms uploaded transcripts into a form that can be
 indexed by Solr using the Apache Solr Search Integration module. 
 
-The module creates a new entity type called "fragment" and a new bundle type
-called "sentence". Instead of indexing transcripts as a whole, the module indexes 
-individual sentences. In this way, time-codes, translation tiers, and other 
-sentence attributes are available within the search results for each sentence.
+The Time Code Unit (tcu) module introduces a new entity type and bundle that
+correponds to a unit of transcription linked to a media file via start and end
+time codes. A tcu can have attributes of tiers, such as a transcription,
+translation, and so on.
 
-You will probably want your transcripts to be indexed within the same index that
-the rest of your site uses. However, you are free to choose a different search
-environment if you have already added it using the Apache Solr module. To do so,
-visit the module's configuration page and select a different search environment:
-
- admin/config/search/apachesolr/transcripts
- 
-By default, Transcripts will include transcript sentences as part of your site's
-core search results. If you want to exclude transcript sentences from core search
-results, go to:
+By default, Transcripts will include tcus are part of your site's core search
+results. To exclude tcus from ordinary search results, go to:
 
   admin/config/search/apachesolr/search-pages
 
-and edit 'Core Search'. Click on 'Custom Filter' and enter -bundle:sentence
-as your filter, and then save the configuration.
+and edit 'Core Search'. Click on 'Custom Filter' and enter -bundle:tcu as your 
+filter, and then save the configuration.
 
-To create a custom search page just for transcript sentences, go to the search
-page administration page and click on "Add search page configuration". There,
-create a configuration with the following values (for example):
+Conversely, to create a custom search page just for tcus, go to the above page
+and click on "Add search page configuration". There, create a configuration with 
+the following values (for example):
 
  Label = Transcripts
  Title = Transcripts
  Path = search/transcripts
- Custom filters = bundle:sentence
+ Custom filters = bundle:tcu
  
 Save the configuration and your page will be available as a new search tab.
 
 For transcript data to show up in search results, you must tell the module the
 names of all tiers that should be searched and shown in search results. Do this
-by providing a comma-separated list of "Transcript tiers", for example:
+by providing a comma-separated list of "Transcript tiers". For example, using
+the tiers mentioned in the README.txt file in the xsl directory:
 
- content_bod, ts_content_wylie, ts_content_eng, ts_content_zho
+ ts_said, ts_meant
 
 By default, the module will assume that search results should link directly to
 nodes, passing a fragment identifier if necessary. This works well when you are
@@ -82,9 +77,8 @@ using the following settings (see admin/config/search/apachesolr/transcripts):
  XSLT file : the name of the file that transforms the XSL
 
 The module uses the Saxon XSLT 2 processor to transform XML transcripts into a
-form that can be posted to Solr. The file transcripts_default.xsl can be used 
-as a model, but you will have to write your own XSL depending on the nature of
-the incoming XML.
+form that can be posted to Solr. For further details and examples see the xsl
+directory.
 
 Both the Saxon jar file and your XSL file should be located in the Saxon
 directory path. Saxon-HE is open source. Download it from the following page:
@@ -192,4 +186,7 @@ version 0.2 (27 January 2012)
   * updated to apachesolr 7x-beta15
   * added transcripts_editor module
   
-
+version 0.3 (28 January 2013)
+  * tcus are now full-fledged entities courtesy of the tcu module
+  * transcripts are only indexed if they haven't already been indexed
+  * transcripts that have been changed online will not be overwritten

@@ -1,0 +1,7 @@
+name = Time Code Unit
+description = Models time-coded units for transcripts
+dependencies[] = entity
+package = Pinedrop Transcripts
+core = 7.x
+files[] = tcu.install
+files[] = tcu.module

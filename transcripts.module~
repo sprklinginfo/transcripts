@@ -19,22 +19,29 @@ function transcripts_get_solr() {
 	return apachesolr_get_solr(transcripts_environment());
 }
 
+/**
+ * Implements hook_theme().
+ */
 function transcripts_theme() {
   return array(
-    'apachesolr_search_snippets__tcu' => array(
+    'apachesolr_search_snippets__fragment__sentence' => array(
       'variables' => array('doc' => NULL, 'snippets' => array()),
     ),
   );
 }
 
-function theme_apachesolr_search_snippets__tcu($vars) {
+function theme_apachesolr_search_snippets__fragment__sentence($vars) {
 	$doc = $vars['doc'];
   $snippets = $vars['snippets'];
   $reslink = variable_get('transcripts_result_link', 'NODE');
   if ($reslink == 'PLAYER') {
   	$doc->path = "node/" . $doc->is_nid . "/transcript";
   }
-  $url = url($doc->path, array('fragment' => $doc->entity_id));
+  /*
+  if ($reslink != 'NODE') {
+  	$doc->path = "transcripts/" . $reslink . "/" . $doc->is_nid;
+  }*/
+  $url = url($doc->path, array('fragment' => $doc->ss_sid));
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
   	$result .= "<div class='sentence-result'>";
@@ -73,7 +80,7 @@ function transcripts_apachesolr_query_prepare($query) {
   //should we really assume this is what people want?
   $filters = $query->getFilters('bundle');
   foreach ($filters as $filter) {
-  	if ($filter['#value'] == 'tcu' && !$filter['#exclude']) {
+  	if ($filter['#value'] == 'sentence' && !$filter['#exclude']) {
 			$query->removeAvailableSort('sort_label');
 			$query->removeAvailableSort('bundle');
 			$query->removeAvailableSort('sort_name');
@@ -92,14 +99,9 @@ function transcripts_apachesolr_query_prepare($query) {
  * Implements hook_apachesolr_query_alter().
  */
 function transcripts_apachesolr_query_alter($query) {
-  $query->addParams(array('fl' => array('ss_node_label', 'is_nid', 'entity_id', 'fts_duration')));
+  $query->addParams(array('fl' => array('ss_node_label', 'is_nid', 'ss_sid', 'fts_duration')));
   $tiers = transcripts_all_tiers();
   if (count($tiers) > 0) {
-  	$qf = array();
-  	foreach ($tiers as $tier) {
-  		$qf[] = $tier."^1.0";
-  	}
-  	$query->addParam('qf', implode(" ", $qf));
   	$query->addParams(array('fl' => $tiers));
   	$query->addParams(array('hl.fl' => $tiers));
   }
@@ -112,14 +114,14 @@ function transcripts_apachesolr_query_alter($query) {
 function transcripts_preprocess_search_result(&$variables) {
 	$fields = $variables['result']['fields'];
 	
-	if ($fields['entity_type'] == 'tcu' && $fields['search_term'] != '') {
+	if ($fields['entity_type'] == 'fragment' && $fields['search_term'] != '') {
 		$variables['result']['link'] = url($fields['path'], array('query' => array('term' => $fields['search_term']))); //needed for some themes
 		$variables['url'] = url($fields['path'], array('query' => array('term' => $fields['search_term']))); //needed for other themes
 	}
 }
 
 function transcripts_apachesolr_search_result_alter($doc, &$extra, $query) {
-	if ($doc->entity_type == 'tcu') {
+	if ($doc->entity_type == 'fragment') {
 		$keyword = $query->getParam('q');
 		$doc->search_term = $keyword ? $keyword : '';
 	}
@@ -128,11 +130,10 @@ function transcripts_apachesolr_search_result_alter($doc, &$extra, $query) {
 function transcripts_apachesolr_process_results(&$results, $query) {
 	if (count($results) > 1) {
 		$last = "";
-		
 		foreach ($results as &$result) {
-			if ($result['entity_type'] == 'tcu') {
-				$result['title'] = ($result['fields']['is_nid'] == $last) ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
-				$last = $result['fields']['is_nid'];
+			if ($result['entity_type'] == 'fragment') {
+				$result['title'] = $result['link'] == $last ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
+				$last = $result['link'];
 			}
 			else {
 				$last = "";
