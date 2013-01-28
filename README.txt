@@ -68,17 +68,16 @@ under TRANSCRIPTS SETTINGS. The motivation for linking transcripts to existing
 file fields is so that the module can easily plug both in and out of existing
 Drupal websites. Any file field is a candidate for transcript indexing.
 
-The Transcripts module will then attempt to index files attached to the field,
-using the following settings (see admin/config/search/apachesolr/transcripts):
+The Transcripts module uses the Saxon XSLT 2 processor to transform incoming
+XML transcripts into tcu entities. Please see the xsl directory for further
+details and examples.
+
+Key XSL settings are (admin/config/search/apachesolr/transcripts):
 
  Transcript extensions : only files with these extensions will be indexed
  Saxon directory path : the directory on the server where Saxon can be found
  Saxon jar file : the name of the Saxon executable (e.g. saxon9he.jar)
- XSLT file : the name of the file that transforms the XSL
-
-The module uses the Saxon XSLT 2 processor to transform XML transcripts into a
-form that can be posted to Solr. For further details and examples see the xsl
-directory.
+ XSLT file : the default XSL transformer, in the Saxon directory
 
 Both the Saxon jar file and your XSL file should be located in the Saxon
 directory path. Saxon-HE is open source. Download it from the following page:
@@ -87,10 +86,12 @@ directory path. Saxon-HE is open source. Download it from the following page:
  
 Then copy saxon9he.jar to your server's Saxon directory path.
 
-Transcripts are indexed when nodes are sent to Solr (usually by running cron).
+XSL transformation creates tcu entities which are indexed during cron runs.
+
 If you find that your transcripts have not been indexed, then this could be
-because the module has failed to find your server's java executable. In that
-case, it may help to add the following line to settings.php:
+because the module has failed to find your server's java executable, which
+means that no tcu entities will be created. In this case, it may help to add 
+the following line to settings.php:
 
  $conf['transcripts_java'] = '/path/to/java';
  
