@@ -87,6 +87,8 @@ directory path. Saxon-HE is open source. Download it from the following page:
 Then copy saxon9he.jar to your server's Saxon directory path.
 
 XSL transformation creates tcu entities which are indexed during cron runs.
+Make sure that 'Tcu' is selected as a "bundle that should be indexed" on
+admin/config/search/apachesolr; otherwise tcus will not be indexed.
 
 If you find that your transcripts have not been indexed, then this could be
 because the module has failed to find your server's java executable, which
