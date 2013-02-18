@@ -98,7 +98,7 @@ function transcript_player_transcript($response, $tiers) {
     $hits = array();
     $show_speakers = variable_get('transcripts_speaker_names', TRUE);
     foreach ($docs as $sentence) {
-    	$sid = 's-' .$sentence->entity_id;
+    	$sid = $sentence->entity_id;
     	$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
     	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
     	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;

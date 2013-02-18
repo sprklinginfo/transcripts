@@ -37,7 +37,8 @@ var psnSweet = [];
 							},
 							text: false
 						}).click(function() {
-							playOne(pid, $s);
+							window.location.hash = $s.attr('id');
+							//playOne(pid, $s);
 						});
 					});
 					
@@ -51,11 +52,20 @@ var psnSweet = [];
 							fn($player);
 						}
 					}
-					var hash = $.param.fragment();
-					if (hash != '') {
-						var jump = '#s-' + pid.substring(4) + '-' + hash;
-						jumpPlay(pid, $(jump));
+					
+					/* only call playOne when fragment set or changed */
+					var jump = $.param.fragment();
+					if (jump != '') {
+						var vid = jQuery('#' + pid).find('video,audio')[0];
+						vid.addEventListener("loadedmetadata", function() {
+								console.log("loaded metadata");
+								playOne(pid, $('#'+jump));
+						}, false);
 					}
+					
+					window.addEventListener("hashchange", function() {
+						playOne(pid, $(window.location.hash));
+					}, false);
 				});
 			}
 		}
@@ -92,7 +102,8 @@ function enableClickAndPlay($player) {
   	jQuery(this).css('cursor', 'pointer');
   });
 	$player.delegate('.transcript.scroller *[data-begin]', 'click', function() {
-  	playOne(pid, jQuery(this));
+  	window.location.hash = jQuery(this).attr('id');
+		//playOne(pid, jQuery(this));
   });
 }
 
@@ -172,8 +183,10 @@ function getPlayMode(pid) {
 
 // play methods
 
-function playOne(pid, $item, resetSweet) {
-	resetSweet = typeof resetSweet !== 'undefined' ? resetSweet : true;
+//function playOne(pid, $item, resetSweet) {
+function playOne(pid, $item) {
+	resetSweet = typeof psnSweet[pid] !== 'undefined' ? psnSweet[pid] : true;
+	//resetSweet = typeof resetSweet !== 'undefined' ? resetSweet : true;
 	var vid = jQuery('#' + pid).find('video,audio')[0];
   if ($item.attr('data-end') - $item.attr('data-begin') > 0) {
   	if (playMode[pid] == 'playstop') {
@@ -260,27 +273,23 @@ function endAll(pid) {
 	});	
 }
 
-function jumpPlay(pid, $id) {
-	var vid = jQuery('#' + pid).find('video,audio')[0];
-	//canplaythrough works with safari and chrome, loadedmetadata works with firefox and chrome
-  vid.addEventListener("onloadedmetadata", function() {
-  	playOne(pid, $id);
-  }, false);
-}
-
 function previous(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] > 0 ? playIndex[pid]-1 : 0;
-  playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
+  window.location.hash = jQuery(starts[pid][n].$item).attr('id');
+  //playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
 }
         
 function sameAgain(pid) {
   var $player = jQuery('#' + pid);
-  playOne(pid, jQuery(starts[pid][playIndex[pid]].$item), psnSweet[pid]);
+  /* can't set window.location.hash because it won't change */
+  playOne(pid, jQuery(starts[pid][playIndex[pid]].$item));
+  //playOne(pid, jQuery(starts[pid][playIndex[pid]].$item), psnSweet[pid]);
 }
 
 function next(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] == starts[pid].length-1 ? playIndex[pid] : playIndex[pid]+1;
-  playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
+  window.location.hash = jQuery(starts[pid][n].$item).attr('id');
+  //playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
 }
