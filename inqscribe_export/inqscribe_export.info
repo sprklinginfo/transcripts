@@ -1,11 +1,12 @@
 name = Inqscribe Export
 core = 7.x
 package = Pinedrop Transcripts
+php = 5.2.4
+dependencies[] = apachesolr_views
 dependencies[] = ctools
+dependencies[] = transcripts
 dependencies[] = views
 dependencies[] = views_data_export
-dependencies[] = apachesolr_views
-dependencies[] = transcripts
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:1
 features[views_view][] = inqscribe_export
