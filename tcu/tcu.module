@@ -185,9 +185,12 @@ function tcu_entity_insert($entity, $type) {
 		list($id) = entity_extract_ids($type, $entity);
 		$tiers = $entity->getTiers();
 		foreach ($tiers as $tier => $value) {
-			db_merge('tcu_tier')
-				->key(array('tcuid' => $entity->tcuid, 'tier' => $tier))
-				->fields(array('value' => $value))
+			db_insert('tcu_tier')
+				->fields(array(
+					'tcuid' => $entity->tcuid,
+					'tier' => $tier,
+					'value' => $value,
+				))
 				->execute();
     }
 	}

@@ -55,9 +55,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
       }*/
 			foreach ($files as $file) {
 				$xml = transcripts_saxon_transform_text($file, $node, $extras);
-				$arr= json_decode(json_encode(simplexml_load_string($xml)), TRUE);
-				
-				//watchdog('Transcripts', "Rawpost - $xml", NULL, WATCHDOG_DEBUG);
+				$arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
 				
 				foreach ($arr['tcu'] as $tcu) {
 					$insert = tcu_create(
@@ -71,7 +69,7 @@ function transcripts_apachesolr_index_document_build_node($document, $node, $env
 							'changed' => REQUEST_TIME,
 						)
 					);
-					$insert->setTiers($tcu['tiers']);
+					$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
 					tcu_save($insert);
 				}
 					
@@ -125,8 +123,6 @@ function transcripts_saxon_transform_text($file, $node) {
     $cmd .= 'export LANG="en_US.utf-8"; ';
     setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8');
   }
-  
-  setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8'); //don't mangle diacritics within arguments
   
   // By default force UTF-8 output
   $cmd .= escapeshellcmd(variable_get('transcripts_java', 'java')) . ' ' .
