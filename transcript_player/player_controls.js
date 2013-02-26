@@ -17,14 +17,14 @@
 									//turn everything off
 									$controls.find('.tier-controls input').each(
 										function() {
-											$player.find('.transcript .' + $(this).val()).removeClass('active');
+											$player.find('.transcript *[data-tier=' + $(this).val() + ']').removeClass('active');
 											$(this).removeAttr('checked').button('refresh');
 										}
 									);
 									//turn selected on
 									$(this).attr('checked', true).button('refresh');
 								}
-								$player.find('.transcript .' + $(this).val()).toggleClass('active');
+								$player.find('.transcript *[data-tier=' + $(this).val() + ']').toggleClass('active');
 								$(this).blur();
 							}
             )
@@ -33,7 +33,7 @@
             
           //hide buttons for tiers that have no data
           $controls.find('.tier-controls input').each(function() {
-          	if ($player.find('.transcript .' + $(this).val()).size() == 0) {
+          	if ($player.find('.transcript *[data-tier=' + $(this).val() + ']').size() == 0) {
           		var id = $(this).attr('id');
           		$('label[for='+id+']').hide();
           	}

@@ -120,7 +120,7 @@ function transcript_player_transcript($response, $tiers) {
         		$id = $sentence->id;
 						if (isset($response->highlighting->$id->$tier)) {
 							$replace = $response->highlighting->$id->$tier;
-							$line .= "<div class='tier $tier hit np'>{$replace[0]}</div>";
+							$line .= "<div data-tier='$tier' class='tier $tier hit np'>{$replace[0]}</div>";
 							//move to theme function
 							if (isset($sentence->fts_start) && $sentence->fts_start > 0) {
 								$mins = floor ($sentence->fts_start / 60);
@@ -131,14 +131,14 @@ function transcript_player_transcript($response, $tiers) {
               }
               $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
 						} else {
-							$line .= "<div class='tier $tier'>{$sentence->$tier}</div>";
+							$line .= "<div data-tier='$tier' class='tier'>{$sentence->$tier}</div>";
 						}
 					} else {
-						$line .= "<div class='tier $tier np'>{$sentence->$tier}</div>";
+						$line .= "<div data-tier='$tier' class='tier np'>{$sentence->$tier}</div>";
 					}
         } 
         else if (variable_get('transcripts_empty_tiers', TRUE)) {
-        	$line .= "<div class='tier $tier np'></div>";
+        	$line .= "<div data-tier='$tier' class='tier np'></div>";
         }
       }
       $line .= "</div>"; //div.tiers

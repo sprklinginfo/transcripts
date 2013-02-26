@@ -13,8 +13,22 @@
 							var timer;
 							var autosave = function autosave() {
 								if ($('div[data-changed=true]', $player).size() > 0) {
-									$('div[data-changed=true]', $player).removeAttr('data-changed');
-									console.log('Saving changes...');
+									$('div[data-changed=true]', $player)
+										.each(function() {
+												if ($(this).is('.deleted')) {
+													console.log('DELETE Tcuid ' + $(this).attr('id'));
+												}
+												else {
+													console.log('Tcuid = ' + $(this).attr('id'));
+													console.log('Speaker = ' + $(this).attr('data-participant'));
+													console.log('Begin = ' + $(this).attr('data-begin'));
+													console.log('End = ' + $(this).attr('data-end'));
+													$('*[data-tier]', this).each(function() {
+															console.log($(this).attr('data-tier') + ' = ' + $(this).html());
+													});
+												}
+										})
+										.removeAttr('data-changed');
 								}
 							}
 							
@@ -210,10 +224,10 @@
 															"Yes": function() {
 																$s.hide('blind',500)
 																	.addClass('deleted')
+																	.attr('data-changed', true)
 																	.removeAttr('data-starts-index')
 																	.find('.delete-wrapper').hide()
-																	.find('.ui-icon').removeClass('ui-state-focus')
-																	.attr('data-changed', true);
+																	.find('.ui-icon').removeClass('ui-state-focus');
 																
 																$(this).dialog('close');
 																recomputeSentenceStack($player);
