@@ -192,7 +192,7 @@ function tcu_entity_insert($entity, $type) {
 					'value' => $value,
 				))
 				->execute();
-    }
+		}
 	}
 }
 
@@ -205,6 +205,19 @@ function tcu_entity_update($entity, $type) {
 			->condition('entity_id', $id)
 			->condition('entity_type', 'tcu')
 			->execute();
+		
+		$tiers = $entity->getTiers();
+		foreach ($tiers as $tier => $value) {
+			db_merge('tcu_tier')
+			    ->key(array(
+			        'tcuid' => $entity->tcuid,
+			        'tier' => $tier,
+			    ))
+				->fields(array(
+					'value' => $value,
+				))
+				->execute();
+		}
 	}
 }
 

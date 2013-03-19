@@ -13,12 +13,28 @@
 							var timer;
 							var autosave = function autosave() {
 								if ($('div[data-changed=true]', $player).size() > 0) {
+									var tcus = new Array(); 
+									
 									$('div[data-changed=true]', $player)
 										.each(function() {
 												if ($(this).is('.deleted')) {
 													console.log('DELETE Tcuid ' + $(this).attr('id'));
 												}
 												else {
+													var tcu = {};
+													tcu.tcuid = $(this).attr('id');
+													tcu.speaker = $(this).attr('data-participant');
+													tcu.start = $(this).attr('data-begin');
+													tcu.end = $(this).attr('data-end');
+													tcu.tiers = {};
+													$('*[data-tier]', this).each(function() {
+													        if (!this.editing) {
+													            tcu.tiers[$(this).attr('data-tier')] = $(this).html();
+															}
+													});
+													tcus.push(tcu);
+													
+													/* debugging
 													console.log('Tcuid = ' + $(this).attr('id'));
 													console.log('Speaker = ' + $(this).attr('data-participant'));
 													console.log('Begin = ' + $(this).attr('data-begin'));
@@ -26,9 +42,21 @@
 													$('*[data-tier]', this).each(function() {
 															console.log($(this).attr('data-tier') + ' = ' + $(this).html());
 													});
+													*/
 												}
 										})
 										.removeAttr('data-changed');
+										
+										$.ajax({
+												type: 'POST',
+												url: Drupal.settings.basePath + 'tcu/update',
+												data: {tcus: tcus},
+												success: function(data) {
+												},
+												failure: function(msg) {
+													alert(msg);
+												}
+										});
 								}
 							}
 							
