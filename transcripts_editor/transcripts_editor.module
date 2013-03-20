@@ -32,7 +32,6 @@ function transcripts_editor_menu() {
 }
 
 function transcripts_editor_update_tcu() {
-	$result = "";
 	foreach ($_POST['tcus'] as $changed) {
 		$tcu = tcu_load($changed['tcuid']); //check if exists?
 		if (user_access('edit transcripts') && node_access('update', node_load($tcu->nid))) {
@@ -40,9 +39,7 @@ function transcripts_editor_update_tcu() {
             $tcu->start = $changed['start'];
             $tcu->end = $changed['end'];
             $tcu->setTiers($changed['tiers']);
-            //$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
-            watchdog("Transcripts", "Tcu saving = " .tcu_save($tcu), NULL, WATCHDOG_INFO);
-            watchdog('Transcripts', "Tcu begin changed to " .$tcu->start, NULL, WATCHDOG_INFO);
+            tcu_save($tcu);
 		}
 	}
 	drupal_json_output(array('status' => TRUE, 'data' => 'Success'));
