@@ -31,8 +31,17 @@ function transcripts_editor_menu() {
   return $items;	
 }
 
+// if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
+
 function transcripts_editor_update_tcu() {
-	foreach ($_POST['tcus'] as $changed) {
+    $k = 0;
+    
+    foreach ($_POST['delete'] as $deleted) {
+        $tcu = tcu_load($deleted['tcuid']);
+        tcu_delete($tcu);
+        $k++;
+    }
+	foreach ($_POST['update'] as $changed) {
 		$tcu = tcu_load($changed['tcuid']); //check if exists?
 		if (user_access('edit transcripts') && node_access('update', node_load($tcu->nid))) {
             $tcu->speaker = $changed['speaker'];
@@ -40,8 +49,13 @@ function transcripts_editor_update_tcu() {
             $tcu->end = $changed['end'];
             $tcu->setTiers($changed['tiers']);
             tcu_save($tcu);
+            $k++;
 		}
 	}
+	//flag transcript as dirty - is it costly to repeat this?
+    if ($k > 0 && !flag_get_flag('transcripts_dirty_transcript')->is_flagged($tcu->nid)) {
+        flag_get_flag('transcripts_dirty_transcript')->flag('flag', $tcu->nid, user_load(1)); //flag by superuser
+    }
 	drupal_json_output(array('status' => TRUE, 'data' => 'Success'));
 }
 

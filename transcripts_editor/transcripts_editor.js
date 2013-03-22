@@ -13,13 +13,16 @@
 							var timer;
 							var autosave = function autosave() {
 								if ($('div[data-changed=true]', $player).size() > 0) {
-									var tcus = new Array(); 
+									var updates = new Array(); 
+									var deletes = new Array();
 									
 									$('div[data-changed=true]', $player)
 										.each(function() {
 												if ($(this).is('.deleted')) {
+												    var tcu = {};
+												    tcu.tcuid = $(this).attr('id');
+												    deletes.push(tcu);
 												    $(this).removeAttr('data-changed');
-													console.log('DELETE Tcuid ' + $(this).attr('id'));
 												}
 												else {
 												    var stillChanging = false;
@@ -44,17 +47,20 @@
                                                                 }
                                                         });
                                                         
-                                                        tcus.push(tcu);
+                                                        updates.push(tcu);
                                                         $(this).removeAttr('data-changed');
 													}
 												}
 										});
 										
-										if (tcus.length > 0) {
+										if (updates.length > 0 || deletes.length > 0) {
                                             $.ajax({
                                                     type: 'POST',
                                                     url: Drupal.settings.basePath + 'tcu/update',
-                                                    data: {tcus: tcus},
+                                                    data: {
+                                                        update: updates,
+                                                        delete: deletes
+                                                    },
                                                     success: function(data) {
                                                     },
                                                     failure: function(msg) {

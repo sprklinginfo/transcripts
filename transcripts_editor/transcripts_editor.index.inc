@@ -15,10 +15,13 @@ function transcripts_editor_flag_default_flags() {
 			0 => 'audio',
 			1 => 'video',
 		),
-		'flag_short' => t("Mark this transcript as dirty"),
-		'flag_message' => t("Your transcript settings have been changed."),
-		'unflag_short' => t("Abandon changes and rebuild the interactive transcript"),
-		'unflag_message' => t("Your transcript settings have been changed."),
+		'flag_short' => 'ADMIN Make dirty',
+		'flag_long' => 'ADMIN Make dirty',
+		'flag_message' => 'ADMIN Dirtied',
+		'unflag_short' => 'Abandon changes and rebuild the interactive transcript',
+		'unflag_long' => 'Abandon changes and rebuild the interactive transcript',
+		'unflag_message' => 'An interactive transcript will be built from this file',
+		'unflag_denied_text' => '',
 		'link_type' => 'normal',
 		'roles' => array(
 			'flag' => array(
@@ -60,8 +63,42 @@ function transcripts_editor_flag_default_flags() {
  */
 function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
 	if ($flag->name == "transcripts_dirty_transcript") {
-		return (node_access('update', $content_id) && $action == 'unflag' && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
+	    if ($action == 'unflag') {
+	        return (node_access('update', $content_id) && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
+	    }
+	    else {
+	        return user_access('administer site configuration', $account) ? TRUE : FALSE; //only admin/debug flagging allowed
+	    }
 	}
+}
+
+function transcripts_editor_flag($op, $flag, $content_id, $account, $fcid) {
+    if ($flag->name == 'transcripts_dirty_transcript' && $op == 'unflag') {
+        watchdog("Transcripts", "Unflagging", NULL, WATCHDOG_WARNING);
+        //delete row from table so that transcript is rebuilt
+        db_delete('transcripts_transcript')
+            ->condition('id', $content_id)
+            ->execute();
+
+        //assumes maximum one transcript per node
+        $tcuids = db_select('tcu', 't')
+		    ->fields('t', array('tcuid'))
+			->condition('nid', $content_id)
+			->execute()
+			->fetchCol();
+					
+		if (count($tcuids) > 0) {
+			tcu_delete_multiple($tcuids);
+		}
+		
+		//to queue the node for re-indexing
+		db_update('node')
+		    ->fields(array(
+		        'changed' => time()
+		    ))
+		    ->condition('nid', $content_id)
+		    ->execute();
+    }
 }
 
 /**
@@ -74,6 +111,8 @@ function transcripts_editor_element_info() {
 }
 
 function transcripts_editor_file_field_process($element, &$form_state, $form) {
+  //should just return $element if not a transcript field
+  
   $item = $element['#value'];
   $item['fid'] = $element['fid']['#value'];
   $nid = $form['nid']['#value'];
