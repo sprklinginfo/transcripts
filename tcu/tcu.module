@@ -221,6 +221,14 @@ function tcu_entity_update($entity, $type) {
 	}
 }
 
+function tcu_entity_delete($entity, $type) {
+	if ($type == 'tcu') {
+	    db_delete('tcu_tier')
+	        ->condition('tcuid', $entity->tcuid)
+	        ->execute();
+	}
+}
+
 /*
 function apachesolr_search_node_result($doc, &$result, &$extra) {
   $doc->uid = $doc->is_uid;
