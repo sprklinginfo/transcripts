@@ -13,17 +13,26 @@
 							var timer;
 							var autosave = function autosave() {
 								if ($('div[data-changed=true]', $player).size() > 0) {
-									var updates = new Array(); 
-									var deletes = new Array();
+									var update = new Array(); 
+									var insert = new Array();
+									var remove = new Array();
 									
 									$('div[data-changed=true]', $player)
 										.each(function() {
 												if ($(this).is('.deleted')) {
 												    var tcu = {};
 												    tcu.tcuid = $(this).attr('id');
-												    deletes.push(tcu);
+												    remove.push(tcu);
 												    $(this).removeAttr('data-changed');
 												}
+												else if ($(this).is('.inserted')) {
+										            var tcu = {};
+										            tcu.speaker = $(this).attr('data-participant');
+										            tcu.start = $(this).attr('data-begin');
+										            tcu.end = $(this).attr('data-end');
+										            insert.push(tcu);
+										            $(this).removeAttr('data-changed').removeClass('.inserted');
+										        }
 												else {
 												    var stillChanging = false;
 												    $('.t1, .t2, .speakername, *[data-tier]', this).each(function() {
@@ -47,19 +56,20 @@
                                                                 }
                                                         });
                                                         
-                                                        updates.push(tcu);
+                                                        update.push(tcu);
                                                         $(this).removeAttr('data-changed');
 													}
 												}
 										});
 										
-										if (updates.length > 0 || deletes.length > 0) {
+										if (update.length > 0 || insert.length > 0 || remove.length > 0) {
                                             $.ajax({
                                                     type: 'POST',
                                                     url: Drupal.settings.basePath + 'tcu/update',
                                                     data: {
-                                                        update: updates,
-                                                        delete: deletes
+                                                        update: update,
+                                                        insert: insert,
+                                                        remove: remove
                                                     },
                                                     success: function(data) {
                                                     },

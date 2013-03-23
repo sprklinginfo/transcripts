@@ -36,22 +36,24 @@ function transcripts_editor_menu() {
 function transcripts_editor_update_tcu() {
     $k = 0;
     
-    foreach ($_POST['delete'] as $deleted) {
-        $tcu = tcu_load($deleted['tcuid']);
-        tcu_delete($tcu);
-        $k++;
-    }
-	foreach ($_POST['update'] as $changed) {
-		$tcu = tcu_load($changed['tcuid']); //check if exists?
+	foreach ($_POST['update'] as $update) {
+		$tcu = tcu_load($update['tcuid']); //check if exists?
 		if (user_access('edit transcripts') && node_access('update', node_load($tcu->nid))) {
-            $tcu->speaker = $changed['speaker'];
-            $tcu->start = $changed['start'];
-            $tcu->end = $changed['end'];
-            $tcu->setTiers($changed['tiers']);
+            $tcu->speaker = $update['speaker'];
+            $tcu->start = $update['start'];
+            $tcu->end = $update['end'];
+            $tcu->setTiers($update['tiers']);
             tcu_save($tcu);
             $k++;
 		}
 	}
+    foreach ($_POST['insert'] as $insert) {
+    }
+    foreach ($_POST['remove'] as $remove) {
+        $tcu = tcu_load($remove['tcuid']);
+        tcu_delete($tcu);
+        $k++;
+    }
 	//flag transcript as dirty - is it costly to repeat this?
     if ($k > 0 && !flag_get_flag('transcripts_dirty_transcript')->is_flagged($tcu->nid)) {
         flag_get_flag('transcripts_dirty_transcript')->flag('flag', $tcu->nid, user_load(1)); //flag by superuser
@@ -102,16 +104,16 @@ function transcripts_editor_facetapi_facet_info(array $searcher_info) {
 }
 
 function transcripts_editor_map_duration(array $values) {
-	$map = array();
-  foreach ($values as $value) {
-    $range = explode(' TO ', trim($value, '{[]}'));
-    if (2 == count($range)) {
-    	$map[$value] = "Duration: ".$range[0]." to ".$range[1]." seconds";
+    $map = array();
+    foreach ($values as $value) {
+        $range = explode(' TO ', trim($value, '{[]}'));
+        if (2 == count($range)) {
+            $map[$value] = "Duration: ".$range[0]." to ".$range[1]." seconds";
+        }
+        else { //not a range
+            $map[$value] = $range[0];
+        }
     }
-    else { //not a range
-    	$map[$value] = $range[0];
-    }
-  }
 	return $map;
 }
 
@@ -143,7 +145,7 @@ function transcripts_editor_transcript_player_prepare_player($nid) {
 		if (!empty($blocked)) break;
 	}
 	$return = array(
-		'editable' => !$blocked && user_access('edit transcripts') && node_access('update', node_load($nid)) ? true : false
+		'editable' => !$blocked && user_access('edit transcripts') && node_access('update', node_load($nid)) ? true : false,
 	);
 	drupal_add_js(array("transcripts_editor_$nid" => $return), 'setting');
 }

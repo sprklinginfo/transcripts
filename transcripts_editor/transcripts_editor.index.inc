@@ -20,7 +20,7 @@ function transcripts_editor_flag_default_flags() {
 		'flag_message' => 'ADMIN Dirtied',
 		'unflag_short' => 'Abandon changes and rebuild the interactive transcript',
 		'unflag_long' => 'Abandon changes and rebuild the interactive transcript',
-		'unflag_message' => 'An interactive transcript will be built from this file',
+		'unflag_message' => 'The interactive transcript was rebuilt.',
 		'unflag_denied_text' => '',
 		'link_type' => 'normal',
 		'roles' => array(
@@ -74,30 +74,14 @@ function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
 
 function transcripts_editor_flag($op, $flag, $content_id, $account, $fcid) {
     if ($flag->name == 'transcripts_dirty_transcript' && $op == 'unflag') {
-        watchdog("Transcripts", "Unflagging", NULL, WATCHDOG_WARNING);
-        //delete row from table so that transcript is rebuilt
-        db_delete('transcripts_transcript')
+        $transcript = db_select('transcripts_transcript', 't')
+            ->fields('t')
             ->condition('id', $content_id)
-            ->execute();
-
-        //assumes maximum one transcript per node
-        $tcuids = db_select('tcu', 't')
-		    ->fields('t', array('tcuid'))
-			->condition('nid', $content_id)
-			->execute()
-			->fetchCol();
-					
-		if (count($tcuids) > 0) {
-			tcu_delete_multiple($tcuids);
-		}
-		
-		//to queue the node for re-indexing
-		db_update('node')
-		    ->fields(array(
-		        'changed' => time()
-		    ))
-		    ->condition('nid', $content_id)
-		    ->execute();
+            ->execute()
+            ->fetchObject();
+            
+        transcripts_remove_transcript($content_id);
+        transcripts_add_transcript(file_load($transcript->fid), node_load($content_id));
     }
 }
 
