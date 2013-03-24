@@ -59,8 +59,7 @@ function transcripts_add_transcript($file, $node) {
     foreach ($arr['tcu'] as $tcu) {
         $insert = tcu_create(
             array(
-			    'nid' => $node->nid,
-			    'fid' => $file->fid,
+			    'entity_id' => $node->nid,
 			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
 			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
 			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
@@ -86,7 +85,7 @@ function transcripts_add_transcript($file, $node) {
 function transcripts_remove_transcript($content_id) {
     $tcuids = db_select('tcu', 't')
 	    ->fields('t', array('tcuid'))
-		->condition('nid', $content_id)
+		->condition('entity_id', $content_id)
 		->execute()
 		->fetchCol();
 					

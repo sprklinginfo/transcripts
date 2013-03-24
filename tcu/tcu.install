@@ -13,18 +13,12 @@ function tcu_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'nid' => array(
-        'description' => 'The node that this tcu comes from',
+      'entity_id' => array(
+        'description' => 'The entity that this tcu comes from',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'fid' => array(
-        'description' => 'The file that this tcu comes from',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
       ),
       'speaker' => array(
         'description' => 'Who said this tcu',
@@ -62,16 +56,6 @@ function tcu_schema() {
     	'tcuid' => array('tcuid'),
     ),
     'primary key' => array('tcuid'),
-    'foreign keys' => array(
-      'node' => array(
-        'table' => 'node',
-        'columns' => array('nid' => 'nid'),
-      ),
-      'file' => array(
-        'table' => 'file_managed',
-        'columns' => array('fid' => 'fid'),
-      ),
-    ),
   );
   
   $schema['tcu_tier'] = array(

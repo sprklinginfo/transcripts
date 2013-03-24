@@ -8,7 +8,8 @@
 					$('.transcript-player', context).once('editable').each(function() {
 						var $player = $(this);
 						var pid = $player.attr('id');
-						var data = Drupal.settings['transcripts_editor_' + pid.substring(4)];
+						var eid = pid.substring(4);
+						var data = Drupal.settings['transcripts_editor_' + eid];
 						if (data.editable) {
 							var timer;
 							var autosave = function autosave() {
@@ -27,11 +28,13 @@
 												}
 												else if ($(this).is('.inserted')) {
 										            var tcu = {};
+										            tcu.temp = $(this).attr('id'); //temporary id
 										            tcu.speaker = $(this).attr('data-participant');
 										            tcu.start = $(this).attr('data-begin');
 										            tcu.end = $(this).attr('data-end');
+										            tcu.tiers = {};
 										            insert.push(tcu);
-										            $(this).removeAttr('data-changed').removeClass('.inserted');
+										            $(this).removeAttr('data-changed').removeClass('inserted');
 										        }
 												else {
 												    var stillChanging = false;
@@ -67,11 +70,17 @@
                                                     type: 'POST',
                                                     url: Drupal.settings.basePath + 'tcu/update',
                                                     data: {
+                                                        eid: eid,
                                                         update: update,
                                                         insert: insert,
                                                         remove: remove
                                                     },
                                                     success: function(data) {
+                                                        if (data.status) {
+                                                            for (var i=0; i<data.tcuids.length; i++) {
+                                                                $('#' + insert[i].temp).attr('id', data.tcuids[i]);
+                                                            }
+                                                        }
                                                     },
                                                     failure: function(msg) {
                                                         alert(msg);
@@ -321,7 +330,7 @@
 													.attr('data-begin', $s.attr('data-end'))
 													.attr('data-end', $s.attr('data-end'))
 													.find('.t1,.t2').html($s.attr('data-end')).end() //set both times to t2
-													.find('.tier').empty().end() //don't copy tier data
+													.find('.tier').html('***').end() //don't copy tier data
 													.css('display','none') //show with effect
 													.insertAfter($s)
 													.attr('data-changed', true); //trigger autosave

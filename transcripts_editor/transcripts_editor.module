@@ -34,31 +34,62 @@ function transcripts_editor_menu() {
 // if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
 
 function transcripts_editor_update_tcu() {
-    $k = 0;
+    $eid = $_POST['eid'];
     
-	foreach ($_POST['update'] as $update) {
-		$tcu = tcu_load($update['tcuid']); //check if exists?
-		if (user_access('edit transcripts') && node_access('update', node_load($tcu->nid))) {
-            $tcu->speaker = $update['speaker'];
-            $tcu->start = $update['start'];
-            $tcu->end = $update['end'];
-            $tcu->setTiers($update['tiers']);
+    if (user_access('edit transcripts') && node_access('update', node_load($eid))) {
+        $k = 0;
+        $tcuids = array();
+        
+        foreach ($_POST['update'] as $update) {
+            $tcu = tcu_load($update['tcuid']);
+            //confirm entity
+            if ($tcu->entity_id == $eid) {
+                $tcu->speaker = $update['speaker'];
+                $tcu->start = $update['start'];
+                $tcu->end = $update['end'];
+                $tcu->setTiers($update['tiers']);
+                tcu_save($tcu);
+                $k++;
+            }
+        }
+        foreach ($_POST['insert'] as $insert) {
+            $tcu = tcu_create(
+                array(
+                    'entity_id' => $eid,
+                    'speaker' => isset($insert['speaker']) ? $insert['speaker'] : '',
+                    'start' => isset($insert['start']) ? $insert['start'] : 0,
+                    'end' => isset($insert['end']) ? $insert['end'] : 0,
+                    'created' => REQUEST_TIME,
+                    'changed' => REQUEST_TIME,
+                )
+            );
             tcu_save($tcu);
+            $tcuids[] = $tcu->tcuid;
+            
             $k++;
-		}
-	}
-    foreach ($_POST['insert'] as $insert) {
+        }
+        foreach ($_POST['remove'] as $remove) {
+            $tcu = tcu_load($remove['tcuid']);
+            //confirm entity
+            if ($tcu->entity_id == $eid) {
+                tcu_delete($tcu);
+                $k++;
+            }
+        }
+        
+        //flag transcript as dirty - is it costly to repeat this?
+        if ($k > 0 && !flag_get_flag('transcripts_dirty_transcript')->is_flagged($eid)) {
+            flag_get_flag('transcripts_dirty_transcript')->flag('flag', $eid, user_load(1)); //flag by superuser
+        }
+        
+        drupal_json_output(array(
+            'status' => TRUE, 
+            'tcuids' => $tcuids,
+        ));
     }
-    foreach ($_POST['remove'] as $remove) {
-        $tcu = tcu_load($remove['tcuid']);
-        tcu_delete($tcu);
-        $k++;
+    else {
+        drupal_json_output(array('status' => FALSE));
     }
-	//flag transcript as dirty - is it costly to repeat this?
-    if ($k > 0 && !flag_get_flag('transcripts_dirty_transcript')->is_flagged($tcu->nid)) {
-        flag_get_flag('transcripts_dirty_transcript')->flag('flag', $tcu->nid, user_load(1)); //flag by superuser
-    }
-	drupal_json_output(array('status' => TRUE, 'data' => 'Success'));
 }
 
 function transcripts_editor_facetapi_facet_info(array $searcher_info) {

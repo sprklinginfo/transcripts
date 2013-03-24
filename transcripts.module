@@ -32,7 +32,7 @@ function theme_apachesolr_search_snippets__tcu($vars) {
   $snippets = $vars['snippets'];
   $reslink = variable_get('transcripts_result_link', 'NODE');
   if ($reslink == 'PLAYER') {
-  	$doc->path = "node/" . $doc->is_nid . "/transcript";
+  	$doc->path = "node/" . $doc->is_eid . "/transcript";
   }
   $url = url($doc->path, array('fragment' => $doc->entity_id));
   $result  = "<p>";
@@ -92,7 +92,7 @@ function transcripts_apachesolr_query_prepare($query) {
  * Implements hook_apachesolr_query_alter().
  */
 function transcripts_apachesolr_query_alter($query) {
-  $query->addParams(array('fl' => array('ss_node_label', 'is_nid', 'entity_id', 'fts_duration')));
+  $query->addParams(array('fl' => array('ss_node_label', 'is_eid', 'entity_id', 'fts_duration')));
   $tiers = transcripts_all_tiers();
   if (count($tiers) > 0) {
   	$qf = array();
@@ -131,8 +131,8 @@ function transcripts_apachesolr_process_results(&$results, $query) {
 		
 		foreach ($results as &$result) {
 			if ($result['entity_type'] == 'tcu') {
-				$result['title'] = ($result['fields']['is_nid'] == $last) ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
-				$last = $result['fields']['is_nid'];
+				$result['title'] = ($result['fields']['is_eid'] == $last) ? ' ' : $result['fields']['ss_node_label']; //calling unset causes problems
+				$last = $result['fields']['is_eid'];
 			}
 			else {
 				$last = "";

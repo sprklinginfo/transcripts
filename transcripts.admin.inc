@@ -400,24 +400,22 @@ function transcripts_mapper_settings() {
   );
   $form['transcripts_mapper']['transcripts_id_mapper'] = array(
   	'#title' => t('Id mapper'),
-  	'#description' => t('<p>
-													PHP code that interprets unique (node) ids as passed to URLs, and converts them to data used by the
-													transcript players. Do not begin this code with <code>&lt;?php</code>. Code should end with:
-													<div>
-														<code>
-															$val = array(<br/>
-															&nbsp;&nbsp;"video_tag" => "HTML 5 VIDEO TAG",<br/>
-															&nbsp;&nbsp;"video_url" => array(URL1, URL2, ...),<br/>
-															&nbsp;&nbsp;"transcript_id" => "TRANSCRIPT ID FOR SOLR",<br/>
-															);<br/>
-														</code>
-													</div>
-  											</p>
-  											<p>
-  												The id to be mapped by this code is contained in the variable <code>$id</code>.
-  												If <code>video_url</code> is returned, then a video tag will be constructed from
-  												the supplied array. Otherwise, <code>video_tag</code> will be used.
-  											</p>'),
+  	'#description' => t('<p>PHP code that interprets unique (node) ids as passed to URLs, and converts them to data used by the
+							transcript players. Do not begin this code with <code>&lt;?php</code>. Code should end with:
+							<div>
+							    <code>
+								    $val = array(<br/>
+									&nbsp;&nbsp;"video_tag" => "HTML 5 VIDEO TAG",<br/>
+									&nbsp;&nbsp;"video_url" => array(URL1, URL2, ...),<br/>
+									);<br/>
+								</code>
+							</div>
+  						</p>
+  						<p>
+  						  The id to be mapped by this code is contained in the variable <code>$entity_id</code>.
+  						  If <code>video_url</code> is returned, then a video tag will be constructed from
+  						  the supplied array. Otherwise, <code>video_tag</code> will be used.
+  						</p>'),
   	'#type' => 'textarea',
   	'#rows' => 10,
     '#default_value' => variable_get('transcripts_id_mapper', ''),

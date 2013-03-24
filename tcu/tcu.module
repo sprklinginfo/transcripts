@@ -28,7 +28,7 @@ function tcu_entity_info() {
 
 function tcu_apachesolr_entity_info_alter(&$entity_info) {
   $entity_info['tcu']['indexable'] = TRUE;
-  $entity_info['tcu']['status callback'][] = 'tcu_status_callback';
+  //$entity_info['tcu']['status callback'][] = 'tcu_status_callback';
   $entity_info['tcu']['document callback'][] = 'tcu_solr_document';
   $entity_info['tcu']['reindex callback'] = 'tcu_solr_reindex';
   $entity_info['tcu']['index_table'] = 'apachesolr_index_entities_tcu';
@@ -97,7 +97,7 @@ class Tcu extends Entity {
 
   protected function defaultUri() {
 		return array(
-			'path' => 'node/' .$this->nid. '/transcript',
+			'path' => 'node/' .$this->entity_id. '/transcript',
 			'options' => array(
 				'fragment' => $this->tcuid,     
 			),
@@ -111,8 +111,7 @@ class TcuController extends EntityAPIController {
     // Add values that are specific to our Model
     $values += array( 
       'tcuid' => '',
-      'nid' => '',
-      'fid' => '',
+      'entity_id' => '',
       'speaker' => '',
       'start' => '',
       'end' => '',
@@ -128,23 +127,22 @@ class TcuController extends EntityAPIController {
 
 function tcu_solr_document(ApacheSolrDocument $document, $tcu, $entity_type) {
 	$tcu = tcu_load($tcu->tcuid);
-	$parent = node_load($tcu->nid);
+	$parent = node_load($tcu->entity_id);
 	$document->ss_node_label = $parent->title;
 	
 	unset($document->content);
-  $document->label = $tcu->tcuid;
-  $document->is_nid = $tcu->nid;
-  $document->is_fid = $tcu->fid;
-  $document->ss_speaker = $tcu->speaker;
-  $document->fts_start = $tcu->start;
-  $document->fts_end = $tcu->end;
-  $document->fts_duration = $tcu->end - $tcu->start;
-  foreach ($tcu->getTiers() as $tier => $value) {
-  	$document->$tier = $value;
-  }
-  $documents = array();
-  $documents[] = $document;
-  return $documents;
+	$document->label = $tcu->tcuid;
+	$document->is_eid = $tcu->entity_id;
+	$document->ss_speaker = $tcu->speaker;
+	$document->fts_start = $tcu->start;
+	$document->fts_end = $tcu->end;
+	$document->fts_duration = $tcu->end - $tcu->start;
+	foreach ($tcu->getTiers() as $tier => $value) {
+	    $document->$tier = $value;
+	}
+	$documents = array();
+	$documents[] = $document;
+	return $documents;
 }
 
 function tcu_solr_reindex() {

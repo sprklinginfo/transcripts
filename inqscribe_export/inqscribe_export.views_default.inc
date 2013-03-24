@@ -49,15 +49,15 @@ function inqscribe_export_views_default_views() {
   $handler->display->display_options['fields']['fts_end']['field'] = 'fts_end';
   $handler->display->display_options['fields']['fts_end']['label'] = '';
   $handler->display->display_options['fields']['fts_end']['element_label_colon'] = FALSE;
-  /* Contextual filter: Apache Solr: is_nid */
-  $handler->display->display_options['arguments']['is_nid']['id'] = 'is_nid';
-  $handler->display->display_options['arguments']['is_nid']['table'] = 'apachesolr__solr';
-  $handler->display->display_options['arguments']['is_nid']['field'] = 'is_nid';
-  $handler->display->display_options['arguments']['is_nid']['default_action'] = 'empty';
-  $handler->display->display_options['arguments']['is_nid']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['is_nid']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['is_nid']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['is_nid']['summary_options']['items_per_page'] = '25';
+  /* Contextual filter: Apache Solr: is_eid */
+  $handler->display->display_options['arguments']['is_eid']['id'] = 'is_eid';
+  $handler->display->display_options['arguments']['is_eid']['table'] = 'apachesolr__solr';
+  $handler->display->display_options['arguments']['is_eid']['field'] = 'is_eid';
+  $handler->display->display_options['arguments']['is_eid']['default_action'] = 'empty';
+  $handler->display->display_options['arguments']['is_eid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['is_eid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['is_eid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['is_eid']['summary_options']['items_per_page'] = '25';
 
   /* Display: Data export */
   $handler = $view->new_display('views_data_export', 'Data export', 'views_data_export_1');
