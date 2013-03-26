@@ -1,3 +1,5 @@
+//adapted from http://www.learningjquery.com/2010/06/a-jquery-ui-combobox-under-the-hood
+
 (function( $ ) {
 		$.widget( "ui.combobox", {	
 			options: {
@@ -13,7 +15,7 @@
         
 				var $last = select.children("option:last-child");
 				$last.data('newtext','(' + $last.text() + ')');
-					
+    
 				var input = this.input = $( "<input>" )
 					.insertAfter( select )
 					.val( value )
@@ -145,8 +147,8 @@
 													$(this).blur();//.replaceWith("<span class='itemname'>" + item.label + "</span>");
 												}
 												break;
-                    }
-                  })
+										}
+									})
 									.css('height',$span.css('height'));
 								
 								$span.replaceWith($input);
@@ -155,9 +157,8 @@
 							
 						var $links = $('<div class="itemedit-links"></div>').append($pencil);
 						return $li.data( "item.autocomplete", item )
-							.append($("<a></a>")
-								.append($links)
-								.append("<span class='itemname'>" + item.label + "</span>"))
+							.append($links)
+							.append($("<a><span class='itemname'>" + item.label + "</span></a>"))
 							.appendTo( ul );
 					}
 				};

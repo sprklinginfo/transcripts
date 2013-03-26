@@ -1,11 +1,14 @@
 (function($) {
-	$.editable.addInputType('combobox', {
-								element : function(settings, original) {
+	$.editable.addInputType(
+	    'combobox', {
+	        element : 
+	            function(settings, original) {
                     var select = $('<select class="combobox" />');
                     $(this).append(select);
                     return(select);
                 },
-                content : function(data, settings, original) {
+            content : 
+                function(data, settings, original) {
                     /* If it is string assume it is json. */
                     if (String == data.constructor) {      
                         eval ('var json = ' + data);
@@ -31,17 +34,21 @@
                         }
                     });
                 },
-								plugin : function(settings, original) {
-									var form = $(this);
-									var select = form.find('select.combobox')
-										.append($("<option></option>")
-											.attr("value",'+')
-											.text('New speaker'));
-									
-									select.combobox(settings.combobox).change(function() {
-										form.submit();
-									});
-								}
-	});
+            plugin : 
+                function(settings, original) {
+                    var form = $(this);
+                    var select = form.find('select.combobox')
+					    .append($("<option></option>")
+						.attr("value",'+')
+						.text('New speaker'));
+						
+					select.combobox(settings.combobox).change(
+					    function(e) {
+					        form.submit();
+						}
+					);
+				}
+		}
+	);
 })(jQuery);
 
