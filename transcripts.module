@@ -28,7 +28,7 @@ function transcripts_theme() {
 }
 
 function theme_apachesolr_search_snippets__tcu($vars) {
-	$doc = $vars['doc'];
+  $doc = $vars['doc'];
   $snippets = $vars['snippets'];
   $reslink = variable_get('transcripts_result_link', 'NODE');
   if ($reslink == 'PLAYER') {
@@ -49,7 +49,7 @@ function theme_apachesolr_search_snippets__tcu($vars) {
   
   $tiers = transcripts_all_tiers();
   foreach ($tiers as $tier) {
-  	$result .= "<div data-tier='$tier' class='tier'>" . (isset($snippets[$tier]) ? $snippets[$tier] : (isset($doc->{$tier}) ? $doc->{$tier} : '')) . "</div>";
+  	$result .= "<div data-tier='$tier' class='tier'>" . (isset($snippets[$tier]) ? implode('...', $snippets[$tier]) : (isset($doc->{$tier}) ? $doc->{$tier} : '')) . "</div>";
   }
   $result .= "</div>"; //tiers
   $result .= "</div>"; //sentence-result

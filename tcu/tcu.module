@@ -32,7 +32,7 @@ function tcu_apachesolr_entity_info_alter(&$entity_info) {
   $entity_info['tcu']['document callback'][] = 'tcu_solr_document';
   $entity_info['tcu']['reindex callback'] = 'tcu_solr_reindex';
   $entity_info['tcu']['index_table'] = 'apachesolr_index_entities_tcu';
-  $entity_info['tcu']['result callback'] = 'tcu_result';
+  //$entity_info['tcu']['result callback'] = 'tcu_result';
 }
 
 function tcu_load($tcuid, $reset = FALSE) {
@@ -243,8 +243,3 @@ function apachesolr_search_node_result($doc, &$result, &$extra) {
   }
 }
 */
-function tcu_result($doc, &$result, &$extra) {
-  $result += array(
-  	'stupid' => $doc,
-  );
-}
