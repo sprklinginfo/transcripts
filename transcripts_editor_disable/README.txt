@@ -1,7 +1,15 @@
-Transcripts Editor Disable module
+TRANSCRIPTS EDITOR DISABLE
 
-Go to flag settings for transcripts_editor_disable, and enable the flag for 
-content types which have transcripts. Then the flag will appear under the 
-transcript link on the node edit form for those who have permissions.
+Requires: Flag (http://drupal.org/project/flag)
 
-You have to set the permissions right for your purposes.
+Use this module to enable certain roles to freeze the editing of specific
+transcripts. For example, you may want to disable online transcript editing
+when a transcript is downloaded for offline editing.
+
+To administer this module, go to admin/structure/flags
+
+Find the 'transcripts_editor_disable' flag and enable it for the content types
+that have transcripts. The flag will then appear under the transcript link on 
+the node edit form for those who have permissions to set the flag.
+
+<< Last updated, 8 May 2013 >>

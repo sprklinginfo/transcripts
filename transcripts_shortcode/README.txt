@@ -1,3 +1,5 @@
+<< I cannot vouch for these instructions - 8 May 2013 >>
+
 This module allows transcript players to be inserted into fields through the use
 of "shortcodes". The syntax is straightforward:
 

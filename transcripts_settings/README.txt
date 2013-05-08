@@ -1,6 +1,9 @@
+<< I cannot vouch for these instructions - 8 May 2013 >>
+
+
 This module packages together default settings from the Transcripts module as
 a feature that can be installed on any Drupal 7 website. In addition, the module
-wraps the feature and its admin interface up into a "space". This allows
+wraps the feature and its admin interface up into a 'space'. This allows
 Transcripts settings to be different for different portions of a site. For
 example, using spaces_og, different groups can have different configuration
 settings.
@@ -38,3 +41,4 @@ and choose 'Discard' under Persistent URL Behavior.
 VERSION HISTORY
 ---------------
 version 0.1 (28 February 2012)
+
