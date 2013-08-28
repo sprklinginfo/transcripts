@@ -60,7 +60,6 @@ function transcripts_node_delete($node) {
     
     if (count($fields) > 0) {
         transcripts_remove_transcript($node->nid);
-        break;
     }
 }
 
