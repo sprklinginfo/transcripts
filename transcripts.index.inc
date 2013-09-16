@@ -75,23 +75,23 @@ function transcripts_already_indexed($fid, $content_id) {
 
 function transcripts_add_transcript($file, $node) {
     $xml = transcripts_saxon_transform_text($file, $node);
-    $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
-				
-    foreach ($arr['tcu'] as $tcu) {
+    $tcus = simplexml_load_string($xml);
+	
+    foreach ($tcus->tcu as $tcu) {
         $insert = tcu_create(
             array(
 			    'entity_id' => $node->nid,
-			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
-			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
-			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
+			    'speaker' => isset($tcu->speaker) ? $tcu->speaker : '',
+			    'start' => isset($tcu->start) ? $tcu->start : 0,
+			    'end' => isset($tcu->end) ? $tcu->end : 0,
 			    'created' => REQUEST_TIME,
 			    'changed' => REQUEST_TIME,
 			)
 		);
-		$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
+		$insert->setTiers(array_filter(array_map('trim', (array)$tcu->tiers))); //don't save empty tiers
 		tcu_save($insert);
 	}
-					
+			
 	db_insert('transcripts_transcript')
 	    ->fields(array(
 	        'fid' => $file->fid,
