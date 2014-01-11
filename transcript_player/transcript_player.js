@@ -41,10 +41,6 @@ var resetSweet = [];
 						});
 					});
 					
-					enableClickAndPlay($player);
-					setPlayMode(pid, 'playstop');
-					attachListeners($player);
-					
 					if ($player.find('.transcript').hasClass('scroller')) {
 						var fn = window[$player.attr('data-tofunction')];
 						if(typeof fn === 'function') {
@@ -52,15 +48,20 @@ var resetSweet = [];
 						}
 					}
 					
-					/* only call playOne when fragment set or changed */
-					var jump = $.param.fragment();
-					if (jump != '') {
-						var vid = jQuery('#' + pid).find('video,audio')[0];
-						vid.addEventListener("loadedmetadata", function() {
-								console.log("loaded metadata");
-								playOne(pid, $('#'+jump));
-						}, false);
-					}
+					var vid = $('#' + pid).find('video,audio')[0];
+					vid.addEventListener("loadedmetadata", 
+					    function() {
+					        console.log("loaded metadata");
+					        enableClickAndPlay($player);
+					        setPlayMode(pid, 'playstop');
+					        attachListeners($player);
+					        var jump = $.param.fragment();
+					        if (jump != '') {
+						        playOne(pid, $('#' + jump.replace('tcu/', '')));
+						    }
+					    }, 
+					    false
+					);
 					
 					window.addEventListener("hashchange", function() {
 						playOne(pid, $(window.location.hash.replace('tcu/', '')));

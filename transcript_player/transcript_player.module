@@ -250,7 +250,7 @@ function transcript_player_tiermode_controls($playerid, $tiers, $modes) {
 }
 
 function transcript_player_video_controls($playerid) {
-	$return = "	<div class='video-controls ui-widget-header ui-corner-all'>"
+	$return = "	<div class='video-controls ui-widget-header'>"
 								."<span class='controls'>"
 									."<button class='previous'>Previous</button>"
 									."<button class='sameagain'>Same line</button>"
