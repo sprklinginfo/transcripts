@@ -9,7 +9,7 @@ var startPointer = [];
 var lastNow = [];
 var playListeners = [];
 var sweetSpot = [];
-var psnSweet = [];
+var resetSweet = [];
 
 
 (function($) {
@@ -20,7 +20,7 @@ var psnSweet = [];
 					var pid = $player.attr('id');
 					
 					sweetSpot[pid] = 0;
-					psnSweet[pid] = false;
+					resetSweet[pid] = true;
 					playSentence[pid] = 0; //timeout for playing single sentence
 					playIndex[pid] = 0;
 					startPointer[pid] = 0;
@@ -37,8 +37,7 @@ var psnSweet = [];
 							},
 							text: false
 						}).click(function() {
-							window.location.hash = $s.attr('id');
-							//playOne(pid, $s);
+	                        window.location.hash = 'tcu/' + $s.attr('id');
 						});
 					});
 					
@@ -64,7 +63,8 @@ var psnSweet = [];
 					}
 					
 					window.addEventListener("hashchange", function() {
-						playOne(pid, $(window.location.hash));
+						playOne(pid, $(window.location.hash.replace('tcu/', '')));
+						resetSweet[pid] = true;
 					}, false);
 				});
 			}
@@ -102,8 +102,7 @@ function enableClickAndPlay($player) {
   	jQuery(this).css('cursor', 'pointer');
   });
 	$player.delegate('.transcript.scroller *[data-begin]', 'click', function() {
-  	window.location.hash = jQuery(this).attr('id');
-		//playOne(pid, jQuery(this));
+	        window.location.hash = 'tcu/' + jQuery(this).attr('id');
   });
 }
 
@@ -183,27 +182,25 @@ function getPlayMode(pid) {
 
 // play methods
 
-//function playOne(pid, $item, resetSweet) {
 function playOne(pid, $item) {
-	resetSweet = typeof psnSweet[pid] !== 'undefined' ? psnSweet[pid] : true;
-	//resetSweet = typeof resetSweet !== 'undefined' ? resetSweet : true;
+	var reset = typeof resetSweet[pid] !== 'undefined' ? resetSweet[pid] : true;
 	var vid = jQuery('#' + pid).find('video,audio')[0];
-  if ($item.attr('data-end') - $item.attr('data-begin') > 0) {
-  	if (playMode[pid] == 'playstop') {
-  		one[pid] = $item;
-  	}
-  	var $player = jQuery('#' + pid);
-  	if ($player.find('.transcript.scroller').size() == 1) {
-  		endAll(pid);
-  		if (resetSweet) {
-  			sweetSpot[pid] = $item.position().top;
-  		}
-  		
-  	}
-  	playIndex[pid] = parseInt($item.attr('data-starts-index'));
-  	vid.currentTime = $item.attr('data-begin');
-    if (vid.paused) vid.play();
-  }
+      if ($item.attr('data-end') - $item.attr('data-begin') > 0) {
+        if (playMode[pid] == 'playstop') {
+            one[pid] = $item;
+        }
+        var $player = jQuery('#' + pid);
+        if ($player.find('.transcript.scroller').size() == 1) {
+            endAll(pid);
+            if (reset) {
+                sweetSpot[pid] = $item.position().top;
+            }
+            
+        }
+        playIndex[pid] = parseInt($item.attr('data-starts-index'));
+        vid.currentTime = $item.attr('data-begin');
+        if (vid.paused) vid.play();
+      }
 }
 
 function addPlayListener(pid, func) {
@@ -276,20 +273,19 @@ function endAll(pid) {
 function previous(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] > 0 ? playIndex[pid]-1 : 0;
-  window.location.hash = jQuery(starts[pid][n].$item).attr('id');
-  //playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
+  resetSweet[pid] = false; //will be set back to true after line is played
+  window.location.hash = 'tcu/' + jQuery(starts[pid][n].$item).attr('id');
 }
         
 function sameAgain(pid) {
   var $player = jQuery('#' + pid);
   /* can't set window.location.hash because it won't change */
   playOne(pid, jQuery(starts[pid][playIndex[pid]].$item));
-  //playOne(pid, jQuery(starts[pid][playIndex[pid]].$item), psnSweet[pid]);
 }
 
 function next(pid) {
   var $player = jQuery('#' + pid);
   var n = playIndex[pid] == starts[pid].length-1 ? playIndex[pid] : playIndex[pid]+1;
-  window.location.hash = jQuery(starts[pid][n].$item).attr('id');
-  //playOne(pid, jQuery(starts[pid][n].$item), psnSweet[pid]);
+  resetSweet[pid] = false; //will be set back to true after line is played
+  window.location.hash = 'tcu/' + jQuery(starts[pid][n].$item).attr('id');
 }

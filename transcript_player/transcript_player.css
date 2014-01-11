@@ -2,9 +2,10 @@
 .transcript-controls {
 	margin-bottom: .2em;
 }
-.transcript-controls .ui-button, .transcript-controls .ui-button {
+.transcript-controls .ui-button {
 	margin-right: .1em;
-	border-radius: 11px 11px 11px 11px;
+	float: left;
+	/* border-radius: 11px 11px 11px 11px; */
 	/* background: -moz-linear-gradient(center top , #FFFFFF 0%, #DDDDDD 100%) repeat scroll 0 0 transparent; */
 }
 .transcript-controls .ui-button-text {
