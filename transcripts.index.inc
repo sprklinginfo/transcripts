@@ -75,9 +75,43 @@ function transcripts_already_indexed($fid, $content_id) {
 }
 
 function transcripts_add_transcript($file, $node) {
-    $xml = transcripts_saxon_transform_text($file, $node);
-    $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
-				
+    $dot = strrpos($file->uri, '.');
+    $ext = $dot === FALSE ? '' : substr($file->uri, $dot+1);
+
+    if ($ext == 'xml') {
+        $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
+
+        $xslfield = variable_get('transcripts_xslt_field','field_transcripts_xsl');
+        if ($node->{$xslfield}) {
+                $field = $node->{$xslfield};
+                $uri = $field[$node->language][0]['uri'];
+                $xslt = drupal_realpath($node->{$xslfield}[$node->language][0]['uri']);
+        } else {
+                $xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
+        }  
+
+        watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
+
+        $xml = transcripts_saxon_transform($xslt, $file);
+        $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
+    }
+    else if ($ext == 'txt') {
+        $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
+        
+        $xslt = $saxon_path . '/toolbox.xsl';
+
+        $filepath = drupal_realpath($file->uri);
+        // Check that we have a valid filepath.
+        if (!$filepath || !is_file($filepath)) {
+          watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $file->uri), WATCHDOG_WARNING);
+          return FALSE;
+        }
+        $params = array();
+        $params['file'] = $filepath;
+        $xml = transcripts_saxon_transform($xslt, '', 'toolbox', $params);
+        $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
+    }
+	
     foreach ($arr['tcu'] as $tcu) {
         $insert = tcu_create(
             array(
@@ -89,6 +123,7 @@ function transcripts_add_transcript($file, $node) {
 			    'changed' => REQUEST_TIME,
 			)
 		);
+
 		$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
 		tcu_save($insert);
 	}
@@ -120,30 +155,31 @@ function transcripts_remove_transcript($content_id) {
 		->execute();
 }
 
-function transcripts_saxon_transform_text($file, $node) {
-	watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
-  
-	$saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
-	
-	$xslfield = variable_get('transcripts_xslt_field','field_transcripts_xsl');
-	if ($node->{$xslfield}) {
-		$field = $node->{$xslfield};
-		$uri = $field[$node->language][0]['uri'];
-		$xslt = drupal_realpath($node->{$xslfield}[$node->language][0]['uri']);
-	} else {
-		$xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
-	}
+function transcripts_saxon_transform($xsl, $source = '', $it = '', $params = array()) {
+  $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
 	
   $saxon = realpath($saxon_path . '/' . variable_get('transcripts_saxon_jar', 'saxon9he.jar'));
   if (!$saxon || !is_file($saxon)) {
     throw new Exception(t('Invalid path or filename for saxon application jar.'));
   }
 
-  $filepath = drupal_realpath($file->uri);
-  // Check that we have a valid filepath.
-  if (!$filepath || !is_file($filepath)) {
-    watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $file->uri), WATCHDOG_WARNING);
-    return FALSE;
+  if ($source) {
+    $filepath = drupal_realpath($source->uri);
+    // Check that we have a valid filepath.
+    if (!$filepath || !is_file($filepath)) {
+      watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $source->uri), WATCHDOG_WARNING);
+      return FALSE;
+    }
+    // Support UTF-8 encoded filenames.
+    if (mb_detect_encoding($filepath, 'ASCII,UTF-8', true) == 'UTF-8') {
+      $cmd .= 'export LANG="en_US.utf-8"; ';
+      setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8');
+    }
+  }
+
+  $par = '';
+  foreach ($params as $key => $value) {
+    $par .= $key."=".escapeshellarg($value)." ";
   }
   
   $cmd = '';
@@ -151,21 +187,20 @@ function transcripts_saxon_transform_text($file, $node) {
   if (strpos(ini_get('extension_dir'), 'MAMP/')) {
     $cmd .= 'export DYLD_LIBRARY_PATH=""; ';
   }
-  // Support UTF-8 encoded filenames.
-  if (mb_detect_encoding($filepath, 'ASCII,UTF-8', true) == 'UTF-8') {
-    $cmd .= 'export LANG="en_US.utf-8"; ';
-    setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8');
-  }
   
   // By default force UTF-8 output
   $cmd .= escapeshellcmd(variable_get('transcripts_java', 'java')) . ' ' .
     escapeshellarg(variable_get('transcripts_java_opts', '-Dfile.encoding=UTF8')) .
     ' -jar ' . escapeshellarg($saxon) .
-    ' -s:'. escapeshellarg($filepath) . ' -xsl:' . escapeshellarg($xslt); //. ' 2>&1'; //for debugging
+    ' -xsl:' . escapeshellarg($xsl);
+
+  if ($source) $cmd .= ' -s:' .escapeshellarg($filepath);
+  if ($it) $cmd .= ' -it:' .escapeshellarg($it);
+  if ($par) $cmd .= ' ' .$par; 
+  
+  //. ' 2>&1'; //for debugging
   
   watchdog('Transcripts', "$cmd", NULL, WATCHDOG_DEBUG);
-  
   $document = shell_exec($cmd);
-  
   return $document;
 }
