@@ -307,8 +307,8 @@ function transcripts_display_settings() {
   }
   $form['transcripts_display_settings']['transcripts_all_tiers'] = array(
   	'#title' => t('Transcript tiers'),
-  	'#type' => 'textfield',
-  	'#size' => 150,
+  	'#type' => 'textarea',
+  	'#size' => 3,
   	'#default_value' => variable_get('transcripts_all_tiers', ''),
   	'#description' => t('Enter a comma-separated list of all transcript tiers. These tiers will be searched and shown in search results.'),
   	'#required' => TRUE,
