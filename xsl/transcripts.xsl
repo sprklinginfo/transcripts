@@ -29,7 +29,7 @@
     <xsl:template match="S">
         <xsl:variable name="sid" select="@id"/>
         <tcu>
-        	<speaker><xsl:value-of select="//SPEAKER[@personId=current()/@who]/name_bod"/></speaker>
+        	<speaker><xsl:value-of select="substring(//SPEAKER[@personId=current()/@who]/name_bod,1,255)"/></speaker>
         	<xsl:if test="string(AUDIO/@start)">
         	   <start><xsl:value-of select="format-number(AUDIO/@start,'0.000')"/></start>
         	   <xsl:if test="string(AUDIO/@end)">

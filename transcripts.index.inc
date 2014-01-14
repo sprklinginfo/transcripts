@@ -60,7 +60,6 @@ function transcripts_node_delete($node) {
     
     if (count($fields) > 0) {
         transcripts_remove_transcript($node->nid);
-        break;
     }
 }
 
@@ -116,18 +115,17 @@ function transcripts_add_transcript($file, $node) {
         $insert = tcu_create(
             array(
 			    'entity_id' => $node->nid,
-			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
-			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
-			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
+ 			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
+ 			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
+ 			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
 			    'created' => REQUEST_TIME,
 			    'changed' => REQUEST_TIME,
 			)
 		);
-
 		$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
 		tcu_save($insert);
 	}
-					
+			
 	db_insert('transcripts_transcript')
 	    ->fields(array(
 	        'fid' => $file->fid,

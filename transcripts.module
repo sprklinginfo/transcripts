@@ -34,7 +34,7 @@ function theme_apachesolr_search_snippets__tcu($vars) {
   if ($reslink == 'PLAYER') {
   	$doc->path = "node/" . $doc->is_eid . "/transcript";
   }
-  $url = url($doc->path, array('fragment' => $doc->entity_id));
+  $url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
   	$result .= "<div class='sentence-result'>";
