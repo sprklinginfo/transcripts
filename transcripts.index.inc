@@ -107,6 +107,7 @@ function transcripts_add_transcript($file, $node) {
         }
         $params = array();
         $params['file'] = $filepath;
+        $params['tierNames'] = variable_get('transcripts_toolbox_mappings', 'tx|ts_content_even, mb|ts_content_morph, ge|ts_content_igt, ft|ts_content_eng, ru|ts_content_rus');
         $xml = transcripts_saxon_transform($xslt, '', 'toolbox', $params);
         $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
     }
