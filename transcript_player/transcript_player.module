@@ -186,8 +186,10 @@ function transcript_player_get($entity_id, $tiers, $options) {
   	);
 	}
   $query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
+  if ($entity_id) {
    $query->addFilter("is_eid", $entity_id);
-  
+  }  
+
   //see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr
   $query->setAvailableSort('fts_start', array(
     'title' => t('Temporal order'),
@@ -250,7 +252,7 @@ function transcript_player_tiermode_controls($playerid, $tiers, $modes) {
 }
 
 function transcript_player_video_controls($playerid) {
-	$return = "	<div class='video-controls ui-widget-header ui-corner-all'>"
+	$return = "	<div class='video-controls ui-widget-header'>"
 								."<span class='controls'>"
 									."<button class='previous'>Previous</button>"
 									."<button class='sameagain'>Same line</button>"
