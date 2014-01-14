@@ -315,8 +315,8 @@ function transcripts_display_settings() {
   );
   $form['transcripts_display_settings']['transcripts_toolbox_mappings'] = array(
   	'#title' => t('Toolbox mappings'),
-  	'#type' => 'textfield',
-  	'#size' => 150,
+  	'#type' => 'textarea',
+  	'#rows' => 3,
   	'#default_value' => variable_get('transcripts_toolbox_mappings', 'tx|ts_content_even, mb|ts_content_morph, ge|ts_content_igt, ft|ts_content_eng, ru|ts_content_rus'),
   	'#description' => t('Enter a comma-separated list of Toolbox tier mappings, in the form toolbox_tier|transcripts_tier.'),
   	'#required' => TRUE,
