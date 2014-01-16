@@ -19,7 +19,7 @@
                 <xsl:variable name="tculevel" select="tokenize($tcuData, ',')"/>
                 <xsl:variable name="tierlevel" select="tokenize($tierNames, ',')"/>
                 <tcus>
-                    <xsl:for-each select="tokenize($tcus, '\\id')[position()>1]">
+                    <xsl:for-each select="tokenize($tcus, '\\block')[position()>1]">
                         <xsl:variable name="tcu" select="."/>
                         
                         <tcu>
@@ -83,7 +83,7 @@
         
         <xsl:variable name="return">
             <xsl:for-each select="tokenize($tcu, '\n')">
-                <xsl:variable name="tag" select="concat('\', $tier)"/>
+                <xsl:variable name="tag" select="concat('\', $tier, ' ')"/>
                 <xsl:if test="starts-with(., $tag)">
                     <xsl:value-of select="substring(., string-length($tag)+1)"/>
                 </xsl:if>
