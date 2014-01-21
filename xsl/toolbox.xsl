@@ -98,10 +98,9 @@
 
         <xsl:variable name="h" select="number(substring($time,1,2))" />
         <xsl:variable name="m" select="number(substring($time,4,2))" />
-        <xsl:variable name="s" select="number(substring($time,7,2))" />
-        <xsl:variable name="f" select="number(substring($time,10,2))" /> <!-- assume 30 fps -->
+        <xsl:variable name="s" select="number(substring($time,7,6))" /> <!-- ss.msec -->
 
-        <xsl:value-of select="format-number($h*3600 + $m*60 + $s + $f div 30,'0.000')" />
+        <xsl:value-of select="format-number($h*3600 + $m*60 + $s,'0.000')" />
    </xsl:template>
     
 </xsl:stylesheet>
