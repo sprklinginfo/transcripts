@@ -124,7 +124,7 @@ function transcript_player_transcript($response, $tiers) {
               } else {
               	$time = "0:00";
               }
-              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#tcu/{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
 						} else {
 							$line .= "<div data-tier='$tier' class='tier'>{$sentence->$tier}</div>";
 						}

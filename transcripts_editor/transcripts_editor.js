@@ -372,7 +372,8 @@
 												attachInsert($ins);
 										
 												$('<div class="delete-wrapper">').append($del).appendTo(this);
-												var cls = (i%3 == 0) ? 'show-icon' : 'hide-icon';
+												var cls = 'show-icon';
+												//var cls = (i%3 == 0) ? 'show-icon' : 'hide-icon';
 												$(this).append('<div class="clearfix"></div>');
 												$('<div class="insert-wrapper ' + cls + '">')
 													.append($ins)
