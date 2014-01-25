@@ -8,5 +8,9 @@
  * Implements hook_views_api().
  */
 function inqscribe_export_views_api() {
-  return array("version" => "3.0");
+    /* see https://drupal.org/node/627378#comment-6444570 */
+    return array(
+        'api' => 3,
+        'template path' => drupal_get_path('module', 'inqscribe_export') . '/templates',
+    );
 }
