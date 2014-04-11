@@ -176,6 +176,7 @@ function transcripts_saxon_transform($xsl, $source = '', $it = '', $params = arr
     }
   }
 
+  drupal_alter('transcripts_saxon_params', $params);
   $par = '';
   foreach ($params as $key => $value) {
     $par .= $key."=".escapeshellarg($value)." ";
