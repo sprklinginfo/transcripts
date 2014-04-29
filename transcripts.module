@@ -488,8 +488,8 @@ function transcripts_block_view($delta) {
 function transcript_search_form() {
    module_load_include('inc','apachesolr','apachesolr_search.pages');
    global $base_path;
-   $search_forms = apachesolr_search_custom_page('transcripts');
-   $transcript_search_form = $search_forms['search_form'];
+   $transcripts = apachesolr_search_page_load('transcripts');
+   $transcript_search_form = drupal_get_form('apachesolr_search_custom_page_search_form', $transcripts);
    unset( $transcript_search_form['basic']['keys']['#title'] );
    unset( $transcript_search_form['basic']['retain-filters'] );
    $output = drupal_render($transcript_search_form);
