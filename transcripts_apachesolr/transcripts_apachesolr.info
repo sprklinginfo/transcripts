@@ -1,0 +1,9 @@
+;$Id$
+name = Transcripts Apachesolr
+description = Apachesolr integration for Transcripts module
+dependencies[] = apachesolr
+dependencies[] = apachesolr_search
+dependencies[] = transcripts
+dependencies[] = tcu
+package = Pinedrop Transcripts
+core = 7.x
