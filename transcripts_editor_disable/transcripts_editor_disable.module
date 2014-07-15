@@ -36,5 +36,5 @@ function transcripts_editor_disable_file_field_process($element, &$form_state, $
 
 function transcripts_editor_disable_transcripts_editor_disable_editing($nid) {
 	$flag = flag_get_flag('transcripts_editor_disable');
-	return $flag->is_flagged($nid);
+        return ($flag === FALSE ? FALSE : $flag->is_flagged($nid));
 }
