@@ -1,26 +1,63 @@
 <?php
 // $Id$
 
+function transcripts_node_default_transcript_extensions() {
+	$default = array('eaf','trs','xml');
+	return $default;
+}
+
+function transcripts_node_check_extension($ext) {
+	$default = implode(' ', transcripts_default_transcript_extensions());
+	return in_array($ext, explode(' ', variable_get('transcripts_transcript_extensions', $default)));
+}
+
 function transcripts_node_menu() {
-  $items = array();
-  
-  $items['node/%/transcript'] = array(
-  	'title' => 'Transcript',
-  	'page callback' => 'transcript_player_title',
-  	'page arguments' => array(1),
-  	'access callback' => 'transcripts_node_transcript_access',
-  	'access arguments' => array(1),
-  	'type' => MENU_LOCAL_TASK,
-  	'weight' => 80,
-  );
-  $items['transcript/%'] = array(
-  	'page callback' => 'transcript_player_title',
-  	'page arguments' => array(1),
-  	'access callback' => 'transcripts_node_transcript_access',
-  	'access arguments' => array(1),
-  );
-  
-  return $items;
+	$items = array();
+    	
+	$items['admin/config/search/apachesolr/transcripts_node'] = array(
+		'title' => 'Transcripts Node',
+		'description' => t('Transcripts Node settings'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('transcripts_node_site_settings_form'),
+		'access arguments' => array('administer transcripts'),
+		'file' => 'transcripts_node.admin.inc',
+		'type' => MENU_LOCAL_TASK,
+	);
+	$items['node/%/transcript'] = array(
+		'title' => 'Transcript',
+		'page callback' => 'transcripts_node_get_player',
+		'page arguments' => array(1),
+		'access callback' => 'transcripts_node_transcript_access',
+		'access arguments' => array(1),
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 80,
+	);
+	$items['transcript/%'] = array(
+		'page callback' => 'transcripts_node_get_player',
+		'page arguments' => array(1),
+		'access callback' => 'transcripts_node_transcript_access',
+		'access arguments' => array(1),
+	);
+	
+	return $items;
+}
+
+function transcripts_node_get_player($entity_id) {
+	//note: var $id is passed and made available to eval, array $val is returned
+	$php_code = variable_get('transcripts_id_mapper');
+	eval( $php_code );
+	
+	$videourl = isset($val['video_url']) ? $val['video_url'] : '';
+	$videotag = isset($val['video_tag']) ? $val['video_tag'] : '';
+	
+	if (!$videotag) { //use video_url
+		$tag = isset($val['audio']) ? 'audio' : 'video';
+		$videotag = "<$tag controls>";
+		foreach ($videourl as $vurl) {
+			$videotag .= "<source src='$vurl' />";
+		}
+		$videotag .= "</$tag>";
+	}
 }
 
 function transcripts_node_transcript_access($nid) {

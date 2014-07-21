@@ -10,13 +10,14 @@ function transcript_player_transcripts_info() {
 }
 
 function transcript_player_init() {
-  drupal_add_library('system', 'ui.button');
-  drupal_add_library('system', 'jquery.bbq');
-  drupal_add_css(drupal_get_path('module', 'transcript_player') .'/transcript_player.css', 'file');
-  //player_controls must be added before transcript_player!!
-  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/player_controls.js', 'file');
-  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/transcript_player.js', 'file');
-  drupal_add_js(drupal_get_path('module', 'transcript_player') .'/jquery.scrollTo.js', 'file');
+	drupal_add_library('system', 'ui.button');
+	drupal_add_library('system', 'jquery.bbq');
+	drupal_add_css(drupal_get_path('module', 'transcript_player') .'/transcript_player.css', 'file');
+
+	//player_controls must be added before transcript_player!!
+	drupal_add_js(drupal_get_path('module', 'transcript_player') .'/player_controls.js', 'file');
+	drupal_add_js(drupal_get_path('module', 'transcript_player') .'/transcript_player.js', 'file');
+	drupal_add_js(drupal_get_path('module', 'transcript_player') .'/jquery.scrollTo.js', 'file');
 }
 
 function transcript_player_title($entity_id, $pid = '', $options = array()) {
@@ -25,7 +26,7 @@ function transcript_player_title($entity_id, $pid = '', $options = array()) {
 		if (!$pid) {
 			return "Transcript configuration error.";
 		}
-  }
+	}
 	
 	$profile = transcripts_profile_load($pid);
 	if (!$profile) return; //graceful degradation - or should there be an error message?
@@ -40,46 +41,31 @@ function transcript_player_title($entity_id, $pid = '', $options = array()) {
 	);
 	$options = array_merge($defaults, $options);
 	
-	//note: var $id is passed and made available to eval
-	$php_code = variable_get('transcripts_id_mapper');
-	eval( $php_code );
-	
-	$videourl = isset($val['video_url']) ? $val['video_url'] : '';
-	$videotag = isset($val['video_tag']) ? $val['video_tag'] : '';
-	
 	//get default or make first in list
 	reset($modes);
 	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
   
-  $response = transcript_player_get($entity_id, $tiers, $options);
-  if (count($response->response->docs) > 0) {
-  	if (!$videotag) { //use video_url
-			$tag = isset($val['audio']) ? 'audio' : 'video';
-			$videotag = "<$tag controls>";
-			foreach ($videourl as $vurl) {
-				$videotag .= "<source src='$vurl' />";
-			}
-			$videotag .= "</$tag>";
-		}
-    $info = $defaultMode . "_transcripts_info";
+	$response = transcript_player_get($entity_id, $tiers, $options);
+	if (count($response->response->docs) > 0) {
+		$info = $defaultMode . "_transcripts_info";
 		$vals = $info();
 		$to = $vals['to']; 
-    list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
-    $playerid = 'pid-'.$entity_id; //id is node id!!
-    module_invoke_all('transcript_player_prepare_player', $entity_id);
-    return 	transcript_player_tiermode_controls($playerid, $tiers, $modes) . 
-    					"<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>" . 
-    						"<div class='v-column'>" . 
-    							$videotag . 
-    							"<div class='v-sub'>" . 
-    								transcript_player_video_controls($playerid) .
-    								$hits . 
-    							"</div>" . 
-    						"</div>" . 
-    						"<div class='t-column'>" . 
-    							$transcript_div . 
-    						"</div>" . 
-    					"</div>";
+		list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
+		$playerid = 'pid-'.$entity_id; //id is node id!!
+		module_invoke_all('transcript_player_prepare_player', $entity_id);
+		return transcript_player_tiermode_controls($playerid, $tiers, $modes) 
+    		. "<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>"
+    			. '<div class="v-column">'
+    				. $videotag
+    				. '<div class="v-sub">'
+    					. transcript_player_video_controls($playerid)
+    					. $hits 
+    				. '</div>' 
+    			. '</div>' 
+    			. '<div class="t-column">' 
+    				. $transcript_div 
+    			. '</div>' 
+    		. '</div>';
   }
   else {
   	return t("This transcript is still being processed for display.");

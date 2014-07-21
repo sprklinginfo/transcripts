@@ -4,3 +4,4 @@ dependencies[] = transcripts
 package = Pinedrop Transcripts
 core = 7.x
 files[] = transcripts_node.module
+files[] = transcripts_node.admin.inc

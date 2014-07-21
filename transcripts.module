@@ -1,16 +1,6 @@
 <?php
 // $Id$
 
-function transcripts_default_transcript_extensions() {
-  $default = array('eaf','trs','xml');
-  return $default;
-}
-
-function transcripts_check_extension($ext) {
-  $default = implode(' ', transcripts_default_transcript_extensions());
-  return in_array($ext, explode(' ', variable_get('transcripts_transcript_extensions', $default)));
-}
-
 function transcripts_environment() {
 	return variable_get('transcripts_env_id', apachesolr_default_environment());
 }
@@ -30,10 +20,12 @@ function transcripts_theme() {
 function theme_apachesolr_search_snippets__tcu($vars) {
   $doc = $vars['doc'];
   $snippets = $vars['snippets'];
+  /*
   $reslink = variable_get('transcripts_result_link', 'NODE');
   if ($reslink == 'PLAYER') {
   	$doc->path = "node/" . $doc->is_eid . "/transcript";
   }
+  */
   $url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
@@ -278,37 +270,6 @@ function transcripts_all_modes() {
     $modes[$module] = $values['name'];
   }
   return $modes;
-}
-
-function improved_list_allowed_values_string($values, $delim = "\n") {
-  $lines = array();
-  foreach ($values as $key => $value) {
-    $lines[] = "$key|$value";
-  }
-  return implode($delim, $lines);
-}
-
-function improved_list_extract_allowed_values($string) {
-  $values = array();
-
-  $list = explode("\n", $string);
-  $list = array_map('trim', $list);
-  $list = array_filter($list, 'strlen');
-
-  foreach ($list as $position => $text) {
-    $value = $key = FALSE;
-
-    // Check for an explicit key.
-    $matches = array();
-    if (preg_match('/(.*)\|(.*)/', $text, $matches)) {
-      $key = $matches[1];
-      $value = $matches[2];
-      $explicit_keys = TRUE;
-    }
-    $values[$key] = $value;
-  }
-
-  return $values;
 }
 
 /**
