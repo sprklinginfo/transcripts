@@ -1,9 +1,6 @@
 <?php
 // $Id$
 
-/**
-* Update the schema if necessary
-**/
 function transcripts_update_7001() {
    if ( db_field_exists('transcripts_transcript', 'nid') ) { // we've got the old schema in the db
       db_drop_field('transcripts_transcript', 'nid');

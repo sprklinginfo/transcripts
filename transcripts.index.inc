@@ -4,7 +4,7 @@
 function transcripts_get_indexable_transcripts($node) {
   $files = array();
 
-  $field_names = transcripts_all_file_fields();
+  $field_names = transcripts_node_all_file_fields();
   foreach ($field_names as $field_name) {
     if (!empty($node->$field_name) && is_transcript_field($field_name)) {
       $field = $node->$field_name;
@@ -24,7 +24,7 @@ function transcripts_get_indexable_transcripts($node) {
 }
 
 function transcripts_node_insert($node) {
-    $fields = array_filter(transcripts_all_file_fields(), 'is_transcript_field');
+    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
     
     foreach ($fields as $field_name) {
         $field = $node->$field_name;
@@ -37,7 +37,7 @@ function transcripts_node_insert($node) {
 }
 
 function transcripts_node_update($node) {
-    $fields = array_filter(transcripts_all_file_fields(), 'is_transcript_field');
+    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
     
     foreach ($fields as $field_name) {
         $field = $node->$field_name;
@@ -56,7 +56,7 @@ function transcripts_node_update($node) {
 }
 
 function transcripts_node_delete($node) {
-    $fields = array_filter(transcripts_all_file_fields(), 'is_transcript_field');
+    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
     
     if (count($fields) > 0) {
         transcripts_remove_transcript($node->nid);
