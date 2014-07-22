@@ -44,7 +44,7 @@ function transcripts_node_menu() {
 
 function transcripts_node_get_player($entity_id) {
 	$videotag = transcripts_node_videotag($entity_id);
-	transcript_player_title($entity_id, $videotag);
+	return transcript_player_title($entity_id, $videotag);
 }
 
 function transcripts_node_videotag($entity_id) {
