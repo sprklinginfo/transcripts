@@ -61,16 +61,16 @@ function transcripts_node_node_settings() {
     return $form;
 }
 
-function transcripts_node_mapper_settings() {
+function transcripts_node_videotag_settings() {
 	/* interpret id - should permissions check for PHP writing ability */
 	$form = array();
   
-	$form['transcripts_node_mapper_settings'] = array(
-		'#title' => t('Node mapper'),
+	$form['transcripts_node_videotag_settings'] = array(
+		'#title' => t('Video tag'),
 		'#type' => 'fieldset',
 		'#collapsed' => FALSE,
 	);
-	$form['transcripts_node_mapper_settings']['transcripts_id_mapper'] = array(
+	$form['transcripts_node_videotag_settings']['transcripts_id_mapper'] = array(
 		'#title' => t('Id mapper'),
 		'#description' => t('<p>PHP code that interprets unique (node) ids as passed to URLs, and converts them to data used by the
 							transcript players. Do not begin this code with <code>&lt;?php</code>. Code should end with:
@@ -112,6 +112,6 @@ function transcripts_node_site_settings_form($form, &$form_state) {
 	return system_settings_form(array_merge(
 		$form,
 		transcripts_node_node_settings(),
-		transcripts_node_mapper_settings()
+		transcripts_node_videotag_settings()
 	));
 }

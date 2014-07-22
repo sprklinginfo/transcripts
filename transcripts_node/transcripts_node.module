@@ -43,6 +43,11 @@ function transcripts_node_menu() {
 }
 
 function transcripts_node_get_player($entity_id) {
+	$videotag = transcripts_node_videotag($entity_id);
+	transcript_player_title($entity_id, $videotag);
+}
+
+function transcripts_node_videotag($entity_id) {
 	//note: var $id is passed and made available to eval, array $val is returned
 	$php_code = variable_get('transcripts_id_mapper');
 	eval( $php_code );
@@ -58,6 +63,8 @@ function transcripts_node_get_player($entity_id) {
 		}
 		$videotag .= "</$tag>";
 	}
+	
+	return $videotag;
 }
 
 function transcripts_node_transcript_access($nid) {
