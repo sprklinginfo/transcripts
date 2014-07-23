@@ -1,123 +1,50 @@
 <?php
 // $Id$
 
-function transcripts_get_indexable_transcripts($node) {
-  $files = array();
 
-  $field_names = transcripts_node_all_file_fields();
-  foreach ($field_names as $field_name) {
-    if (!empty($node->$field_name) && is_transcript_field($field_name)) {
-      $field = $node->$field_name;
-      list($lang, $values) = each($field);
-      $files = array_merge($files, $values);
-    }
-  }
-
-  $file_list = array();
-  foreach ($files as $file) {
-  	$extension = strrchr($file['filename'], '.');
-  	if ($extension && transcripts_check_extension(substr($extension, 1))) {
-      $file_list[$file['fid']] = $file;
-    }
-  }
-  return $file_list;
+function transcripts_already_indexed($module, $type, $fid, $id) {
+	$result = db_select('transcripts_transcript', 'tr')
+		->fields('tr', array('trid'))
+		->condition('tr.module', $module, '=')
+		->condition('tr.type', $type, '=')
+		->condition('tr.fid', $fid, '=')
+		->condition('tr.id', $id, '=')
+		->execute();
+		
+	return $result->rowCount() == 0 ? FALSE : TRUE;
 }
 
-function transcripts_node_insert($node) {
-    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
-    
-    foreach ($fields as $field_name) {
-        $field = $node->$field_name;
-        
-        if (!(empty($field) || empty($field[$node->language]))) {
-            $fid = $field[$node->language][0]['fid'];
-            transcripts_add_transcript(file_load($fid), node_load($node->nid));
-        }
-    }
-}
-
-function transcripts_node_update($node) {
-    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
-    
-    foreach ($fields as $field_name) {
-        $field = $node->$field_name;
-        
-        if (empty($field) || empty($field[$node->language])) {
-            transcripts_remove_transcript($node->nid);
-        }
-        else {
-            $fid = $field[$node->language][0]['fid'];
-            if (!transcripts_already_indexed($fid, $node->nid)) {
-                transcripts_remove_transcript($node->nid);
-                transcripts_add_transcript(file_load($fid), node_load($node->nid));
-            }            
-        }
-    }
-}
-
-function transcripts_node_delete($node) {
-    $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
-    
-    if (count($fields) > 0) {
-        transcripts_remove_transcript($node->nid);
-    }
-}
-
-function transcripts_already_indexed($fid, $content_id) {
-    $result = db_select('transcripts_transcript', 't')
-        ->fields('t')
-        ->condition('id', $content_id)
-        ->condition('fid', $fid)
-        ->execute();
-        
-    return $result->rowCount() == 0 ? FALSE : TRUE;
-}
-
-function transcripts_add_transcript($file, $node) {
-    $dot = strrpos($file->uri, '.');
-    $ext = $dot === FALSE ? '' : substr($file->uri, $dot+1);
-
-    if ($ext == 'xml') {
-        $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
-
-        $xslfield = variable_get('transcripts_xslt_field','field_transcripts_xsl');
-        if ($node->{$xslfield}) {
-                $field = $node->{$xslfield};
-                $uri = $field[$node->language][0]['uri'];
-                $xslt = drupal_realpath($node->{$xslfield}[$node->language][0]['uri']);
-        } else {
-                $xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
-        }  
-
-        watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
-
-        $xml = transcripts_saxon_transform($xslt, $file);
-        $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
-    }
-    else if ($ext == 'txt') {
-        $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
-        
-        $xslt = $saxon_path . '/toolbox.xsl';
-
-        $filepath = drupal_realpath($file->uri);
-        // Check that we have a valid filepath.
-        if (!$filepath || !is_file($filepath)) {
-          watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $file->uri), WATCHDOG_WARNING);
-          return FALSE;
-        }
-        $params = array();
-        $params['file'] = $filepath;
-        $params['tierNames'] = variable_get('transcripts_toolbox_mappings', 'tx|ts_content_even, mb|ts_content_morph, ge|ts_content_igt, ft|ts_content_eng, ru|ts_content_rus');
-        drupal_alter('transcripts_saxon_params', $params, $node);
-        $xml = transcripts_saxon_transform($xslt, '', 'toolbox', $params);
-
-        $arr = json_decode(json_encode(simplexml_load_string($xml)), TRUE);
-    }
+function transcripts_remove_transcript($module, $type, $id) {
+	$trids = $db_select('transcripts_transcript', 'tr')
+		->fields('tr', array('trid'))
+		->condition('module', $module, '=')
+		->condition('type', $type, '=')
+		->condition('id', $id, '=')
+		->execute();
+		
+	if (count($trids) > 0) {
+		$tcuids = db_select('tcu', 't') 
+			->fields('t', array('tcuid'))
+			->condition('trid', $trids, 'IN')
+			->execute()
+			->fetchCol();
+			
+		if (count($tcuids) > 0) {
+			tcu_delete_multiple($tcuids);
+		}
+		
+		db_delete('transcripts_transcript')
+			->condition('trid', $trids, 'IN')
+			->execute();
+	}
 	
-    foreach ($arr['tcu'] as $tcu) {
+}
+
+function transcripts_add_transcript($module, $type, $fid, $id, $tcus) {
+    foreach ($tcus['tcu'] as $tcu) {
         $insert = tcu_create(
             array(
-			    'entity_id' => $node->nid,
+			    'entity_id' => $id,
  			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
  			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
  			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
@@ -131,77 +58,11 @@ function transcripts_add_transcript($file, $node) {
 			
 	db_insert('transcripts_transcript')
 	    ->fields(array(
-	        'fid' => $file->fid,
-			'module' => 'transcripts',
-			'type' => 'node',
-			'id' => $node->nid,
+			'module' => $module,
+			'type' => $type,
+	        'fid' => $fid,
+			'id' => $id,
 			'status' => 1,
 		))
 		->execute();
-}
-
-function transcripts_remove_transcript($content_id) {
-    $tcuids = db_select('tcu', 't')
-	    ->fields('t', array('tcuid'))
-		->condition('entity_id', $content_id)
-		->execute()
-		->fetchCol();
-					
-	if (count($tcuids) > 0) {
-		tcu_delete_multiple($tcuids);
-	}
-    
-    db_delete('transcripts_transcript')
-	    ->condition('id', $content_id)
-		->execute();
-}
-
-function transcripts_saxon_transform($xsl, $source = '', $it = '', $params = array()) {
-  $saxon_path = realpath(variable_get('transcripts_saxon_path', 'sites/all/libraries/saxon'));
-	
-  $saxon = realpath($saxon_path . '/' . variable_get('transcripts_saxon_jar', 'saxon9he.jar'));
-  if (!$saxon || !is_file($saxon)) {
-    throw new Exception(t('Invalid path or filename for saxon application jar.'));
-  }
-
-  if ($source) {
-    $filepath = drupal_realpath($source->uri);
-    // Check that we have a valid filepath.
-    if (!$filepath || !is_file($filepath)) {
-      watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $source->uri), WATCHDOG_WARNING);
-      return FALSE;
-    }
-    // Support UTF-8 encoded filenames.
-    if (mb_detect_encoding($filepath, 'ASCII,UTF-8', true) == 'UTF-8') {
-      $cmd .= 'export LANG="en_US.utf-8"; ';
-      setlocale(LC_CTYPE, 'UTF8', 'en_US.UTF-8');
-    }
-  }
-
-  $par = '';
-  foreach ($params as $key => $value) {
-    $par .= $key."=".escapeshellarg($value)." ";
-  }
-  
-  $cmd = '';
-  // Add a work-around for a MAMP bug + java 1.5.
-  if (strpos(ini_get('extension_dir'), 'MAMP/')) {
-    $cmd .= 'export DYLD_LIBRARY_PATH=""; ';
-  }
-  
-  // By default force UTF-8 output
-  $cmd .= escapeshellcmd(variable_get('transcripts_java', 'java')) . ' ' .
-    escapeshellarg(variable_get('transcripts_java_opts', '-Dfile.encoding=UTF8')) .
-    ' -jar ' . escapeshellarg($saxon) .
-    ' -xsl:' . escapeshellarg($xsl);
-
-  if ($source) $cmd .= ' -s:' .escapeshellarg($filepath);
-  if ($it) $cmd .= ' -it:' .escapeshellarg($it);
-  if ($par) $cmd .= ' ' .$par; 
-  
-  //. ' 2>&1'; //for debugging
-  
-  watchdog('Transcripts', "$cmd", NULL, WATCHDOG_DEBUG);
-  $document = shell_exec($cmd);
-  return $document;
 }

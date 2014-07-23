@@ -97,7 +97,8 @@ class Tcu extends Entity {
 
   protected function defaultUri() {
 		return array(
-			'path' => 'node/' .$this->entity_id. '/transcript',
+			'path' => 'transcript/' .$this->trid,
+			//'path' => 'node/' .$this->entity_id. '/transcript',
 			'options' => array(
 				'fragment' => $this->tcuid,     
 			),
@@ -111,7 +112,7 @@ class TcuController extends EntityAPIController {
     // Add values that are specific to our Model
     $values += array( 
       'tcuid' => '',
-      'entity_id' => '',
+      'trid' => '',
       'speaker' => '',
       'start' => '',
       'end' => '',
@@ -127,12 +128,12 @@ class TcuController extends EntityAPIController {
 
 function tcu_solr_document(ApacheSolrDocument $document, $tcu, $entity_type) {
 	$tcu = tcu_load($tcu->tcuid);
-	$parent = node_load($tcu->entity_id);
+	$parent = node_load($tcu->trid);
 	$document->ss_node_label = $parent->title;
 	
 	unset($document->content);
 	$document->label = $tcu->tcuid;
-	$document->is_eid = $tcu->entity_id;
+	$document->is_trid = $tcu->trid;
 	$document->ss_speaker = $tcu->speaker;
 	$document->fts_start = $tcu->start;
 	$document->fts_end = $tcu->end;

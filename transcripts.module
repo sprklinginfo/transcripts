@@ -1,6 +1,12 @@
 <?php
 // $Id$
 
+function transcripts_init() {
+	drupal_add_css(drupal_get_path('module', 'transcripts') .'/transcripts.css', 'file');
+	drupal_add_js(drupal_get_path('module', 'transcripts') .'/transcripts.js', 'file');
+	module_load_include('inc', 'transcripts', 'transcripts.index');
+}
+
 function transcripts_environment() {
 	return variable_get('transcripts_env_id', apachesolr_default_environment());
 }
@@ -131,12 +137,6 @@ function transcripts_apachesolr_process_results(&$results, $query) {
 			}
 		}
 	}
-}
-
-function transcripts_init() {
-  drupal_add_css(drupal_get_path('module', 'transcripts') .'/transcripts.css', 'file');
-  drupal_add_js(drupal_get_path('module', 'transcripts') .'/transcripts.js', 'file');
-  module_load_include('inc', 'transcripts', 'transcripts.index');
 }
 
 /**
