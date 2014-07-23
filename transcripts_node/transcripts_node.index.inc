@@ -23,6 +23,9 @@ function transcripts_node_node_insert($node) {
 }
 
 function transcripts_node_node_update($node) {
+	
+	watchdog('Transcripts Node', "Node update", NULL, WATCHDOG_DEBUG);
+	
     $fields = array_filter(transcripts_node_all_file_fields(), 'is_transcript_field');
     
     foreach ($fields as $field_name) {
