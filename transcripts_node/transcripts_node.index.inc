@@ -33,7 +33,7 @@ function transcripts_node_node_update($node) {
         }
         else {
             $fid = $field[$node->language][0]['fid'];
-            if (!transcripts_already_indexed('transcripts_node', 'node', $fid, $node->nid)) {
+            if (!transcripts_already_indexed('transcripts_node', 'node', $node->nid, $fid)) {
                 transcripts_remove_transcript('transcripts_node', 'node', $node->nid);
                 transcripts_node_add_transcript(file_load($fid), node_load($node->nid));
             }            

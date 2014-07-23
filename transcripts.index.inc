@@ -1,16 +1,18 @@
 <?php
 // $Id$
 
-function transcripts_already_indexed($module, $type, $fid, $id) {
-	$result = db_select('transcripts_transcript', 'tr')
+function transcripts_already_indexed($module, $type, $id, $fid = NULL) {
+	$query = db_select('transcripts_transcript', 'tr')
 		->fields('tr', array('trid'))
 		->condition('tr.module', $module, '=')
 		->condition('tr.type', $type, '=')
-		->condition('tr.fid', $fid, '=')
-		->condition('tr.id', $id, '=')
-		->execute();
+		->condition('tr.id', $id, '=');
+	if ($fid !== NULL) {
+		$query->condition('tr.fid', $fid, '=');
+	}
+	$result = $query->execute();
 		
-	return $result->rowCount() == 0 ? FALSE : TRUE;
+	return $result->rowCount() == 0 ? FALSE : $result;
 }
 
 function transcripts_remove_transcript($module, $type, $id) {
@@ -19,8 +21,9 @@ function transcripts_remove_transcript($module, $type, $id) {
 		->condition('module', $module, '=')
 		->condition('type', $type, '=')
 		->condition('id', $id, '=')
-		->execute();
-		
+		->execute()
+		->fetchCol();
+
 	if (count($trids) > 0) {
 		$tcuids = db_select('tcu', 't') 
 			->fields('t', array('tcuid'))
@@ -39,10 +42,20 @@ function transcripts_remove_transcript($module, $type, $id) {
 }
 
 function transcripts_add_transcript($module, $type, $fid, $id, $tcus) {
+	$trid = db_insert('transcripts_transcript')
+            ->fields(array(
+                        'module' => $module,
+                        'type' => $type,
+                'fid' => $fid,
+                        'id' => $id,
+                        'status' => 1,
+                ))
+                ->execute();
+
     foreach ($tcus['tcu'] as $tcu) {
         $insert = tcu_create(
             array(
-			    'entity_id' => $id,
+			    'trid' => $trid,
  			    'speaker' => isset($tcu['speaker']) ? $tcu['speaker'] : '',
  			    'start' => isset($tcu['start']) ? $tcu['start'] : 0,
  			    'end' => isset($tcu['end']) ? $tcu['end'] : 0,
@@ -53,14 +66,4 @@ function transcripts_add_transcript($module, $type, $fid, $id, $tcus) {
 		$insert->setTiers(array_filter(array_map('trim', $tcu['tiers']))); //don't save empty tiers
 		tcu_save($insert);
 	}
-			
-	db_insert('transcripts_transcript')
-	    ->fields(array(
-			'module' => $module,
-			'type' => $type,
-	        'fid' => $fid,
-			'id' => $id,
-			'status' => 1,
-		))
-		->execute();
 }

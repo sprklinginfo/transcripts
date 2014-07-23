@@ -20,7 +20,7 @@ function transcript_player_init() {
 	drupal_add_js(drupal_get_path('module', 'transcript_player') .'/jquery.scrollTo.js', 'file');
 }
 
-function transcript_player_title($entity_id, $videotag, $pid = '', $options = array()) {
+function transcript_player_title($trid, $videotag, $pid = '', $options = array()) {
 	if (!$pid) {
 		$pid = variable_get('transcripts_default_profile', '');
 		if (!$pid) {
@@ -45,14 +45,14 @@ function transcript_player_title($entity_id, $videotag, $pid = '', $options = ar
 	reset($modes);
 	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
   
-	$response = transcript_player_get($entity_id, $tiers, $options);
+	$response = transcript_player_get($trid, $tiers, $options);
 	if (count($response->response->docs) > 0) {
 		$info = $defaultMode . "_transcripts_info";
 		$vals = $info();
 		$to = $vals['to']; 
 		list($transcript_div, $hits) = transcript_player_transcript($response, $tiers);
-		$playerid = 'pid-'.$entity_id; //id is node id!!
-		module_invoke_all('transcript_player_prepare_player', $entity_id);
+		$playerid = 'pid-'.$trid;
+		module_invoke_all('transcript_player_prepare_player', $trid);
 		return transcript_player_tiermode_controls($playerid, $tiers, $modes) 
     		. "<div id='$playerid' class='transcript-player' data-defaultmode='$defaultMode' data-tofunction='$to'>"
     			. '<div class="v-column">'
@@ -136,11 +136,11 @@ function transcript_player_transcript($response, $tiers) {
     return array($return, $hitSummary);
 }
 
-function transcript_player_get($entity_id, $tiers, $options) {
+function transcript_player_get($trid, $tiers, $options) {
   $solr = transcripts_get_solr();
   
   $tiers = array_keys($tiers);
-  $fl = implode(",", $tiers) . ",id,is_eid,entity_id,ss_speaker,fts_start,fts_end,fts_duration";
+  $fl = implode(",", $tiers) . ",id,is_trid,entity_id,ss_speaker,fts_start,fts_end,fts_duration";
   if ($options['term'] == '') {
 		$params = array(
 			'q' => '*:*', 
@@ -172,8 +172,8 @@ function transcript_player_get($entity_id, $tiers, $options) {
   	);
 	}
   $query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
-  if ($entity_id) {
-   $query->addFilter("is_eid", $entity_id);
+  if ($trid) {
+   $query->addFilter("is_trid", $trid);
   }  
 
   //see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr

@@ -37,9 +37,9 @@ function transcripts_xslt_as_tcus($file, $node) {
                 $xslt = realpath($saxon_path . '/' . variable_get('transcripts_xslt_file', ''));
         }  
 
-        watchdog('Transcripts', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
+        watchdog('Transcripts XSLT', "Indexing transcript at node/%nid", array('%nid' => $node->nid), WATCHDOG_INFO);
 
-        $xml = transcripts_saxon_transform($xslt, $file);
+        $xml = transcripts_xslt_saxon_transform($xslt, $file);
         return json_decode(json_encode(simplexml_load_string($xml)), TRUE);
     }
     else if ($ext == 'txt') {
@@ -50,14 +50,14 @@ function transcripts_xslt_as_tcus($file, $node) {
         $filepath = drupal_realpath($file->uri);
         // Check that we have a valid filepath.
         if (!$filepath || !is_file($filepath)) {
-          watchdog('Transcripts', '%filepath is not a valid file path', array('%filepath' => $file->uri), WATCHDOG_WARNING);
+          watchdog('Transcripts XSLT', '%filepath is not a valid file path', array('%filepath' => $file->uri), WATCHDOG_WARNING);
           return FALSE;
         }
         $params = array();
         $params['file'] = $filepath;
         $params['tierNames'] = variable_get('transcripts_toolbox_mappings', 'tx|ts_content_even, mb|ts_content_morph, ge|ts_content_igt, ft|ts_content_eng, ru|ts_content_rus');
         drupal_alter('transcripts_saxon_params', $params, $node);
-        $xml = transcripts_saxon_transform($xslt, '', 'toolbox', $params);
+        $xml = transcripts_xslt_saxon_transform($xslt, '', 'toolbox', $params);
 
         return json_decode(json_encode(simplexml_load_string($xml)), TRUE);
     }
