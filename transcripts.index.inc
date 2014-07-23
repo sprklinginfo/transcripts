@@ -1,7 +1,6 @@
 <?php
 // $Id$
 
-
 function transcripts_already_indexed($module, $type, $fid, $id) {
 	$result = db_select('transcripts_transcript', 'tr')
 		->fields('tr', array('trid'))
@@ -15,7 +14,7 @@ function transcripts_already_indexed($module, $type, $fid, $id) {
 }
 
 function transcripts_remove_transcript($module, $type, $id) {
-	$trids = $db_select('transcripts_transcript', 'tr')
+	$trids = db_select('transcripts_transcript', 'tr')
 		->fields('tr', array('trid'))
 		->condition('module', $module, '=')
 		->condition('type', $type, '=')
@@ -37,7 +36,6 @@ function transcripts_remove_transcript($module, $type, $id) {
 			->condition('trid', $trids, 'IN')
 			->execute();
 	}
-	
 }
 
 function transcripts_add_transcript($module, $type, $fid, $id, $tcus) {
