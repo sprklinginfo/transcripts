@@ -44,7 +44,7 @@ function transcripts_controller_title($trid, $videotag, $pid = '', $options = ar
 	//get default or make first in list
 	reset($modes);
 	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
-  
+ /* 
 	$response = transcripts_controller_get($trid, $tiers, $options);
 	if (count($response->response->docs) > 0) {
 		$info = $defaultMode . "_transcripts_info";
@@ -66,6 +66,8 @@ function transcripts_controller_title($trid, $videotag, $pid = '', $options = ar
     				. $transcript_div 
     			. '</div>' 
     		. '</div>';
+    		*/
+    		return "Test";
   }
   else {
   	return t("This transcript is still being processed for display.");
@@ -73,81 +75,83 @@ function transcripts_controller_title($trid, $videotag, $pid = '', $options = ar
 }
 
 function transcripts_controller_transcript($response, $tiers) {
-		$docs = $response->response->docs;
-		$highlight = isset($response->highlighting) ? TRUE : FALSE;
-    $return = "<div class='transcript scroller'>";
-    $hits = array();
-    $show_speakers = variable_get('transcripts_speaker_names', TRUE);
-    foreach ($docs as $sentence) {
-    	$sid = $sentence->entity_id;
-    	$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
-    	$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
-    	$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
-    	$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
-    	$line .= $show_speakers ? "<div class='info'>" : "<div class='info' style='display: none'>";
-    	$line .= "<div class='speakername'>$speaker</div>";
-    	$line .= "<div class='playwrapper'>";
-    	$line .= "<div class='infocontrols'><button></button></div>";
-    	$line .= "<div class='timecodes'>";
-    	$line .= "<div class='t1'>$begin</div><div class='clearfix'></div>";
-    	$line .= "<div class='t2'>$end</div><div class='clearfix'></div>";
-    	$line .= "</div>"; //timecodes
-    	$line .= "</div>"; //playwrapper
-    	$line .= "</div>"; //info
-    	$line .= $show_speakers ? "<div class='tiers speaker-tiers'>" : "<div class='tiers speaker-tiers' style='margin-left: 0px'>";
-      foreach (array_keys($tiers) as $tier) {
-        if (isset($sentence->$tier)) {
-        	if ($highlight) {
-        		$id = $sentence->id;
-						if (isset($response->highlighting->$id->$tier)) {
-							$replace = $response->highlighting->$id->$tier;
-							$line .= "<div data-tier='$tier' class='tier $tier hit np'>{$replace[0]}</div>";
-							//move to theme function
-							if (isset($sentence->fts_start) && $sentence->fts_start > 0) {
-								$mins = floor ($sentence->fts_start / 60);
-								$secs = $sentence->fts_start % 60;
-								$time = sprintf ("%d:%02d", $mins, $secs);
-              } else {
-              	$time = "0:00";
-              }
-              $hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#tcu/{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+	$docs = $response->response->docs;
+	$highlight = isset($response->highlighting) ? TRUE : FALSE;
+	$return = "<div class='transcript scroller'>";
+	$hits = array();
+	$show_speakers = variable_get('transcripts_speaker_names', TRUE);
+	foreach ($docs as $sentence) {
+		$sid = $sentence->entity_id;
+		$speaker = isset($sentence->ss_speaker) ? $sentence->ss_speaker : '';
+		$begin = isset($sentence->fts_start) ? $sentence->fts_start : 0;
+		$end = isset($sentence->fts_end) ? $sentence->fts_end : 0;
+		$line = "<div id='$sid' class='clearfix' data-participant='$speaker' data-begin='$begin' data-end='$end'>";
+		$line .= $show_speakers ? "<div class='info'>" : "<div class='info' style='display: none'>";
+		$line .= "<div class='speakername'>$speaker</div>";
+		$line .= "<div class='playwrapper'>";
+		$line .= "<div class='infocontrols'><button></button></div>";
+		$line .= "<div class='timecodes'>";
+		$line .= "<div class='t1'>$begin</div><div class='clearfix'></div>";
+		$line .= "<div class='t2'>$end</div><div class='clearfix'></div>";
+		$line .= "</div>"; //timecodes
+		$line .= "</div>"; //playwrapper
+		$line .= "</div>"; //info
+		$line .= $show_speakers ? "<div class='tiers speaker-tiers'>" : "<div class='tiers speaker-tiers' style='margin-left: 0px'>";
+		foreach (array_keys($tiers) as $tier) {
+			if (isset($sentence->$tier)) {
+				if ($highlight) {
+					$id = $sentence->id;
+					if (isset($response->highlighting->$id->$tier)) {
+						$replace = $response->highlighting->$id->$tier;
+						$line .= "<div data-tier='$tier' class='tier $tier hit np'>{$replace[0]}</div>";
+						//move to theme function
+						if (isset($sentence->fts_start) && $sentence->fts_start > 0) {
+							$mins = floor ($sentence->fts_start / 60);
+							$secs = $sentence->fts_start % 60;
+							$time = sprintf ("%d:%02d", $mins, $secs);
 						} else {
-							$line .= "<div data-tier='$tier' class='tier'>{$sentence->$tier}</div>";
+							$time = "0:00";
 						}
-					} else {
-						$line .= "<div data-tier='$tier' class='tier np'>{$sentence->$tier}</div>";
+						$hits[] = "<div class='hit-container' data-refid='$sid'><div class='hit-controls'><a href='#tcu/{$sentence->entity_id}' class='play-hit'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a><span class='time'>$time</span></div><div class='hit-ref $tier'>{$replace[0]}</div></div>";
+					} 
+					else {
+						$line .= "<div data-tier='$tier' class='tier'>{$sentence->$tier}</div>";
 					}
-        } 
-        else if (variable_get('transcripts_empty_tiers', TRUE)) {
-        	$line .= "<div data-tier='$tier' class='tier np'></div>";
-        }
-      }
-      $line .= "</div>"; //div.tiers
-      $line .= "</div>"; //div#id
-      $return .= $line;
-    }
-    $return .= "</div>"; //transcript
+				} else {
+					$line .= "<div data-tier='$tier' class='tier np'>{$sentence->$tier}</div>";
+				}
+			} 
+			else if (variable_get('transcripts_empty_tiers', TRUE)) {
+				$line .= "<div data-tier='$tier' class='tier np'></div>";
+			}
+		}
+		$line .= "</div>"; //div.tiers
+		$line .= "</div>"; //div#id
+		$return .= $line;
+	}
+	$return .= "</div>"; //transcript
     
-    $clearHits = "<div class='hit-summary-controls'><a href='#' class='clear-hits'><span class='ui-icon ui-icon-closethick'>Clear hits</span></a></div>";
-    $hitHeader = $highlight ? "<div class='hit-summary-header'>".$clearHits."<div class='hit-summary-info'>Found " . count($hits) . " sentences</div></div>" : "";
-    $hitBody = $highlight ? "<div class='hit-body'>" . implode('', $hits) . "</div>" : "";
-    $hitSummary = "<div class='hit-summary'>" .$hitHeader.$hitBody. "</div>";
+	$clearHits = "<div class='hit-summary-controls'><a href='#' class='clear-hits'><span class='ui-icon ui-icon-closethick'>Clear hits</span></a></div>";
+	$hitHeader = $highlight ? "<div class='hit-summary-header'>".$clearHits."<div class='hit-summary-info'>Found " . count($hits) . " sentences</div></div>" : "";
+	$hitBody = $highlight ? "<div class='hit-body'>" . implode('', $hits) . "</div>" : "";
+	$hitSummary = "<div class='hit-summary'>" .$hitHeader.$hitBody. "</div>";
     
-    return array($return, $hitSummary);
+	return array($return, $hitSummary);
 }
 
 function transcripts_controller_get($trid, $tiers, $options) {
-  $solr = transcripts_get_solr();
-  
-  $tiers = array_keys($tiers);
-  $fl = implode(",", $tiers) . ",id,is_trid,entity_id,ss_speaker,fts_start,fts_end,fts_duration";
-  if ($options['term'] == '') {
+	$solr = transcripts_get_solr();
+	
+	$tiers = array_keys($tiers);
+	$fl = implode(",", $tiers) . ",id,is_trid,entity_id,ss_speaker,fts_start,fts_end,fts_duration";
+	
+	if ($options['term'] == '') {
 		$params = array(
 			'q' => '*:*', 
 			'start' => 0, 
 			'rows' => 1000, //what if transcript has more than 1000 lines??
 			'fl' => $fl,
-  		'qt' => 'standard',
+			'qt' => 'standard',
 		);
 	} else { //highlighting
 		$arr = array();
@@ -158,32 +162,32 @@ function transcripts_controller_get($trid, $tiers, $options) {
 		if (!$options['justhits']) {
 			$q .= " OR *:*";
 		}
-  	$params = array(
-  		'q' => $q,
-  		'start' => 0, 
-  		'rows' => 1000, //what if transcript has more than 1000 lines??
-  		'fl' => $fl,
-  		'qt' => 'standard',
-  		'hl' => 'true',
-  		'hl.fl' => implode(' ', $tiers),
-  		'hl.fragsize' => 0,
-  		'hl.simple.pre' => "<span class='hit'>",
-  		'hl.simple.post' => "</span>",
-  	);
+		$params = array(
+			'q' => $q,
+			'start' => 0, 
+			'rows' => 1000, //what if transcript has more than 1000 lines??
+			'fl' => $fl,
+			'qt' => 'standard',
+			'hl' => 'true',
+			'hl.fl' => implode(' ', $tiers),
+			'hl.fragsize' => 0,
+			'hl.simple.pre' => "<span class='hit'>",
+			'hl.simple.post' => "</span>",
+		);
 	}
-  $query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
-  if ($trid) {
-   $query->addFilter("is_trid", $trid);
-  }  
+	$query = apachesolr_drupal_query('transcripts', $params, 'fts_start asc', '', $solr);
+	if ($trid) {
+		$query->addFilter("is_trid", $trid);
+	}
 
-  //see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr
-  $query->setAvailableSort('fts_start', array(
-    'title' => t('Temporal order'),
-    'default' => 'asc',
-  ));
+	//see http://drupalconnect.com/blog/steve/creating-custom-sorts-apache-solr
+	$query->setAvailableSort('fts_start', array(
+		'title' => t('Temporal order'),
+		'default' => 'asc',
+	));
 	list($final_query, $response) = transcripts_controller_do_query($query);
 
-  return $response;
+	return $response;
 }
 
 function transcripts_controller_do_query(DrupalSolrQueryInterface $current_query) {
