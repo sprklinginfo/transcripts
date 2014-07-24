@@ -26,12 +26,6 @@ function transcripts_theme() {
 function theme_apachesolr_search_snippets__tcu($vars) {
   $doc = $vars['doc'];
   $snippets = $vars['snippets'];
-  /*
-  $reslink = variable_get('transcripts_result_link', 'NODE');
-  if ($reslink == 'PLAYER') {
-  	$doc->path = "node/" . $doc->is_eid . "/transcript";
-  }
-  */
   $url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
   $result  = "<p>";
   if (isset($doc->fts_duration) && $doc->fts_duration > 0) {

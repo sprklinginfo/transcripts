@@ -1,101 +1,97 @@
 <?php
 
 function tcu_entity_info() {
-  $return = array(
-    'tcu' => array(
-      'label' => t('Time Code Unit'),
-      'description' => t('Entity type for transcript tcus'),
-      'entity class' => 'Tcu',
-      'controller class' => 'TcuController',
-      'base table' => 'tcu',
-      'fieldable' => FALSE,
-      //'exportable' => TRUE,
-      'entity keys' => array(
-        'id' => 'tcuid',
-      ),
-      'bundles' => array(
-        'tcu' => array(
-          'label' => t('Tcu'),
-        ),
-      ),
-      'label callback' => 'entity_class_label',
-      'uri callback' => 'entity_class_uri',
-      'module' => 'tcu',
-    ),
-  );
-  return $return;
+	$return = array(
+		'tcu' => array(
+			'label' => t('Time Code Unit'),
+			'description' => t('Entity type for transcript tcus'),
+			'entity class' => 'Tcu',
+			'controller class' => 'TcuController',
+			'base table' => 'tcu',
+			'fieldable' => FALSE,
+			//'exportable' => TRUE,
+			'entity keys' => array(
+				'id' => 'tcuid',
+			),
+			'bundles' => array(
+				'tcu' => array(
+					'label' => t('Tcu'),
+				),
+			),
+			'label callback' => 'entity_class_label',
+			'uri callback' => 'entity_class_uri',
+			'module' => 'tcu',
+		),
+	);
+	return $return;
 }
 
 function tcu_apachesolr_entity_info_alter(&$entity_info) {
-  $entity_info['tcu']['indexable'] = TRUE;
-  //$entity_info['tcu']['status callback'][] = 'tcu_status_callback';
-  $entity_info['tcu']['document callback'][] = 'tcu_solr_document';
-  $entity_info['tcu']['reindex callback'] = 'tcu_solr_reindex';
-  $entity_info['tcu']['index_table'] = 'apachesolr_index_entities_tcu';
-  //$entity_info['tcu']['result callback'] = 'tcu_result';
+	$entity_info['tcu']['indexable'] = TRUE;
+	//$entity_info['tcu']['status callback'][] = 'tcu_status_callback';
+	$entity_info['tcu']['document callback'][] = 'tcu_solr_document';
+	$entity_info['tcu']['reindex callback'] = 'tcu_solr_reindex';
+	$entity_info['tcu']['index_table'] = 'apachesolr_index_entities_tcu';
+	//$entity_info['tcu']['result callback'] = 'tcu_result';
 }
 
 function tcu_load($tcuid, $reset = FALSE) {
-  $tcus = tcu_load_multiple(array($tcuid), array(), $reset);
-  return reset($tcus);
+	$tcus = tcu_load_multiple(array($tcuid), array(), $reset);
+	return reset($tcus);
 }
 
 function tcu_load_multiple($tcuids = array(), $conditions = array(), $reset = FALSE) {
-  $tcus = entity_load('tcu', $tcuids, $conditions, $reset);
+	$tcus = entity_load('tcu', $tcuids, $conditions, $reset);
 
-  foreach ($tcus as &$tcu) {
-  	$tcuid = $tcu->tcuid;
+	foreach ($tcus as &$tcu) {
+		$tcuid = $tcu->tcuid;
 			
-  	$tiers = array();
+		$tiers = array();
 		$result = db_query('SELECT * FROM {tcu_tier} WHERE tcuid = :tcuid', array(':tcuid' => $tcuid));
 		foreach ($result as $record) {
 			$tiers[$record->tier] = $record->value;
 		}
 		$tcu->setTiers($tiers);
-  }
-  
-  return $tcus;
+	}
+	
+	return $tcus;
 }
 
 function tcu_delete(Tcu $tcu) {
-  $tcu->delete();
+	$tcu->delete();
 }
 
 function tcu_delete_multiple(array $tcuids) {
-  entity_get_controller('tcu')->delete($tcuids);
-  db_delete('tcu_tier')
-  	->condition('tcuid', $tcuids, 'IN')
-  	->execute();
+	entity_get_controller('tcu')->delete($tcuids);
+	db_delete('tcu_tier')
+		->condition('tcuid', $tcuids, 'IN')
+		->execute();
 }
 
 function tcu_create($values = array()) {
-  return entity_get_controller('tcu')->create($values);
+	return entity_get_controller('tcu')->create($values);
 }
 
 function tcu_save(Tcu $tcu) {
-  return $tcu->save();
+	return $tcu->save();
 }
 
 class Tcu extends Entity {
-  protected $_tiers = array();
+	protected $_tiers = array();
   
-  public function __construct($values = array()) {
-    parent::__construct($values, 'tcu');
-  }
-
-  public function setTiers($tiers) {
-  	$this->_tiers = $tiers;
-  }
-  
-  public function getTiers() {
-  	return $this->_tiers;
-  }
-  
-  protected function defaultLabel() {
-    return $this->tcuid;
-  }
-
-  protected function defaultUri() {
+	public function __construct($values = array()) {
+		parent::__construct($values, 'tcu');
+	}
+	public function setTiers($tiers) {
+		$this->_tiers = $tiers;
+	}
+	public function getTiers() {
+		return $this->_tiers;
+	}
+	protected function defaultLabel() {
+		return $this->tcuid;
+	}
+	protected function defaultUri() {
 		return array(
 			'path' => 'transcript/' .$this->trid,
 			//'path' => 'node/' .$this->entity_id. '/transcript',
@@ -103,27 +99,24 @@ class Tcu extends Entity {
 				'fragment' => $this->tcuid,     
 			),
 		);
-  }
+	}
 }
 
 class TcuController extends EntityAPIController {
-
-  public function create(array $values = array()) {
-    // Add values that are specific to our Model
-    $values += array( 
-      'tcuid' => '',
-      'trid' => '',
-      'speaker' => '',
-      'start' => '',
-      'end' => '',
-      'created' => '',
-      'changed' => '',
-    );
-    
-    $tcu = parent::create($values);
-    return $tcu;
-  }
-  
+	public function create(array $values = array()) {
+		// Add values that are specific to our Model
+		$values += array( 
+			'tcuid' => '',
+			'trid' => '',
+			'speaker' => '',
+			'start' => '',
+			'end' => '',
+			'created' => '',
+			'changed' => '',
+		);
+		$tcu = parent::create($values);
+		return $tcu;
+	}
 }
 
 function tcu_solr_document(ApacheSolrDocument $document, $tcu, $entity_type) {

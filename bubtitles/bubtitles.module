@@ -27,25 +27,9 @@ function bubtitles_permission() {
     );
 }
 
-/*
-function bubtitles_og_permission() {
-  return array(
-    'move bubbles' => array(
-    	'title' => t('Tag participants and position speech bubbles'),
-    ),
-  );
-}
-*/
-
 function bubtitles_menu() {
   $items = array();
-
-  $items['node/%/transcript'] = array(
-  	'title' => '',
-  	'page callback' => 'transcripts_controller_title',
-  	'page arguments' => array(1),
-  	'access callback' => TRUE,
-  );
+  
   $items['node/%/transcript/bubbles/get'] = array(
   	'title' => 'Get speech bubble positions',
   	'description' => t('Get positions of speech bubbles'),
@@ -122,6 +106,3 @@ function bubtitles_positions($vid) {
 	
 	return $return;
 }
-
-
-?>

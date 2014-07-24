@@ -1,5 +1,3 @@
-<< I cannot vouch for these instructions - 8 May 2013 >>
-
 This module allows transcript players to be inserted into fields through the use
 of "shortcodes". The syntax is straightforward:
 
@@ -26,3 +24,5 @@ transcript players using the filter.
 Take care when ordering filters. For example, putting "Limit allowed HTML tags"
 after "Shortcodes" may render the transcript player dysfunctional by stripping
 crucial but disallowed tags.
+
+<< Last updated, 24 July 2014 >>

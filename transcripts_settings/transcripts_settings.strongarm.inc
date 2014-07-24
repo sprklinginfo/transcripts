@@ -122,13 +122,6 @@ $val = array(
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'transcripts_result_link';
-  $strongarm->value = 'PLAYER';
-  $export['transcripts_result_link'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'transcripts_saxon_jar';
   $strongarm->value = 'saxon9he.jar';
   $export['transcripts_saxon_jar'] = $strongarm;

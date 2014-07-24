@@ -33,17 +33,6 @@ function transcripts_node_node_settings() {
 			);
 		}
 	}
-	$options = array();
-	$options['NODE'] = t('Node');
-	$options['PLAYER'] = t('Transcript player');
-	$form['transcripts_node_node_settings']['transcripts_result_link'] = array(
-		'#title' => t('Search results'),
-		'#type' => 'select',
-		'#options' => $options,
-		'#default_value' => variable_get('transcripts_result_link', 'NODE'),
-		'#description' => t('Which page do you want search results to link to?'),
-		'#required' => TRUE,
-	);
 	
 	$message = 'On occasion, you may wish to use custom XSLT files to transform incoming transcripts into time code units. '
 			. 'If this is the case, then specify a file field here. '
@@ -94,18 +83,6 @@ function transcripts_node_videotag_settings() {
   	);
   	
   	return $form;
-}
-
-function transcripts_node_search_settings() {
-	$form = array();
-
-	$form['transcripts_node_search_settings'] = array(
-		'#title' => t('Search results'),
-		'#type' => 'fieldset',
-		'#collapsed' => FALSE,
-	);
-	
-	return $form;
 }
 
 function transcripts_node_site_settings_form($form, &$form_state) {
