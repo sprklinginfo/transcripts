@@ -15,6 +15,17 @@ function transcripts_already_indexed($module, $type, $id, $fid = NULL) {
 	return $result->rowCount() == 0 ? FALSE : $result;
 }
 
+function transcripts_already_indexed_trid($module, $type, $id, $fid = NULL) {
+	$result = transcripts_already_indexed_trid($module, $type, $id, $fid);
+	if ($result) {
+		$obj = $result->fetchAssoc();
+		return $obj['trid'];
+	}
+	else {
+		return FALSE;
+	}
+}
+
 function transcripts_remove_transcript($module, $type, $id) {
 	$trids = db_select('transcripts_transcript', 'tr')
 		->fields('tr', array('trid'))

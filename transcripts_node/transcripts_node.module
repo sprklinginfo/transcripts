@@ -36,22 +36,15 @@ function transcripts_node_menu() {
 		'type' => MENU_LOCAL_TASK,
 		'weight' => 80,
 	);
-	$items['transcript/%'] = array(
-		'page callback' => 'transcripts_node_get_player',
-		'page arguments' => array(1),
-		'access callback' => 'transcripts_node_transcript_access',
-		'access arguments' => array(1),
-	);
 	
 	return $items;
 }
 
 function transcripts_node_get_player($nid) {
 	$videotag = transcripts_node_videotag($nid);
-	$result = transcripts_already_indexed('transcripts_node', 'node', $nid);
-	if ($result) {
-		$obj = $result->fetchAssoc();
-		return transcripts_controller_title($obj['trid'], $videotag);
+	$trid = transcripts_already_indexed_trid('transcripts_node', 'node', $nid);
+	if ($trid) {
+		return transcripts_controller_title($trid, $videotag);
 	}
 }
 
@@ -99,78 +92,16 @@ function transcripts_node_has_transcript($node) {
  * Return all fields that are of type 'file'. Copied from apachesolr_attachments.
  */
 function transcripts_node_all_file_fields() {
-  $field_names = array();
-  if (module_exists('file')) {
-    $fields = field_info_fields();
-    foreach ($fields as $field_name => $field) {
-      if ($field['type'] == 'file') {
-        $field_names[] = $field_name;
-      }
-    }
-  }
-  return $field_names;
-}
-
-/**
- * Implements hook_field_formatter_info().
- */
-function transcripts_node_field_formatter_info() {
-   return array(
-      'transcripts_node_default_player' => array(
-         'label' => t('Transcript player embed'),
-         'field types' => array('file'),
-         ),
-      'transcripts_node_default_player_link' => array(
-         'label' => t('Transcript player link'),
-         'field types' => array('file'),
-         ),
-      );
-}
-
-/**
- * Implements hook_field_formatter_view().
- */
-function transcripts_node_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
-  if (is_transcript_field($field['field_name'])) {
-  	$link_only = ($display['type'] == 'transcripts_node_default_player_link');
-		foreach ($items as $delta => $item) {
-			$nid = arg(1);
-			if ( $link_only ) {
-			   $link = l(t('View Transcript'), sprintf('node/%d/transcript',$nid));
-			   $element[$delta] = array('#markup' => $link);
-			}
-			else {
-			   $element[$delta] = array('#markup' => transcripts_controller_title($nid));
+	$field_names = array();
+	if (module_exists('file')) {
+		$fields = field_info_fields();
+		foreach ($fields as $field_name => $field) {
+			if ($field['type'] == 'file') {
+				$field_names[] = $field_name;
 			}
 		}
-  }
-
-  return $element;
-}
-
-/**
- * Implements hook_form_alter().
- */
-function transcripts_node_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['#field']) && $form['#field']['type'] == 'file') {
-  	$form['instance']['transcripts'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Transcripts Settings'),
-      '#collapsed' => FALSE,
-      '#weight' => 20,
-    );
-    $form['instance']['transcripts']['is_transcript'] = array(
-    	'#type' => 'checkbox',
-    	'#title' => t('Treat as transcript'),
-    	'#default_value' => is_transcript_field($form['#field']['field_name']),
-    	'#description' => t('Tick this box if files should be indexed as part of a transcripts.'),
-    	'#weight' => 2
-    );
-    if (!in_array('transcripts_node_form_submit', $form['#submit'])) {
-    	$form['#submit'][] = 'transcripts_node_form_submit';
-    }
-  }
+	}
+	return $field_names;
 }
 
 function is_transcript_field($field_name) {
@@ -180,6 +111,71 @@ function is_transcript_field($field_name) {
 	}
 	else {
 		return 0;
+	}
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function transcripts_node_field_formatter_info() {
+	return array(
+		'transcripts_node_default_player' => array(
+			'label' => t('Transcript player embed'),
+			'field types' => array('file'),
+		),
+		'transcripts_node_default_player_link' => array(
+			'label' => t('Transcript player link'),
+			'field types' => array('file'),
+		),
+	);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function transcripts_node_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+	$element = array();
+	if (is_transcript_field($field['field_name'])) {
+		$link_only = ($display['type'] == 'transcripts_node_default_player_link');
+		foreach ($items as $delta => $item) {
+			$nid = arg(1);
+			if ($link_only) {
+				$link = l(t('View Transcript'), sprintf('node/%d/transcript',$nid));
+				$element[$delta] = array('#markup' => $link);
+			}
+			else {
+				$videotag = transcripts_node_videotag($nid);
+				$trid = transcripts_already_indexed_trid('transcripts_node', 'node', $nid);
+				if ($trid) {
+					$element[$delta] = array('#markup' => transcripts_controller_title($trid, $videotag));
+				}
+			}
+		}
+	}
+	return $element;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function transcripts_node_form_alter(&$form, $form_state, $form_id) {
+	if (isset($form['#field']) && $form['#field']['type'] == 'file') {
+		$form['instance']['transcripts'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('Transcripts Settings'),
+			'#collapsed' => FALSE,
+			'#weight' => 20,
+		);
+		$form['instance']['transcripts']['is_transcript'] = array(
+			'#type' => 'checkbox',
+			'#title' => t('Treat as transcript'),
+			'#default_value' => is_transcript_field($form['#field']['field_name']),
+			'#description' => t('Tick this box if files should be indexed as part of a transcripts.'),
+			'#weight' => 2
+		);
+		if (!in_array('transcripts_node_form_submit', $form['#submit'])) {
+			$form['#submit'][] = 'transcripts_node_form_submit';
+		}
 	}
 }
 
