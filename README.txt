@@ -6,7 +6,8 @@ INSTALLATION
 
 Required: Drupal 7
           Apache Solr Search Integration
-          Time Code Unit (tcu)
+          Time Code Unit
+          Transcripts Controller
 
 Optional: Facet API, Shortcode
 
@@ -227,20 +228,20 @@ module. Useful blocks include:
 Remember that enabled facets are displayed as blocks (admin/structure/block)
 
 
-VERSION HISTORY
----------------
-version 0.4 (8 May 2013)
+CASUAL CHANGELOG
+----------------
 
-version 0.3 (28 January 2013)
+28 January 2013
   * tcus are now full-fledged entities courtesy of the tcu module
   * transcripts are only indexed if they haven't already been indexed
   * transcripts that have been changed online will not be overwritten
 
-version 0.2 (27 January 2012)
+27 January 2012
   * updated to apachesolr 7x-beta15
   * added transcripts_editor module
   
-version 0.1 (14 December 2011)
+14 December 2011
+  * initial release
 
-
-<< Last updated, 8 May 2013 >>
+  
+<< Last updated, 24 July 2014 >>

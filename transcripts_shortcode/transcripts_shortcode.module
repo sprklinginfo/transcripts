@@ -20,7 +20,7 @@ function transcripts_shortcode_transcript($attrs, $text) {
       ), $attrs ));
   
   if ($id && $profile) {
-  	return transcript_player_title($id, $profile, array('term' => $keyword, 'jump' => $jump));
+  	return transcripts_controller_title($id, $profile, array('term' => $keyword, 'jump' => $jump));
   }
 	return '';
 }

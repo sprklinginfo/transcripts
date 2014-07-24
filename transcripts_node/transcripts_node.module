@@ -51,7 +51,7 @@ function transcripts_node_get_player($nid) {
 	$result = transcripts_already_indexed('transcripts_node', 'node', $nid);
 	if ($result) {
 		$obj = $result->fetchAssoc();
-		return transcript_player_title($obj['trid'], $videotag);
+		return transcripts_controller_title($obj['trid'], $videotag);
 	}
 }
 
@@ -141,7 +141,7 @@ function transcripts_node_field_formatter_view($entity_type, $entity, $field, $i
 			   $element[$delta] = array('#markup' => $link);
 			}
 			else {
-			   $element[$delta] = array('#markup' => transcript_player_title($nid));
+			   $element[$delta] = array('#markup' => transcripts_controller_title($nid));
 			}
 		}
   }

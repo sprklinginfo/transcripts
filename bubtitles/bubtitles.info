@@ -2,7 +2,7 @@
 name = Bubtitles
 description = Bubtitle player for a corpus of transcripts
 dependencies[] = transcripts
-dependencies[] = transcript_player
+dependencies[] = transcripts_controller
 package = Pinedrop Transcripts
 core = 7.x
 files[] = bubtitles.module

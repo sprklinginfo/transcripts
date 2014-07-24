@@ -42,7 +42,7 @@ function bubtitles_menu() {
 
   $items['node/%/transcript'] = array(
   	'title' => '',
-  	'page callback' => 'transcript_player_title',
+  	'page callback' => 'transcripts_controller_title',
   	'page arguments' => array(1),
   	'access callback' => TRUE,
   );
@@ -78,7 +78,7 @@ function bubtitles_menu() {
   return $items;
 }
 
-function bubtitles_transcript_player_prepare_player($vid) {
+function bubtitles_transcripts_controller_prepare_player($vid) {
 	$return = bubtitles_positions($vid);
 	$return['saveSettings'] = user_access('move bubbles') ? true : false;
 	drupal_add_js(array("speechBubbles_$vid" => $return), 'setting');

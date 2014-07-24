@@ -218,7 +218,7 @@ function transcripts_menu() {
   	$menu = $profile['menu'];
   	$items["transcripts/$menu/%"] = array(
   		'title' => '',
-  		'page callback' => 'transcript_player_title',
+  		'page callback' => 'transcripts_controller_title',
   		'page arguments' => array(2, $pid),
   		'access callback' => 'user_access',
   		'access arguments' => array("view profile $pid"),

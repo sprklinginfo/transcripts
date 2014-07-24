@@ -168,7 +168,7 @@ function transcripts_editor_permission() {
    );
 }
 
-function transcripts_editor_transcript_player_prepare_player($nid) {
+function transcripts_editor_transcripts_controller_prepare_player($nid) {
 	$blocked = FALSE;
 	foreach (module_implements('transcripts_editor_disable_editing') as $module) {
 		$blocked = module_invoke($module, 'transcripts_editor_disable_editing', $nid);
