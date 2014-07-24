@@ -44,7 +44,8 @@ function transcripts_controller_title($trid, $videotag, $pid = '', $options = ar
 	//get default or make first in list
 	reset($modes);
 	$defaultMode = array_key_exists($profile['default_mode'], $modes) ? $profile['default_mode'] : key($modes);
- /* 
+	
+	/*
 	$response = transcripts_controller_get($trid, $tiers, $options);
 	if (count($response->response->docs) > 0) {
 		$info = $defaultMode . "_transcripts_info";
@@ -66,12 +67,12 @@ function transcripts_controller_title($trid, $videotag, $pid = '', $options = ar
     				. $transcript_div 
     			. '</div>' 
     		. '</div>';
-    		*/
-    		return "Test";
-  }
-  else {
-  	return t("This transcript is still being processed for display.");
-  }
+    }
+    else {
+    	return t("This transcript is still being processed for display.");
+    }
+    */
+    return "Hello";
 }
 
 function transcripts_controller_transcript($response, $tiers) {
