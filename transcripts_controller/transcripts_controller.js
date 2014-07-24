@@ -13,7 +13,7 @@ var resetSweet = [];
 
 
 (function($) {
-		Drupal.behaviors.transcriptPlayer = {
+		Drupal.behaviors.transcriptController = {
 			attach: function(context, settings) {
 				$('.transcript-player', context).once('player').each(function() {
 					var $player = $(this);
