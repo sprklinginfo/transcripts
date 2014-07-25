@@ -228,7 +228,7 @@ function transcripts_menu() {
 	
 	return $items;
 }
-
+/*
 function transcripts_redirect($trid) {
 	$transcript = db_query("SELECT * FROM {transcripts_transcript} WHERE trid=:trid", array(':trid' => $trid))
 		->fetchAssoc();
@@ -238,7 +238,7 @@ function transcripts_redirect($trid) {
 		$redirect = $transcript['module'].'_redirect_transcript';
 		$redirect($transcript);
 	}
-}
+}*/
 
 function transcripts_goto($url, $menu_tail) {
 	drupal_goto($url . '/' . $menu_tail);
