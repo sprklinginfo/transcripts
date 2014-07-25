@@ -26,6 +26,7 @@ function transcripts_theme() {
 function theme_apachesolr_search_snippets__tcu($vars) {
 	$doc = $vars['doc'];
 	$snippets = $vars['snippets'];
+	$url = url($doc->path);
 	//$url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
 	$result  = "<p>";
 	if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
