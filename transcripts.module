@@ -215,7 +215,7 @@ function transcripts_menu() {
 	);
 	$items['transcript/%/tcu/%'] = array(
 		'page callback' => 'transcripts_redirect',
-		'page arguments' => array(1, 3),
+		'page arguments' => array(1, 4),
 		'access callback' => 'user_access',
 		'access arguments' => 'view transcripts',
 	);
