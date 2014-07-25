@@ -16,36 +16,36 @@ function transcripts_get_solr() {
 }
 
 function transcripts_theme() {
-  return array(
-    'apachesolr_search_snippets__tcu' => array(
-      'variables' => array('doc' => NULL, 'snippets' => array()),
-    ),
-  );
+	return array(
+		'apachesolr_search_snippets__tcu' => array(
+			'variables' => array('doc' => NULL, 'snippets' => array()),
+		),
+	);
 }
 
 function theme_apachesolr_search_snippets__tcu($vars) {
-  $doc = $vars['doc'];
-  $snippets = $vars['snippets'];
-  $url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
-  $result  = "<p>";
-  if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
-  	$result .= "<div class='sentence-result'>";
-  	$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a></div>";
-  }
-  /* possible icons for untimed: ui-icon-arrowthick-1-ne, ui-icon-zoomin */
-  else { //or 
-  	$result .= "<div class='sentence-result untimed'>";
-  	$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-zoomin ui-state-default ui-corner-all'>Play</span></a></div>";
-  }
-  $result .= "<div class='tiers'>";
+	$doc = $vars['doc'];
+	$snippets = $vars['snippets'];
+	//$url = url($doc->path, array('fragment' => "tcu/" .$doc->entity_id));
+	$result  = "<p>";
+	if (isset($doc->fts_duration) && $doc->fts_duration > 0) {
+		$result .= "<div class='sentence-result'>";
+		$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-play ui-state-default ui-corner-all'>Play</span></a></div>";
+	}
+	/* possible icons for untimed: ui-icon-arrowthick-1-ne, ui-icon-zoomin */
+	else { //or 
+		$result .= "<div class='sentence-result untimed'>";
+		$result .= "<div class='controls'><a href='$url'><span class='ui-icon ui-icon-zoomin ui-state-default ui-corner-all'>Play</span></a></div>";
+	}
+	$result .= "<div class='tiers'>";
   
-  $tiers = transcripts_all_tiers();
-  foreach ($tiers as $tier) {
-  	$result .= "<div data-tier='$tier' class='tier'>" . (isset($snippets[$tier]) ? implode('...', $snippets[$tier]) : (isset($doc->{$tier}) ? $doc->{$tier} : '')) . "</div>";
-  }
-  $result .= "</div>"; //tiers
-  $result .= "</div>"; //sentence-result
-  return $result;
+	$tiers = transcripts_all_tiers();
+	foreach ($tiers as $tier) {
+		$result .= "<div data-tier='$tier' class='tier'>" . (isset($snippets[$tier]) ? implode('...', $snippets[$tier]) : (isset($doc->{$tier}) ? $doc->{$tier} : '')) . "</div>";
+	}
+	$result .= "</div>"; //tiers
+	$result .= "</div>"; //sentence-result
+	return $result;
 }
 
 /**
@@ -240,7 +240,9 @@ function transcripts_redirect($trid, $tcuid = NULL) {
 		->fetchAssoc();
 		
 	if (count($transcript) > 0) {
-		$fragment = ($tcuid == NULL) ? NULL : 'tcu/' .$tcuid;
+		watchdog('Transcripts', 'Tcuid = '.$tcuid, NULL, WATCHDOG_WARNING);
+		$fragment = ($tcuid === NULL) ? NULL : 'tcu/' .$tcuid;
+		watchdog('Transcripts', 'Fragment = '.$fragment, NULL, WATCHDOG_WARNING);
 		$redirect = $transcript['module'].'_redirect_transcript';
 		$redirect($transcript, $fragment);
 	}
