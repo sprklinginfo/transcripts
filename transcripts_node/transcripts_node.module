@@ -46,7 +46,7 @@ function transcripts_node_redirect_transcript($transcript, $fragment = NULL) {
 		drupal_goto($path);
 	}
 	else {
-		drupal_goto($path, $fragment);
+		drupal_goto($path, array('fragment' => $fragment));
 	}
 }
 
