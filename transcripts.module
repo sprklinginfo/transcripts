@@ -213,12 +213,6 @@ function transcripts_menu() {
 		'access callback' => 'user_access',
 		'access arguments' => 'view transcripts',
 	);
-	$items['transcript/%/tcu/%'] = array(
-		'page callback' => 'transcripts_redirect',
-		'page arguments' => array(1, 4),
-		'access callback' => 'user_access',
-		'access arguments' => 'view transcripts',
-	);
 	
 	$profiles = transcripts_all_profiles();
 	foreach ($profiles as $profile) {
@@ -236,14 +230,12 @@ function transcripts_menu() {
 	return $items;
 }
 
-function transcripts_redirect($trid, $tcuid = NULL) {
+function transcripts_redirect($trid, $tcuid = '') {
 	$transcript = db_query("SELECT * FROM {transcripts_transcript} WHERE trid=:trid", array(':trid' => $trid))
 		->fetchAssoc();
 		
 	if (count($transcript) > 0) {
-		watchdog('Transcripts', 'Tcuid = '.$tcuid, NULL, WATCHDOG_WARNING);
-		$fragment = ($tcuid === NULL) ? NULL : 'tcu/' .$tcuid;
-		watchdog('Transcripts', 'Fragment = '.$fragment, NULL, WATCHDOG_WARNING);
+		$fragment = !intval($tcuid) ? NULL : 'tcu/' .$tcuid;
 		$redirect = $transcript['module'].'_redirect_transcript';
 		$redirect($transcript, $fragment);
 	}
