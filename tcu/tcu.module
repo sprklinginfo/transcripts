@@ -9,7 +9,6 @@ function tcu_entity_info() {
 			'controller class' => 'TcuController',
 			'base table' => 'tcu',
 			'fieldable' => FALSE,
-			//'exportable' => TRUE,
 			'entity keys' => array(
 				'id' => 'tcuid',
 			),
@@ -94,7 +93,6 @@ class Tcu extends Entity {
 	protected function defaultUri() {
 		return array(
 			'path' => 'transcript/' .$this->trid,
-			//'path' => 'node/' .$this->entity_id. '/transcript',
 			'options' => array(
 				'fragment' => $this->tcuid,     
 			),

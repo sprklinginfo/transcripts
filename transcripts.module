@@ -148,77 +148,96 @@ function transcripts_help($path, $arg) {
 function transcripts_permission() {
 	$profiles = transcripts_all_profiles();
 	$permissions = array();
-  $permissions['view transcripts'] = array(
-  	'title' => t('View transcripts'),
-  );
-  $permissions['administer transcripts'] = array(
-  	'title' => t('Administer transcripts module, including managing profiles'),
-  );
+	$permissions['view transcripts'] = array(
+		'title' => t('View transcripts'),
+	);
+	$permissions['administer transcripts'] = array(
+		'title' => t('Administer transcripts module, including managing profiles'),
+	);
 	foreach ($profiles as $profile) {
 		$pid = $profile['pid'];
 		$permissions["view profile $pid"] = array(
 			'title' => t('View profile %pid', array('%pid' => $profile['pid']))
 		);
 	}
-  return $permissions;
+	return $permissions;
 }
 
 function transcripts_menu() {
-  $items = array();
+	$items = array();
   	
-  $items['admin/config/search/apachesolr/transcripts'] = array(
-  	'title' => 'Transcripts',
-  	'description' => t('Transcripts module settings'),
-  	'page callback' => 'drupal_get_form',
-  	'page arguments' => array('transcripts_site_settings_form'),
-  	'access arguments' => array('administer transcripts'),
-    'file' => 'transcripts.admin.inc',
-  	'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile'] = array(
-    'title'              => 'Transcripts profile edit',
-    'description'        => 'edit Transcripts profile',
-    'page callback'      => 'drupal_get_form',
-    'page arguments'     => array('transcripts_profile_edit_form', 5),
-    'access arguments'   => array('administer transcripts'),
-    'file' 							 => 'transcripts.admin.inc',
-    'type'               => MENU_CALLBACK,
-  );
-  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile/edit'] = array(
-    'title'              => 'Edit',
-    'weight'             => -20,
-    'type'               => MENU_DEFAULT_LOCAL_TASK,
-  );
-  $items['admin/config/search/apachesolr/transcripts/%transcripts_profile/delete'] = array(
-    'title'              => 'Transcripts profile delete',
-    'page callback'      => 'drupal_get_form',
-    'page arguments'     => array('transcripts_profile_delete_form', 5),
-    'access arguments'   => array('administer transcripts'),
-    'file' 							 => 'transcripts.admin.inc',
-    'type'               => MENU_CALLBACK,
-  );
-  $items['admin/config/search/apachesolr/transcripts/add'] = array(
-    'title'              => 'Transcripts profile add',
-    'description'        => 'add a Transcripts display profile',
-    'page callback'      => 'drupal_get_form',
-    'page arguments'     => array('transcripts_profile_edit_form', NULL),
-    'access arguments'   => array('administer transcripts'),
-    'file' 							 => 'transcripts.admin.inc',
-    'type'               => MENU_CALLBACK,
-  );
-  $profiles = transcripts_all_profiles();
-  foreach ($profiles as $profile) {
-  	$pid = $profile['pid'];
-  	$menu = $profile['menu'];
-  	$items["transcripts/$menu/%"] = array(
-  		'title' => '',
-  		'page callback' => 'transcripts_controller_title',
-  		'page arguments' => array(2, $pid),
-  		'access callback' => 'user_access',
-  		'access arguments' => array("view profile $pid"),
-  	);
-  }
-  return $items;
+	$items['admin/config/search/apachesolr/transcripts'] = array(
+		'title' => 'Transcripts',
+		'description' => t('Transcripts module settings'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('transcripts_site_settings_form'),
+		'access arguments' => array('administer transcripts'),
+		'file' => 'transcripts.admin.inc',
+		'type' => MENU_LOCAL_TASK,
+	);
+	$items['admin/config/search/apachesolr/transcripts/%transcripts_profile'] = array(
+		'title'              => 'Transcripts profile edit',
+		'description'        => 'edit Transcripts profile',
+		'page callback'      => 'drupal_get_form',
+		'page arguments'     => array('transcripts_profile_edit_form', 5),
+		'access arguments'   => array('administer transcripts'),
+		'file' 							 => 'transcripts.admin.inc',
+		'type'               => MENU_CALLBACK,
+	);
+	$items['admin/config/search/apachesolr/transcripts/%transcripts_profile/edit'] = array(
+		'title'              => 'Edit',
+		'weight'             => -20,
+		'type'               => MENU_DEFAULT_LOCAL_TASK,
+	);
+	$items['admin/config/search/apachesolr/transcripts/%transcripts_profile/delete'] = array(
+		'title'              => 'Transcripts profile delete',
+		'page callback'      => 'drupal_get_form',
+		'page arguments'     => array('transcripts_profile_delete_form', 5),
+		'access arguments'   => array('administer transcripts'),
+		'file' 							 => 'transcripts.admin.inc',
+		'type'               => MENU_CALLBACK,
+	);
+	$items['admin/config/search/apachesolr/transcripts/add'] = array(
+		'title'              => 'Transcripts profile add',
+		'description'        => 'add a Transcripts display profile',
+		'page callback'      => 'drupal_get_form',
+		'page arguments'     => array('transcripts_profile_edit_form', NULL),
+		'access arguments'   => array('administer transcripts'),
+		'file' 							 => 'transcripts.admin.inc',
+		'type'               => MENU_CALLBACK,
+	);
+	$items['transcript/%'] = array(
+		'page callback' => 'transcripts_redirect',
+		'page arguments' => array(1),
+		'access callback' => 'user_access', //FIXME
+		'access arguments' => 'view transcripts', //FIXME
+	);
+	
+	$profiles = transcripts_all_profiles();
+	foreach ($profiles as $profile) {
+		$pid = $profile['pid'];
+		$menu = $profile['menu'];
+		$items["transcripts/$menu/%"] = array(
+			'title' => '',
+			'page callback' => 'transcripts_controller_title',
+			'page arguments' => array(2, $pid),
+			'access callback' => 'user_access',
+			'access arguments' => array("view profile $pid"),
+		);
+	}
+	
+	return $items;
+}
+
+function transcripts_redirect($trid) {
+	$transcript = db_query("SELECT * FROM {transcripts_transcript} WHERE trid=:trid", array(':trid' => $trid))
+		->fetchAssoc();
+		
+	watchdog("Transcripts", "Out = ".print_r($transcript, TRUE), NULL, WATCHDOG_WARNING);
+	if (count($transcript) > 0) {
+		$redirect = $transcript['module'].'_redirect_transcript';
+		$redirect($transcript);
+	}
 }
 
 function transcripts_goto($url, $menu_tail) {
