@@ -209,8 +209,14 @@ function transcripts_menu() {
 	$items['transcript/%'] = array(
 		'page callback' => 'transcripts_redirect',
 		'page arguments' => array(1),
-		'access callback' => 'user_access', //FIXME
-		'access arguments' => 'view transcripts', //FIXME
+		'access callback' => 'user_access',
+		'access arguments' => 'view transcripts',
+	);
+	$items['transcript/%/tcu/%'] = array(
+		'page callback' => 'transcripts_redirect',
+		'page arguments' => array(1, 3),
+		'access callback' => 'user_access',
+		'access arguments' => 'view transcripts',
 	);
 	
 	$profiles = transcripts_all_profiles();
@@ -228,17 +234,17 @@ function transcripts_menu() {
 	
 	return $items;
 }
-/*
-function transcripts_redirect($trid) {
+
+function transcripts_redirect($trid, $tcuid = NULL) {
 	$transcript = db_query("SELECT * FROM {transcripts_transcript} WHERE trid=:trid", array(':trid' => $trid))
 		->fetchAssoc();
 		
-	watchdog("Transcripts", "Out = ".print_r($transcript, TRUE), NULL, WATCHDOG_WARNING);
 	if (count($transcript) > 0) {
+		$fragment = ($tcuid == NULL) ? NULL : 'tcu/' .$tcuid;
 		$redirect = $transcript['module'].'_redirect_transcript';
-		$redirect($transcript);
+		$redirect($transcript, $fragment);
 	}
-}*/
+}
 
 function transcripts_goto($url, $menu_tail) {
 	drupal_goto($url . '/' . $menu_tail);

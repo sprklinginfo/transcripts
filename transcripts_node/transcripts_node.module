@@ -40,8 +40,14 @@ function transcripts_node_menu() {
 	return $items;
 }
 
-function transcripts_node_redirect_transcript($transcript) {
-	drupal_goto('node/'.$transcript['id'].'/transcript');
+function transcripts_node_redirect_transcript($transcript, $fragment = NULL) {
+	$path = 'node/'.$transcript['id'].'/transcript';
+	if ($fragment === NULL) {
+		drupal_goto($path);
+	}
+	else {
+		drupal_goto($path, $fragment);
+	}
 }
 
 function transcripts_node_get_player($nid) {
