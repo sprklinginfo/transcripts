@@ -139,7 +139,7 @@ function toBubbler($player) {
 						
 				//if failure, should perhaps go back to backupPos settings
 				//jQuery.post('/?q=bubble-positions/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
-				jQuery.post('bubbles/set', jQuery.param({settings: {bubbles:bubblep}}),
+				jQuery.post('bubbles/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
 					function(data) {
 						jQuery("body").css("cursor", "auto");
 						$player.find('.bubble-controls button').button("option", "disabled", false);
