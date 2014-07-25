@@ -211,7 +211,7 @@ function transcripts_menu() {
 		'page callback' => 'transcripts_redirect',
 		'page arguments' => array(1),
 		'access callback' => 'user_access',
-		'access arguments' => 'view transcripts',
+		'access arguments' => array('view transcripts'),
 	);
 	
 	$profiles = transcripts_all_profiles();

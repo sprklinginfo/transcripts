@@ -92,7 +92,7 @@ class Tcu extends Entity {
 	}
 	protected function defaultUri() {
 		return array(
-			'path' => 'transcript/' .$this->trid. '/tcu/' .$this->tcuid,
+			'path' => 'transcript/' .$this->trid. '/' .$this->tcuid,
 		);
 	}
 }
