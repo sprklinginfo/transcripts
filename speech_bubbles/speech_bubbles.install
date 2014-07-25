@@ -1,0 +1,85 @@
+<?php
+// $Id$
+
+function speech_bubbles_schema() {
+	$schema['speech_bubbles_position'] = array(
+		'description' => 'Speech bubble positions, sizes, and styles',
+		'fields' => array(
+			'bid' => array(
+				'description' => 'primary identifier for this bubble', 
+				'type' => 'serial', 
+				'unsigned' => TRUE, 
+				'not null' => TRUE,
+			),
+			'trid' => array(
+				'description' => 'the identifier for the transcript this bubble belongs to',
+				'type' => 'varchar',
+				'length' => 64,
+				'not null' => TRUE,
+				'default' => '',
+			),
+			'name' => array(
+				'description' => 'the name of the participant for this bubble',
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+			'angle' => array(
+				'description' => 'angle of bubble for this participant',
+				'type' => 'float',
+				'not null' => TRUE,
+				'default' => M_PI,
+			),
+			'center_x' => array(
+				'description' => 'x coordinate of center of participant circle',
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			'center_y' => array(
+				'description' => 'y coordinate of center of participant circle',
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			'radius' => array(
+				'description' => 'radius of participant circle',
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			'display' => array(
+				'description' => 'is the bubble on or off',
+				'type' => 'varchar',
+				'length' => 1,
+				'not null' => TRUE,
+				'default' => 'y',
+			),
+			'height' => array(
+				'description' => 'bubble height in pixels',
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			'width' => array(
+				'description' => 'bubble width in pixels',
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			'style' => array(
+				'description' => 'the bubble style',
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+		),
+		'primary key' => array('bid'),
+		'unique keys' => array(
+			'trid_name' => array('trid', 'name'),
+		),
+	);
+	return $schema;
+}

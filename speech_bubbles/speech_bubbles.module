@@ -1,0 +1,94 @@
+<?php
+// $Id$
+
+function speech_bubbles_init() {
+	drupal_add_library('system', 'ui.draggable');
+	drupal_add_library('system', 'ui.resizable');
+	drupal_add_css(drupal_get_path('module', 'speech_bubbles') .'/speech_bubbles.css', 'file');
+	drupal_add_js(drupal_get_path('module', 'speech_bubbles') .'/speech_bubbles.js', 'file');
+}
+
+function speech_bubbles_transcripts_info() {
+	return array(
+		'name' => t('Speech bubbles'),
+		'to' => 'toBubbler',
+		'back' => 'fromBubbler',
+	);
+}
+
+function speech_bubbles_permission() {
+	return array(
+		'move speech bubbles' => array(
+			'title' => t('Tag participants and position speech bubbles'),
+		),
+		'administer speech bubbles' => array(
+			'title' => t('Administer speech bubbles module'),
+		),
+	);
+}
+
+function speech_bubbles_menu() {
+	$items = array();
+	
+	$items['bubbles/%/get'] = array(
+		'title' => 'Get speech bubble positions',
+		'description' => t('Get positions of speech bubbles'),
+		'page callback' => 'speech_bubbles_get',
+		'page arguments' => array(1),
+		'access callback' => TRUE,
+	);
+	$items['bubbles/%/set'] = array(
+		'title' => 'Set speech bubbles',
+		'description' => t('Write speech bubble positions to database'),
+		'page callback' => 'speech_bubbles_set',
+		'page arguments' => array(1),
+		'access arguments' => array('move speech bubbles'),
+	);
+	
+	return $items;
+}
+
+function speech_bubbles_transcripts_controller_prepare_player($trid) {
+	$return = speech_bubbles_positions($trid);
+	$return['saveSettings'] = user_access('move speech bubbles') ? true : false;
+	drupal_add_js(array("speechBubbles_$trid" => $return), 'setting');
+}
+
+function speech_bubbles_get($trid) {
+	$return = speech_bubbles_positions($trid);
+	$return['saveSettings'] = user_access('move speech bubbles') ? true : false;
+	drupal_json_output($return);
+}
+
+function speech_bubbles_set($trid) {
+	$settings = $_POST['settings'];
+	$defaults = array('bid' => '', 'name' => '', 'angle' => '', 'center_x' => '', 'center_y' => '', 'radius' => '', 'display' => '', 'height' => '', 'width' => '', 'style' => '');
+	foreach ($settings['bubbles'] as $bubble) {
+		$bubble = array_filter(array_intersect_key($bubble, $defaults));
+		$bubble['trid'] = $trid;
+		
+		if (isset($bubble['bid'])) {
+			db_update('speech_bubbles_position')
+				->condition('bid', $bubble['bid'])
+				->fields($bubble)
+				->execute();
+		}
+		else {
+			db_insert('speech_bubbles_position')
+				->fields($bubble)
+				->execute();
+		}
+	}
+	drupal_json_output(speech_bubbles_positions($trid));
+}
+
+function speech_bubbles_positions($trid) {
+	$return = array();
+	
+	$bubbles = db_query("SELECT * FROM {speech_bubbles_position} WHERE trid=:trid", array(':trid' => $trid))->fetchAll();
+	if (count($bubbles) > 0) {
+		$return['bubbles'] = $bubbles;
+	}
+	
+	return $return;
+}

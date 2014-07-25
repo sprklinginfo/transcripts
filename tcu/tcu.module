@@ -117,7 +117,7 @@ class TcuController extends EntityAPIController {
 function tcu_solr_document(ApacheSolrDocument $document, $tcu, $entity_type) {
 	$tcu = tcu_load($tcu->tcuid);
 	$parent = node_load($tcu->trid);
-	$document->ss_node_label = $parent->title;
+	$document->ss_node_label = $parent->title; //FIXME
 	
 	unset($document->content);
 	$document->label = $tcu->tcuid;

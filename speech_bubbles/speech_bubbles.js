@@ -46,12 +46,14 @@ function toBubbler($player) {
 	$player.data('tier-select', 'single');
 	var selected = true;
 	$tiercontrols = jQuery('.transcript-controls[data-for=' + pid + '] .tier-controls');
-	$tiercontrols.find('input').each(function() {
+	$tiercontrols.find('input').each(
+		function() {
 			if (jQuery(this).is(':checked')) {
 				jQuery(this).change();
 				return false; //select first checked tier
 			}
-	});
+		}
+	);
 	if ($tiercontrols.find('input:checked').length == 0) {
 		$tiercontrols.find('input:eq(0)').change(); //otherwise select first tier
 	}
@@ -63,9 +65,9 @@ function toBubbler($player) {
 	$player.find('.mode-controls button').button("option", "disabled", true);
 	
 	$player.find('.transcript').removeClass('scroller').addClass('bubbler').appendTo($player.find('.v-column'));
-  if (bPos[pid] == undefined) {
-  	jQuery('.circle', $player).live('click', 
-  		function() {
+	if (bPos[pid] == undefined) {
+		jQuery('.circle', $player).live('click', 
+			function() {
 				if (jQuery(this).hasClass('noclick')) {
 					jQuery(this).removeClass('noclick');
 				}
@@ -74,89 +76,89 @@ function toBubbler($player) {
 				}
 			}
 		);
-				var data = Drupal.settings['speechBubbles_' + shortpid];
-				positionBubbles($player, data);
-				saveSettings[pid] = data.saveSettings;
-				if (data.saveSettings) {
-					var $bubbleControls = jQuery('<span class="bubble-controls"></span>');
-					var $editBubbles = jQuery('<button class="edit-bubbles"></button>');
-					var $saveBubbles = jQuery('<button class="save-bubbles"></button>');
-					var $cancelBubbles = jQuery('<button class="cancel-bubbles"></button>');
-					$editBubbles.button({
-						label: "Edit bubble settings",
-						icons: {
-							primary: 'ui-icon-comment'
-						},
-						text: false
-					}).click(function() {
-						setCanSave($player);
-						backupPos[pid] = bPos[pid];
-						$bubbleControls.addClass('editing');
-						$player.find('.bubble').addClass('editing');
-					});
-					$cancelBubbles.button({
-						label: "Cancel changes",
-						icons: {
-							primary: 'ui-icon-cancel'
-						},
-						text: false
-					}).click(function() {
-						bPos[pid] = backupPos[pid];
-						bPositionBubbles($player);
+		var data = Drupal.settings['speechBubbles_' + shortpid];
+		positionBubbles($player, data);
+		saveSettings[pid] = data.saveSettings;
+		if (data.saveSettings) {
+			var $bubbleControls = jQuery('<span class="bubble-controls"></span>');
+			var $editBubbles = jQuery('<button class="edit-bubbles"></button>');
+			var $saveBubbles = jQuery('<button class="save-bubbles"></button>');
+			var $cancelBubbles = jQuery('<button class="cancel-bubbles"></button>');
+			$editBubbles.button({
+				label: "Edit bubble settings",
+				icons: {
+					primary: 'ui-icon-comment'
+				},
+				text: false
+			}).click(function() {
+				setCanSave($player);
+				backupPos[pid] = bPos[pid];
+				$bubbleControls.addClass('editing');
+				$player.find('.bubble').addClass('editing');
+			});
+			$cancelBubbles.button({
+				label: "Cancel changes",
+				icons: {
+					primary: 'ui-icon-cancel'
+				},
+				text: false
+			}).click(function() {
+				bPos[pid] = backupPos[pid];
+				bPositionBubbles($player);
+				cancelCanSave($player);
+				$bubbleControls.removeClass('editing');
+				$player.find('.bubble').removeClass('editing');
+			});
+			$saveBubbles.button({
+				label: "Save changes",
+				icons: {
+					primary: 'ui-icon-check'
+				},
+				text: false
+			}).click(function() {
+				storePositions($player);
+				var bubblep = [];
+				var k=0;
+				for (var name in bPos[pid]) {
+					bubblep[k] = {
+						bid:bPos[pid][name].bid,
+						name:name,
+						angle:bPos[pid][name].angle,
+						center_x:bPos[pid][name].center_x,
+						center_y:bPos[pid][name].center_y,
+						radius:bPos[pid][name].radius,
+						display:bPos[pid][name].display,
+						height:bPos[pid][name].height,
+						width:bPos[pid][name].width,
+						style:bPos[pid][name].style
+					};
+					k++;
+				}
+				jQuery("body").css("cursor", "progress");
+				$player.find('.bubble-controls button').button("option", "disabled", true);
+						
+				//if failure, should perhaps go back to backupPos settings
+				//jQuery.post('/?q=bubble-positions/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
+				jQuery.post('bubbles/set', jQuery.param({settings: {bubbles:bubblep}}),
+					function(data) {
+						jQuery("body").css("cursor", "auto");
+						$player.find('.bubble-controls button').button("option", "disabled", false);
+						positionBubbles($player, data); //technically only need to iterate through bids and assign to divs				
 						cancelCanSave($player);
 						$bubbleControls.removeClass('editing');
 						$player.find('.bubble').removeClass('editing');
-					});
-					$saveBubbles.button({
-						label: "Save changes",
-						icons: {
-							primary: 'ui-icon-check'
-						},
-						text: false
-					}).click(function() {
-						storePositions($player);
-						var bubblep = [];
-						var k=0;
-						for (var name in bPos[pid]) {
-							bubblep[k] = {
-								bid:bPos[pid][name].bid,
-								name:name,
-								angle:bPos[pid][name].angle,
-								center_x:bPos[pid][name].center_x,
-								center_y:bPos[pid][name].center_y,
-								radius:bPos[pid][name].radius,
-								display:bPos[pid][name].display,
-								height:bPos[pid][name].height,
-								width:bPos[pid][name].width,
-								style:bPos[pid][name].style
-							};
-							k++;
-						}
-						jQuery("body").css("cursor", "progress");
-						$player.find('.bubble-controls button').button("option", "disabled", true);
-						
-						//if failure, should perhaps go back to backupPos settings
-						//jQuery.post('/?q=bubble-positions/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
-						jQuery.post('bubbles/set', jQuery.param({settings: {bubbles:bubblep}}),
-							function(data) {
-								jQuery("body").css("cursor", "auto");
-								$player.find('.bubble-controls button').button("option", "disabled", false);
-								positionBubbles($player, data); //technically only need to iterate through bids and assign to divs				
-								cancelCanSave($player);
-								$bubbleControls.removeClass('editing');
-								$player.find('.bubble').removeClass('editing');
-							}
-						);
-					});
-					$bubbleControls.appendTo($player.find('.video-controls'))
-						.append($editBubbles)
-						.append($saveBubbles)
-						.append($cancelBubbles);
-				}
-  }
-  else { //should really use positionBubbles here as well
-  	bPositionBubbles($player);
-  }
+					}
+				);
+			});
+			$bubbleControls.appendTo($player.find('.video-controls'))
+				.append($editBubbles)
+				.append($saveBubbles)
+				.append($cancelBubbles);
+		}
+	}
+	else { //should really use positionBubbles here as well
+		bPositionBubbles($player);
+	}
 }
 
 function cancelCanSave($player) {
@@ -253,65 +255,65 @@ function setCanSave($player) {
 				});
 		}
 	);
-  $player.find('.v-column')
-  	.draggable({handle: 'video'})
-    .mousemove(function (e) {
-    	var yAxis = e.pageY - $player.find('video').offset().top;
-      if (yAxis > 260) { //draggable should not interfere with video controls (height = 300)
-        // http://bugs.jqueryui.com/ticket/5974
-        jQuery(this).draggable('option', 'disabled', true).removeClass('ui-state-disabled');
-      } else {
-        jQuery(this).draggable('option', {disabled: false, cursor: 'move'});
-      }
-  });
+	$player.find('.v-column')
+  		.draggable({handle: 'video'})
+  		.mousemove(function (e) {
+  				var yAxis = e.pageY - $player.find('video').offset().top;
+  				if (yAxis > 260) { //draggable should not interfere with video controls (height = 300)
+  					// http://bugs.jqueryui.com/ticket/5974
+  					jQuery(this).draggable('option', 'disabled', true).removeClass('ui-state-disabled');
+  				} else {
+  					jQuery(this).draggable('option', {disabled: false, cursor: 'move'});
+  				}
+  		});
 }
 
 function setPoint($bubble, newPoint) {
-    var oldPoint = $bubble.data('point') ? $bubble.data('point') : '';
-    if (oldPoint != newPoint) {
-        $bubble.removeClass(oldPoint).addClass(newPoint);
-        $bubble.data('point', newPoint);
-    }
+	var oldPoint = $bubble.data('point') ? $bubble.data('point') : '';
+	if (oldPoint != newPoint) {
+		$bubble.removeClass(oldPoint).addClass(newPoint);
+		$bubble.data('point', newPoint);
+	}
 }
 
 function positionBubble($bubble, pos, circle, angle) {
-    var top = circle.centerY + Math.cos(angle) * (circle.radius + radial_padding);
-    var left = circle.centerX + Math.sin(angle) * (circle.radius + radial_padding);
-    var point;
-    if (Math.abs(angle) >= Math.PI*3/4) { //top
-        var x = angle > 0 ? angle - Math.PI*3/4 : Math.PI*1/4 + Math.PI - Math.abs(angle);
-        left -= parseInt(($bubble.width()+extra) * x * 2 / Math.PI);
-        top -= $bubble.height() + extra;
-        point = angle > 0 ? "bottom-left" : "bottom-right";
-    }
-    else if (angle <= Math.PI*3/4 && angle >= Math.PI*1/4) { //right
-        var x = angle - Math.PI*1/4;
-        top -= parseInt(($bubble.height()+extra) * x * 2 / Math.PI);
-        point = angle > Math.PI/2 ? "left-bottom" : "left-top";
-    }
-    else if (Math.abs(angle) <= Math.PI*1/4) { //bottom
-        var x = angle > 0 ? Math.PI*1/4 - angle : Math.PI*1/4 + Math.abs(angle);
-        left -= parseInt(($bubble.width() + extra) * x * 2 / Math.PI);
-        point = angle > 0 ? "top-left" : "top-right";
-    }
-    else if (angle <= -Math.PI*1/4 && angle >= -Math.PI*3/4) { //left
-        var x = Math.abs(angle) - Math.PI*1/4;
-        top -= parseInt(($bubble.height()+extra) * x * 2 / Math.PI);
-        left -= $bubble.width() + extra; 
-        point = angle < -Math.PI/2 ? "right-bottom" : "right-top";
-    }
-    if (pos == null)  {
-        $bubble.css({
-            top: top+'px',
-            left: left+'px'
-        });
-    }
-    else {
-        pos.top = top;
-        pos.left = left;
-    }
-    setPoint($bubble, point);
-    $bubble.data('angle', angle);
+	var top = circle.centerY + Math.cos(angle) * (circle.radius + radial_padding);
+	var left = circle.centerX + Math.sin(angle) * (circle.radius + radial_padding);
+	var point;
+	if (Math.abs(angle) >= Math.PI*3/4) { //top
+		var x = angle > 0 ? angle - Math.PI*3/4 : Math.PI*1/4 + Math.PI - Math.abs(angle);
+		left -= parseInt(($bubble.width()+extra) * x * 2 / Math.PI);
+		top -= $bubble.height() + extra;
+		point = angle > 0 ? "bottom-left" : "bottom-right";
+	}
+	else if (angle <= Math.PI*3/4 && angle >= Math.PI*1/4) { //right
+		var x = angle - Math.PI*1/4;
+		top -= parseInt(($bubble.height()+extra) * x * 2 / Math.PI);
+		point = angle > Math.PI/2 ? "left-bottom" : "left-top";
+	}
+	else if (Math.abs(angle) <= Math.PI*1/4) { //bottom
+		var x = angle > 0 ? Math.PI*1/4 - angle : Math.PI*1/4 + Math.abs(angle);
+		left -= parseInt(($bubble.width() + extra) * x * 2 / Math.PI);
+		point = angle > 0 ? "top-left" : "top-right";
+	}
+	else if (angle <= -Math.PI*1/4 && angle >= -Math.PI*3/4) { //left
+		var x = Math.abs(angle) - Math.PI*1/4;
+		top -= parseInt(($bubble.height()+extra) * x * 2 / Math.PI);
+		left -= $bubble.width() + extra; 
+		point = angle < -Math.PI/2 ? "right-bottom" : "right-top";
+	}
+	if (pos == null)  {
+		$bubble.css({
+				top: top+'px',
+				left: left+'px'
+		});
+	}
+	else {
+		pos.top = top;
+		pos.left = left;
+	}
+	setPoint($bubble, point);
+	$bubble.data('angle', angle);
 }
 
 function positionBubbles($player, data) {
@@ -393,33 +395,33 @@ function bPositionBubbles($player) {
 	var pid = $player.attr('id');
 	var min_top = 0;
 	var min_lef = 0;  	
-  for (var name in bPos[pid]) {
-  	var pos = bPos[pid][name];
-  	var $participant = $player.find('div.participant[data-participant="' + name + '"]');
-  	var $circle = $participant.find('.circle');
-  	var $bubble = $participant.find('.bubble');
-  	$circle.css({top:pos.center_y - pos.radius+'px', left:pos.center_x - pos.radius+'px', height:pos.radius*2+'px', width:pos.radius*2+'px',cursor:'pointer'});
-    $bubble.css({display:'block',visibility:'hidden',height:pos.height+'px',width:pos.width+'px'})
-     	.addClass(pos.style)
-     	.attr('data-bid', pos.bid);
-    if (pos.display == 'n') $bubble.hide();
+	for (var name in bPos[pid]) {
+		var pos = bPos[pid][name];
+		var $participant = $player.find('div.participant[data-participant="' + name + '"]');
+		var $circle = $participant.find('.circle');
+		var $bubble = $participant.find('.bubble');
+		$circle.css({top:pos.center_y - pos.radius+'px', left:pos.center_x - pos.radius+'px', height:pos.radius*2+'px', width:pos.radius*2+'px',cursor:'pointer'});
+		$bubble.css({display:'block',visibility:'hidden',height:pos.height+'px',width:pos.width+'px'})
+			.addClass(pos.style)
+			.attr('data-bid', pos.bid);
+		if (pos.display == 'n') $bubble.hide();
 		var circle = {
 			radius: pos.radius,
-				centerX: pos.center_x,
-				centerY: pos.center_y
+			centerX: pos.center_x,
+			centerY: pos.center_y
 		};
 		positionBubble($bubble, null, circle, pos.angle);
 		var top = $bubble.position().top;
 		var lef = $bubble.position().left;
 		min_top = top < min_top ? top : min_top;
 		min_lef = lef < min_lef ? lef : min_lef;
-  }
-  $player.find('.v-column').css({top:-min_top+50+'px',left:-min_lef+'px'});
-  $player.find('.t-column').css('height', ($player.find('.t-column').height() - min_top)+'px');
-  $player.find('div.participant .bubble').css({display:'',visibility:''});
-  if (saveSettings[pid]) {
-  	$player.find('.bubble-controls').show();
-  }
+	}
+	$player.find('.v-column').css({top:-min_top+50+'px',left:-min_lef+'px'});
+	$player.find('.t-column').css('height', ($player.find('.t-column').height() - min_top)+'px');
+	$player.find('div.participant .bubble').css({display:'',visibility:''});
+	if (saveSettings[pid]) {
+		$player.find('.bubble-controls').show();
+	}
 }
     
 function storePositions($player) {
@@ -446,25 +448,25 @@ function storePositions($player) {
 			bPos[pid][name].width = $bubble.width();
 			bPos[pid][name].style = "triangle-border"; //EDGE fix
 		}
-  );
+	);
 }
 
 function fromBubbler($player) {
 	$player.data('tier-select', 'multiple');
 	var pid = $player.attr('id');
 	storePositions($player);
-  for (var i=0; i<cache[pid].length; i++) {
-    $player.find('.transcript').append(cache[pid][i]);
-  }
-  cancelCanSave($player);
-  $player.find('.bubble-controls').removeClass('editing').hide();
-  $player.find('div.participant').remove();
-  $player.find('.transcript').removeClass('bubbler').addClass('scroller').appendTo($player.find('.t-column'));
-  
-  removePlayListener(pid, listen);
-  
-  //revert to old sizes and positions
+	for (var i=0; i<cache[pid].length; i++) {
+		$player.find('.transcript').append(cache[pid][i]);
+	}
+	cancelCanSave($player);
+	$player.find('.bubble-controls').removeClass('editing').hide();
+	$player.find('div.participant').remove();
+	$player.find('.transcript').removeClass('bubbler').addClass('scroller').appendTo($player.find('.t-column'));
+	
+	removePlayListener(pid, listen);
+	
+	//revert to old sizes and positions
 	$player.find('.t-column').css('height', ($player.find('.t-column').height() - $player.find('.v-column').position().top)+'px');
-  $player.find('.v-column').css({top:'0px',left:'0px'}).draggable('destroy');
+	$player.find('.v-column').css({top:'0px',left:'0px'}).draggable('destroy');
 	$player.find('.mode-controls button').button("option", "disabled", false);
 }
