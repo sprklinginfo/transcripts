@@ -136,10 +136,8 @@ function toBubbler($player) {
 				}
 				jQuery("body").css("cursor", "progress");
 				$player.find('.bubble-controls button').button("option", "disabled", true);
-						
-				//if failure, should perhaps go back to backupPos settings
-				//jQuery.post('/?q=bubble-positions/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
-				jQuery.post('http://larkpie.net/transcripts/bubbles/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
+				
+				jQuery.post(Drupal.settings.basePath + 'bubbles/' + shortpid + '/set', jQuery.param({settings: {bubbles:bubblep}}),
 					function(data) {
 						jQuery("body").css("cursor", "auto");
 						$player.find('.bubble-controls button').button("option", "disabled", false);
