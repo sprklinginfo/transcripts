@@ -1,0 +1,15 @@
+<?php
+// $Id$
+
+function unit_player_init() {
+  drupal_add_css(drupal_get_path('module', 'unit_player') .'/unit_player.css', 'file');
+  drupal_add_js(drupal_get_path('module', 'unit_player') .'/unit_player.js', 'file');
+}
+
+function unit_player_transcripts_info() {
+	return array(
+		'name' => t('Unit player'),
+		'to' => 'toUnitplayer',
+		'back' => 'fromUnitplayer',
+	);
+}

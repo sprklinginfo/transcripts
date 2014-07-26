@@ -1,0 +1,7 @@
+;$Id$
+name = Unit Player
+description = Transcript player that displays one time code unit at a time
+dependencies[] = transcripts
+package = Pinedrop Transcripts
+core = 7.x
+files[] = unit_player.module

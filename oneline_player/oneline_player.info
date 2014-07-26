@@ -1,8 +1,0 @@
-;$Id$
-name = One line player
-description = Transcript player that plays one line at a time
-dependencies[] = transcripts
-dependencies[] = transcripts_controller
-package = Pinedrop Transcripts
-core = 7.x
-files[] = oneline_player.module

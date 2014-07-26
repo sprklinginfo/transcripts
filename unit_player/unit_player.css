@@ -1,0 +1,17 @@
+.transcript.unitplayer {
+	height:120px;
+	overflow-y:auto;
+}
+.t-column .hit-body {
+	height:450px;
+	overflow-y:auto;
+}
+.transcript.unitplayer .info {
+	display: none;
+}
+.transcript.unitplayer .tier {
+	display: none;
+}
+.transcript.unitplayer .playing .tier.active {
+	display: block;
+}
