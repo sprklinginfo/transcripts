@@ -40,38 +40,44 @@ function transcripts_editor_update_tcu() {
 		$k = 0;
 		$tcuids = array();
         
-		foreach ($_POST['update'] as $update) {
-			$tcu = tcu_load($update['tcuid']);
-			if ($tcu->trid == $trid) {
-				$tcu->speaker = $update['speaker'];
-				$tcu->start = $update['start'];
-				$tcu->end = $update['end'];
-				$tcu->setTiers($update['tiers']);
+		if (!empty($_POST['update'])) {
+			foreach ($_POST['update'] as $update) {
+				$tcu = tcu_load($update['tcuid']);
+				if ($tcu->trid == $trid) {
+					$tcu->speaker = $update['speaker'];
+					$tcu->start = $update['start'];
+					$tcu->end = $update['end'];
+					$tcu->setTiers($update['tiers']);
+					tcu_save($tcu);
+					$k++;
+				}
+			}
+		}
+		if (!empty($_POST['insert'])) {
+			foreach ($_POST['insert'] as $insert) {
+				$tcu = tcu_create(
+					array(
+						'trid' => $trid,
+						'speaker' => isset($insert['speaker']) ? $insert['speaker'] : '',
+						'start' => isset($insert['start']) ? $insert['start'] : 0,
+						'end' => isset($insert['end']) ? $insert['end'] : 0,
+						'created' => REQUEST_TIME,
+						'changed' => REQUEST_TIME,
+					)
+				);
 				tcu_save($tcu);
+				$tcuids[] = $tcu->tcuid;
+				
 				$k++;
 			}
 		}
-		foreach ($_POST['insert'] as $insert) {
-			$tcu = tcu_create(
-				array(
-					'trid' => $trid,
-					'speaker' => isset($insert['speaker']) ? $insert['speaker'] : '',
-					'start' => isset($insert['start']) ? $insert['start'] : 0,
-					'end' => isset($insert['end']) ? $insert['end'] : 0,
-					'created' => REQUEST_TIME,
-					'changed' => REQUEST_TIME,
-				)
-			);
-			tcu_save($tcu);
-			$tcuids[] = $tcu->tcuid;
-            
-			$k++;
-		}
-		foreach ($_POST['remove'] as $remove) {
-			$tcu = tcu_load($remove['tcuid']);
-			if ($tcu->trid == $trid) {
-				tcu_delete($tcu);
-				$k++;
+		if (!empty($_POST['remove'])) {
+			foreach ($_POST['remove'] as $remove) {
+				$tcu = tcu_load($remove['tcuid']);
+				if ($tcu->trid == $trid) {
+					tcu_delete($tcu);
+					$k++;
+				}
 			}
 		}
         
