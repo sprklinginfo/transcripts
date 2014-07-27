@@ -33,7 +33,7 @@ function transcripts_editor_flag_default_flags() {
 		'i18n' => 0,
 		'api_version' => 3,
 		'module' => 'transcripts_editor',
-		'status' => false,
+		'status' => true,
 		'import_roles' => 
 			array (
 				'flag' => 
@@ -85,48 +85,48 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
 	//should just return $element if not a transcript field
   
 	if (flag_get_flag('transcripts_dirty_transcript')) {
-	$item = $element['#value'];
-	$item['fid'] = $element['fid']['#value'];
-	$nid = $form['nid']['#value'];
-
-	$field = field_widget_field($element, $form_state);
-	$instance = field_widget_instance($element, $form_state);
-	$settings = $instance['widget']['settings'];
-
-	if (!$item['fid'] || !$nid) {
-		$message = "Upload a file to build an interactive transcript.";
-	}
-	else if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
-		$message = t("This transcript has been changed by online editing; it is no longer up to date.");
-		unset($element['remove_button']);
-	}
-	else {
-		$index_position = apachesolr_get_last_index_position(transcripts_environment(), 'node');
-		$max_changed = $index_position['last_changed'];
-		$max_nid = $index_position['last_entity_id'];
-		
-		$node = node_load($nid);
-		$file = file_load($item['fid']);
-		
-		//should confirm that this node type is really indexed
-		
-		//is it possible for an already existing file to be attached to a node?
-		if ($file->status == 0 || ($file->timestamp >= $max_changed && ($node->changed > $max_changed || ($node->changed == $max_changed && $nid > $max_nid)))) {
-			$message = t("This file will be used to build an interactive transcript.");
+		$item = $element['#value'];
+		$item['fid'] = $element['fid']['#value'];
+		$nid = $form['nid']['#value'];
+	
+		$field = field_widget_field($element, $form_state);
+		$instance = field_widget_instance($element, $form_state);
+		$settings = $instance['widget']['settings'];
+	
+		if (!$item['fid'] || !$nid) {
+			$message = "Upload a file to build an interactive transcript.";
+		}
+		else if (flag_get_flag('transcripts_dirty_transcript')->is_flagged($nid)) {
+			$message = t("This transcript has been changed by online editing; it is no longer up to date.");
+			unset($element['remove_button']);
 		}
 		else {
-			$message = t("This file was used to build an interactive transcript.");
+			$index_position = apachesolr_get_last_index_position(transcripts_environment(), 'node');
+			$max_changed = $index_position['last_changed'];
+			$max_nid = $index_position['last_entity_id'];
+			
+			$node = node_load($nid);
+			$file = file_load($item['fid']);
+			
+			//should confirm that this node type is really indexed
+			
+			//is it possible for an already existing file to be attached to a node?
+			if ($file->status == 0 || ($file->timestamp >= $max_changed && ($node->changed > $max_changed || ($node->changed == $max_changed && $nid > $max_nid)))) {
+				$message = t("This file will be used to build an interactive transcript.");
+			}
+			else {
+				$message = t("This file was used to build an interactive transcript.");
+			}
 		}
-	}
-
-	if ($item['fid'] && $nid && is_transcript_field($element['#field_name']) && transcripts_node_transcript_access($nid)) {
-		$element['transcripts_dirty_transcript_link'] = array(
-			'#prefix' => "<div class='transcripts_dirty_trancript_link form-item'>". $message ."<br/>",
-			'#markup' => flag_create_link('transcripts_dirty_transcript', $nid),
-			'#suffix' => "</div>",
-			'#weight' => -10,
-		);
-	}
+	
+		if ($item['fid'] && $nid && is_transcript_field($element['#field_name']) && transcripts_node_transcript_access($nid)) {
+			$element['transcripts_dirty_transcript_link'] = array(
+				'#prefix' => "<div class='transcripts_dirty_trancript_link form-item'>". $message ."<br/>",
+				'#markup' => flag_create_link('transcripts_dirty_transcript', $nid),
+				'#suffix' => "</div>",
+				'#weight' => -10,
+			);
+		}
 	}
 	return $element;
 }
