@@ -6,15 +6,16 @@
  */
 function transcripts_editor_flag_default_flags() {
 	$flags = array();
-	// Exported flag: "The transcript has been dirtied by online editing".
-	$flags['transcripts_dirty_transcript'] = array(
-		'content_type' => 'node',
+	//Exported flag: "Dirty transcript".
+	$flags['transcripts_dirty_transcript'] = array (
+		'entity_type' => 'node',
 		'title' => 'Dirty transcript',
 		'global' => '1',
-		'types' => array(
-			0 => 'audio',
-			1 => 'video',
-		),
+		'types' => 
+			array (
+				0 => 'audio',
+				1 => 'video',
+			),
 		'flag_short' => 'ADMIN Make dirty',
 		'flag_long' => 'ADMIN Make dirty',
 		'flag_message' => 'ADMIN Dirtied',
@@ -23,14 +24,6 @@ function transcripts_editor_flag_default_flags() {
 		'unflag_message' => 'The interactive transcript was rebuilt.',
 		'unflag_denied_text' => '',
 		'link_type' => 'normal',
-		'roles' => array(
-			'flag' => array(
-				0 => 2,
-			),
-			'unflag' => array(
-				0 => 2,
-			),
-		),
 		'weight' => 0,
 		'show_on_form' => 0,
 		'access_author' => '',
@@ -38,33 +31,28 @@ function transcripts_editor_flag_default_flags() {
 		'show_on_teaser' => 0,
 		'show_contextual_link' => 0,
 		'i18n' => 0,
-		'api_version' => 2,
+		'api_version' => 3,
+		'module' => 'transcripts_editor',
+		'status' => false,
+		'import_roles' => 
+			array (
+				'flag' => 
+					array (
+						0 => 2,
+					),
+				'unflag' => 
+					array (
+						0 => 2,
+					),
+			),
 	);
 	return $flags;
 }
 
-/**
- * Allow modules to allow or deny access to flagging.
- *
- * @param $flag
- *  The flag object.
- * @param $content_id
- *  The id of the entity in question.
- * @param $action
- *  The action to test. Either 'flag' or 'unflag'.
- * @param $account
- *  The user on whose behalf to test the flagging action.
- *
- * @return
- *   Boolean TRUE if the user is allowed to flag/unflag the given content.
- *   FALSE otherwise.
- *
- * @see flag_flag:access()
- */
-function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
+function transcripts_editor_flag_access($flag, $entity_id, $action, $account) {
 	if ($flag->name == 'transcripts_dirty_transcript') {
 		if ($action == 'unflag') {
-			return (node_access('update', $content_id) && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
+			return (node_access('update', $entity_id) && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
 		}
 		else {
 			return user_access('administer site configuration', $account) ? TRUE : FALSE; //only admin/debug flagging allowed
@@ -72,18 +60,18 @@ function transcripts_editor_flag_access($flag, $content_id, $action, $account) {
 	}
 }
 
-function transcripts_editor_flag($op, $flag, $content_id, $account, $fcid) {
-	if ($flag->name == 'transcripts_dirty_transcript' && $op == 'unflag') {
+function transcripts_editor_flag_unflag($flag, $entity_id, $account, $flagging) {
+	if ($flag->name == 'transcripts_dirty_transcript') {
 		$transcript = db_select('transcripts_transcript', 't')
 			->fields('t')
 			->condition('module', 'transcripts_node', '=')
 			->condition('type', 'node', '=')
-			->condition('id', $content_id, '=')
+			->condition('id', $entity_id, '=')
 			->execute()
 			->fetchObject();
             
-		transcripts_remove_transcript('transcripts_node', 'node', $content_id);
-		transcripts_node_add_transcript(file_load($transcript->fid), node_load($content_id));
+		transcripts_remove_transcript('transcripts_node', 'node', $entity_id);
+		transcripts_node_add_transcript(file_load($transcript->fid), node_load($entity_id));
 	}
 }
 
