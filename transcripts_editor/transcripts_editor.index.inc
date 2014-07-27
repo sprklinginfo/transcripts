@@ -71,8 +71,6 @@ function transcripts_editor_element_info() {
 }
 
 function transcripts_editor_file_field_process($element, &$form_state, $form) {
-	//should just return $element if not a transcript field
-  
 	if (flag_get_flag('transcripts_dirty_transcript')) {
 		$item = $element['#value'];
 		$item['fid'] = $element['fid']['#value'];
