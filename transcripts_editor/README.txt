@@ -8,11 +8,10 @@ with permissions to edit transcripts in-situ.
 INSTALLATION
 ------------
 
-Requires: Transcripts, Facet API and Facetapi Slider
+Requires: Transcripts, Transcripts Node, and Flag
 
 Install and enable the Transcripts Editor module as you would any other Drupal 
-module. Pinedrop uses a modified version of Facetapi Slider which fixes certain 
-problems with the version available from drupal.org.
+module.
 
 
 PERMISSIONS
@@ -46,36 +45,8 @@ leave the editor open and all changes will be saved.
 
 There is no 'undo' functionality. However, from the node edit page users with 
 the 'Abandon transcript changes' permission can click on a link that will 
-abandon all changes made online and regenerate tcus from the originally 
+abandon all changes made online and regenerate TCUs from the originally 
 uploaded transcript.
 
 
-CONFIGURING FACET BLOCKS
-------------------------
-
-To configure facets go to admin/config/search/apachesolr/settings, select a
-search environment and click on the 'Facets' link. 
-
-Using the Facet API module, you can limit facet queries to specific user roles. 
-Do this from the 'configure dependencies' page for the facet.
-
-Remember that enabled facets are displayed as blocks (admin/structure/block)
-
-
-  Duration
-    To add a facet for the "duration of the time-coded fragment", find the
-    'Duration' facet and click on 'configure display'. To facet on duration 
-    ranges (e.g. show me all sentences between 3 and 7 seconds in length), 
-    select the 'Slider' display widget and the 'numeric_range' query type.
-
-  Apache Solr Sorting
-    If you enable this facet, you will be able to sort transcript sentences 
-    by duration (ascending or descending) in addition to the built-in sorting 
-    options.
-
-
-VERSION HISTORY
----------------
-8 May 2013. Beta 0.3 released
-
-27 January 2012. Beta 0.2 released
+<< Last modified, 27 July 2014 >>

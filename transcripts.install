@@ -49,7 +49,7 @@ function transcripts_schema() {
 				'not null' => TRUE,
 			),
 			'fid' => array(
-				'description' => 'File ID.',
+				'description' => 'File ID',
 				'type' => 'int',
 				'unsigned' => TRUE,
 				'not null' => TRUE,

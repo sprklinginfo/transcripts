@@ -8,8 +8,8 @@
 					$('.transcript-player', context).once('editable').each(function() {
 						var $player = $(this);
 						var pid = $player.attr('id');
-						var eid = pid.substring(4);
-						var data = Drupal.settings['transcripts_editor_' + eid];
+						var trid = pid.substring(4);
+						var data = Drupal.settings['transcripts_editor_' + trid];
 						if (data.editable) {
 							var timer;
 							var autosave = function autosave() {
@@ -70,7 +70,8 @@
                                                     type: 'POST',
                                                     url: Drupal.settings.basePath + 'tcu/update',
                                                     data: {
-                                                        eid: eid,
+                                                    	nid: data.nid,
+                                                        trid: trid,
                                                         update: update,
                                                         insert: insert,
                                                         remove: remove

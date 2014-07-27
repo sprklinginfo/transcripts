@@ -3,5 +3,6 @@ description = Allows the online editing of individual transcripts to be disabled
 core = 7.x
 package = Pinedrop Transcripts
 dependencies[] = flag
+dependencies[] = transcripts_editor
 features[features_api][] = api:1
 features[flag][] = transcripts_editor_disable

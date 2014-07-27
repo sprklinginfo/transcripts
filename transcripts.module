@@ -271,49 +271,49 @@ function transcripts_profile_access_callback($profile) {
 }
 
 function transcripts_profile_load($pid) {
-  $profiles = transcripts_all_profiles();
-  return isset($profiles[$pid]) ? $profiles[$pid] : FALSE;
+	$profiles = transcripts_all_profiles();
+	return isset($profiles[$pid]) ? $profiles[$pid] : FALSE;
 }
 
 function transcripts_all_modes() {
-  $modes = array();
-  $hook = 'transcripts_info';
-  foreach (module_implements($hook) as $module) {
-    $function = $module.'_'.$hook;
-    $values = $function();
-    $modes[$module] = $values['name'];
-  }
-  return $modes;
+	$modes = array();
+	$hook = 'transcripts_info';
+	foreach (module_implements($hook) as $module) {
+		$function = $module.'_'.$hook;
+		$values = $function();
+		$modes[$module] = $values['name'];
+	}
+	return $modes;
 }
 
 /**
  * Implements hook_block_info().
  */
 function transcripts_block_info() {
-   $blocks=array();
-   $blocks['transcript_search'] = array(
-      'info' => 'Search Transcripts',
-      'custom' => FALSE,
-      );
-   return $blocks;
+	$blocks=array();
+	$blocks['transcript_search'] = array(
+		'info' => 'Search Transcripts',
+		'custom' => FALSE,
+	);
+	return $blocks;
 }
 
 function transcripts_block_view($delta) {
-   switch($delta) { 
-   case 'transcript_search':
-      $block['subject'] = 'Search Transcripts';
-      $block['content'] = transcript_search_form();
-      return $block;
-   }
+	switch($delta) { 
+	case 'transcript_search':
+		$block['subject'] = 'Search Transcripts';
+		$block['content'] = transcript_search_form();
+		return $block;
+	}
 }
    
 function transcript_search_form() {
-   module_load_include('inc','apachesolr','apachesolr_search.pages');
-   global $base_path;
-   $transcripts = apachesolr_search_page_load('transcripts');
-   $transcript_search_form = drupal_get_form('apachesolr_search_custom_page_search_form', $transcripts);
-   unset( $transcript_search_form['basic']['keys']['#title'] );
-   unset( $transcript_search_form['basic']['retain-filters'] );
-   $output = drupal_render($transcript_search_form);
-   return $output;
+	module_load_include('inc','apachesolr','apachesolr_search.pages');
+	global $base_path;
+	$transcripts = apachesolr_search_page_load('transcripts');
+	$transcript_search_form = drupal_get_form('apachesolr_search_custom_page_search_form', $transcripts);
+	unset( $transcript_search_form['basic']['keys']['#title'] );
+	unset( $transcript_search_form['basic']['retain-filters'] );
+	$output = drupal_render($transcript_search_form);
+	return $output;
 }

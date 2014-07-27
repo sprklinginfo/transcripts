@@ -12,4 +12,4 @@ Find the 'transcripts_editor_disable' flag and enable it for the content types
 that have transcripts. The flag will then appear under the transcript link on 
 the node edit form for those who have permissions to set the flag.
 
-<< Last updated, 8 May 2013 >>
+<< Last updated, 27 July 2014 >>

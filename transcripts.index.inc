@@ -18,8 +18,8 @@ function transcripts_already_indexed($module, $type, $id, $fid = NULL) {
 function transcripts_already_indexed_trid($module, $type, $id, $fid = NULL) {
 	$result = transcripts_already_indexed($module, $type, $id, $fid);
 	if ($result) {
-		$obj = $result->fetchAssoc();
-		return $obj['trid'];
+		$arr = $result->fetchAssoc();
+		return $arr['trid'];
 	}
 	else {
 		return FALSE;
