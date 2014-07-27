@@ -11,13 +11,14 @@ function transcripts_editor_disable_flag_default_flags() {
 	$flags = array();
 	//Exported flag: "Disable editing of transcript".
 	$flags['transcripts_editor_disable'] = array(
-		'content_type' => 'node',
+		'entity_type' => 'node',
 		'title' => 'Disable editing of transcript',
 		'global' => '1',
-		'types' => array(
-			0 => 'audio',
-			1 => 'video',
-		),
+		'types' => 
+			array (
+				0 => 'audio',
+				1 => 'video',
+			),
 		'flag_short' => 'Disable online editing of this transcript',
 		'flag_long' => 'You can re-enable transcript editing again later.',
 		'flag_message' => 'Online editing of this transcript has been disabled.',
@@ -26,14 +27,6 @@ function transcripts_editor_disable_flag_default_flags() {
 		'unflag_message' => 'Online editing of this transcript has been re-enabled.',
 		'unflag_denied_text' => 'The online editor for this transcript has been disabled.',
 		'link_type' => 'toggle',
-		'roles' => array(
-			'flag' => array(
-				0 => '3',
-			),
-			'unflag' => array(
-				0 => '3',
-			),
-		),
 		'weight' => 0,
 		'show_on_form' => 0,
 		'access_author' => '',
@@ -41,11 +34,13 @@ function transcripts_editor_disable_flag_default_flags() {
 		'show_on_teaser' => 0,
 		'show_contextual_link' => 0,
 		'i18n' => 0,
-		'api_version' => 2,
+		'api_version' => 3,
 		'module' => 'transcripts_editor_disable',
-		'locked' => array(
-			0 => 'name',
-		),
+		'locked' => 
+			array (
+				'name' => 'name',
+			),
+		'status' => true,
 	);
 	return $flags;
 }
