@@ -76,6 +76,9 @@ function transcripts_editor_flag_unflag($flag, $entity_id, $account, $flagging) 
 }
 
 function transcripts_editor_element_info() {
+	if (!flag_get_flag('transcripts_dirty_transcript')) {
+		watchdog("Transcripts Editor", "Flag is disabled.", NULL, WATCHDOG_WARNING);
+	}
 	$elements = array();
 	$elements['managed_file']['#process'] = array('transcripts_editor_file_field_process');
 	return $elements;
