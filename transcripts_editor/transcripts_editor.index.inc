@@ -75,13 +75,13 @@ function transcripts_editor_flag_unflag($flag, $entity_id, $account, $flagging) 
 	}
 }
 
-/*
 function transcripts_editor_element_info() {
 	$elements = array();
 	$elements['managed_file']['#process'] = array('transcripts_editor_file_field_process');
 	return $elements;
 }
 
+/*
 function transcripts_editor_file_field_process($element, &$form_state, $form) {
 	//should just return $element if not a transcript field
   
