@@ -34,17 +34,6 @@ function transcripts_editor_flag_default_flags() {
 		'api_version' => 3,
 		'module' => 'transcripts_editor',
 		'status' => true,
-		'import_roles' => 
-			array (
-				'flag' => 
-					array (
-						0 => 2,
-					),
-				'unflag' => 
-					array (
-						0 => 2,
-					),
-			),
 	);
 	return $flags;
 }

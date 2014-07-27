@@ -43,6 +43,9 @@ Changes are automatically saved to Drupal every ten seconds. So if you make
 a change don't immediately leave or refresh the page. In general you can just
 leave the editor open and all changes will be saved.
 
+Note that changes are sent to Solr only as often as indexing occurs. It may
+be useful to add a line to the server's crontab to run cron every 5 minutes.
+
 There is no 'undo' functionality. However, from the node edit page users with 
 the 'Abandon transcript changes' permission can click on a link that will 
 abandon all changes made online and regenerate TCUs from the originally 
