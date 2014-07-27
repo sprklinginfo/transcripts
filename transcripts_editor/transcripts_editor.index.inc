@@ -75,9 +75,7 @@ function transcripts_editor_flag_unflag($flag, $entity_id, $account, $flagging) 
 	}
 }
 
-/**
- * Implements hook_element_info().
- */
+/*
 function transcripts_editor_element_info() {
 	$elements = array();
 	$elements['managed_file']['#process'] = array('transcripts_editor_file_field_process');
@@ -132,3 +130,4 @@ function transcripts_editor_file_field_process($element, &$form_state, $form) {
 	
 	return $element;
 }
+*/
