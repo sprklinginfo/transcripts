@@ -52,7 +52,7 @@ function transcripts_editor_flag_default_flags() {
 function transcripts_editor_flag_access($flag, $entity_id, $action, $account) {
 	if ($flag->name == 'transcripts_dirty_transcript') {
 		if ($action == 'unflag') {
-			return (node_access('update', $entity_id) && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
+			return (node_access('update', node_load($entity_id)) && user_access('abandon transcript changes', $account)) ? TRUE : FALSE;
 		}
 		else {
 			return user_access('administer site configuration', $account) ? TRUE : FALSE; //only admin/debug flagging allowed
