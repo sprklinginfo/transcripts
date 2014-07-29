@@ -368,7 +368,7 @@ is to other properties or values in creating the effect */
 
 .triangle-border {
 	position:relative;
-	padding:10px; //EDGE - was 15px
+	padding:10px; /* EDGE - was 15px */
 	margin:1em 0 3em;
 	border:5px solid #075698;
 	color:#333;
@@ -384,14 +384,14 @@ is to other properties or values in creating the effect */
 ------------------------------------------ */
 
 .triangle-border.left-bottom, .triangle-border.left-top {
-	margin-left:20px; //EDGE - was 30px
+	margin-left:20px; /* EDGE - was 30px */
 }
 
 /* Variant : for right positioned triangle
 ------------------------------------------ */
 
 .triangle-border.right-bottom, .triangle-border.right-top {
-	margin-right:20px; //EDGE - was 30px
+	margin-right:20px; /* EDGE - was 30px */
 }
 
 /* THE TRIANGLE
